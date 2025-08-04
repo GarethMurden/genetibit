@@ -3,13 +3,7 @@ import json
 from PIL import Image
 from objects import Creature
 
-def breed(parent_a, parent_b):
-	print(parent_a.get_name())
-	print(json.dumps(parent_a.genes))
-
-	print(parent_b.get_name())
-	print(json.dumps(parent_b.genes))
-	
+def breed(parent_a, parent_b, child_count=4):	
 	output = Image.new('RGBA', (16 * 4, 16 * 4))
 
 	parent_a_sprite = Image.open(parent_a.get_sprite())
@@ -26,7 +20,7 @@ def breed(parent_a, parent_b):
 	)
 
 	children = []
-	for x in range(4):
+	for x in range(child_count):
 		gamete_a = parent_a.get_gamete()
 		gamete_b = parent_b.get_gamete()
 		child_genes = {
@@ -37,9 +31,7 @@ def breed(parent_a, parent_b):
 		}
 		child = Creature(
 			child_genes,
-			ancestors=[
-				[parent_a,gen_name(), parent_b.get_name()]
-			]
+			ancestors=build_ancestry(parent_a, parent_b)
 		)
 		child_sprite = Image.open(child.get_sprite())
 		output.paste(
@@ -49,7 +41,28 @@ def breed(parent_a, parent_b):
 		)
 		children.append(child)
 
+
+	print(f'{parent_a.get_name()} x {parent_b.get_name()}')
+	print(' '.join([c.get_name() for c in children]))
+
 	output.show()
 
 	return children
 
+def build_ancestry(parent_a, parent_b):
+	ancestry = [[f'{parent_a.get_name()}_{parent_a.get_colour()}', f'{parent_b.get_name()}_{parent_b.get_colour()}']]
+	ancestry_a = parent_a.ancestors
+	ancestry_b = parent_b.ancestors
+	for x in range(max([len(ancestry_a), len(ancestry_b)])):
+
+		generation = []
+		if x < len(ancestry_a):
+			generation.append(ancestry_a[x])
+		else:
+			generation.append([['unkown', 'unkown'] for y in range(x +1)])
+		if x < len(ancestry_b):
+			generation.append(ancestry_b[x])
+		else:
+			generation.append([['unkown', 'unkown'] for y in range(x +1)])
+		ancestry.append(generation)
+	return ancestry

@@ -49,8 +49,8 @@ def get_population():
 	creatures = []
 	if os.path.exists(POPULATION_FILE):
 		creature_data = load_json(POPULATION_FILE)
-		for genes in creature_data:
-			creatures.append(Creature(genes))
+		for entry in creature_data:
+			creatures.append(Creature(entry['genes'], entry['ancestry']))
 	else:
 		creatures = generate_starters()
 	return creatures
@@ -58,20 +58,30 @@ def get_population():
 def save_population(creatures):
 	creature_data = []
 	for creature in creatures:
-		creature_data.append(creature.get_genotype())
+		creature_data.append({'genes':creature.get_genotype(), 'ancestry':creature.ancestors})
 	save_json(creature_data, POPULATION_FILE)
 
 def main():
 	creatures = get_population()
-	breeding.breed(creatures[0], creatures[1])
+	creatures += breeding.breed(creatures[0], creatures[1], child_count=4)
 	save_population(creatures)
 
 
-	
-
-
-
-	
 
 if __name__ == '__main__':
 	main()
+
+	# a = Creature(
+	# 	{"head": ["se", "se"], "body": ["ko", "ko"], "legs": ["te", "te"], "colour": ["red", "red"]},
+	# 	ancestors=[['grandparent_a', 'grandparent_a']]
+	# )
+
+	# b = Creature(
+	# 	{"head": ["se", "sa"], "body": ["ko", "ko"], "legs": ["te", "chi"], "colour": ["red", "red"]},
+	# 	ancestors=[
+	# 		['grandparent_b', 'grandparent_b'],
+	# 		[['great_grandparent_b1', 'great_grandparent_b1'], ['great_grandparent_b2', 'great_grandparent_b2']]
+	# 	]
+	# )
+
+	# print(json.dumps(breeding.build_ancestry(a, b), indent=4))
