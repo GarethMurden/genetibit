@@ -35,13 +35,21 @@ def breed(parent_a, parent_b):
 			'legs':[gamete_a['legs'], gamete_b['legs']],
 			'colour':[gamete_a['colour'], gamete_b['colour']]
 		}
-		child = Creature(child_genes)
+		child = Creature(
+			child_genes,
+			ancestors=[
+				[parent_a,gen_name(), parent_b.get_name()]
+			]
+		)
 		child_sprite = Image.open(child.get_sprite())
 		output.paste(
 			child_sprite,
 			(child_sprite.width * x, child_sprite.height),
 			child_sprite
 		)
+		children.append(child)
 
 	output.show()
+
+	return children
 

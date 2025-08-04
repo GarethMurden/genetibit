@@ -6,7 +6,11 @@ dirname, _ = os.path.split(os.path.abspath(__file__))
 THIS_DIRECTORY = f'{dirname}{os.sep}'
 
 class Creature():
-	def __init__(self, genes, position=(0,0)):
+	def __init__(self, genes, ancestors=['unknown','unknown'], position=(0,0)):
+		self.ancestors = ancestors
+		# ancestors = [
+		# 	['sekote_blue', 'sakochi_blue']
+		# ]
 		self.genes = genes
 		# genes = {
 		# 	'head':['sa','sa'],
@@ -16,6 +20,14 @@ class Creature():
 		# }
 		self.x = position[0]
 		self.y = position[1]
+
+	def get_genotype(self):
+		return {
+			'head':sorted(self.genes['head']),
+			'body':sorted(self.genes['body']),
+			'legs':sorted(self.genes['legs']),
+			'colour':sorted(self.genes['colour'])
+		}
 
 	def get_phenotype(self):
 		return {
