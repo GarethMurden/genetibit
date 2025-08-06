@@ -4,6 +4,8 @@ Maintan a population of critters with realistic genetic inheritance and selectiv
 
 ## Gameplay
 
+`Work in progress`
+
 ### Selectively breed creatures to find interesting traits
 
 ![](https://github.com/GarethMurden/genetibit/blob/master/inheritance_example.png?raw=true)
@@ -26,3 +28,7 @@ Maintan a population of critters with realistic genetic inheritance and selectiv
 - Field background tileset from [Kevin's Mom's House](https://kevins-moms-house.itch.io/)
 - Sproutlands background tileset from [Cupnooble](https://cupnooble.itch.io/)
 - Farming & foraging tileset from [Otterisk](https://otterisk.itch.io/)
+
+## Resources 
+
+https://github.com/pimoroni/pimoroni-pico/tree/main/micropython/examples/pico_display
