@@ -23,6 +23,4 @@ Maintan a population of critters with realistic genetic inheritance and selectiv
 
 ## Credits
 
-- Field background tileset from [Kevin's Mom's House](https://kevins-moms-house.itch.io/)
-- Sproutlands background tileset from [Cupnooble](https://cupnooble.itch.io/)
-- Farming & foraging tileset from [Otterisk](https://otterisk.itch.io/)
+- Top down tileset from [Otterisk](https://otterisk.itch.io/)
