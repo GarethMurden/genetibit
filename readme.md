@@ -6,14 +6,17 @@ Maintan a population of critters with realistic genetic inheritance and selectiv
 
 `Work in progress`
 
+### See all your creatures in the field
+
+![](https://github.com/GarethMurden/genetibit/blob/master/screenshots/screenshot.png?raw=true)
+
+### View each creatures' stats
+
+![](https://github.com/GarethMurden/genetibit/blob/master/screenshots/creature_stats.png?raw=true)
+
 ### Selectively breed creatures to find interesting traits
 
-![](https://github.com/GarethMurden/genetibit/blob/master/inheritance_example.png?raw=true)
-
-### View your creatures in the field
-
-![](https://github.com/GarethMurden/genetibit/blob/master/screenshot.png?raw=true)
-
+![](https://github.com/GarethMurden/genetibit/blob/master/screenshots/inheritance_example.png?raw=true)
 
 ## Hardware
 
