@@ -51,7 +51,6 @@ class Layer_class():
             self.update_display(self.cursor['file'], self.cursor['position'])
         display.update()
 
-
     def update_display(self, filename, position):
         png.open_file(f"assets/{filename}.png")
         png.decode(position[0], position[1])
@@ -131,6 +130,10 @@ def screens():
                 screen_field(CURRENT_SCREEN['data'])
             if CURRENT_SCREEN['name'] == 'breeding':
                 screen_breeding(CURRENT_SCREEN['data'])
+            if CURRENT_SCREEN['name'] == 'market':
+                screen_market()
+            if CURRENT_SCREEN['name'] == 'settings':
+                screen_settings()
         Layers.show()
         time.sleep(0.2)
 
@@ -145,12 +148,30 @@ def screen_breeding(critter):
         'file':'updown',
         'position':(80, 0)
     }
-    
+
 def screen_field(field_level):
     print('field screen')
     Layers.background = {
         'file':f'field_{field_level}',
         'position':(0, 0)
+    }
+
+def screen_market():
+    print('market screen')
+    Layers.background = {
+        'file':'market',
+        'position':(0, 0)
+    }
+
+def screen_settings():
+    print('settings screen')
+    Layers.background = {
+        'file':'settings',
+        'position':(0, 0)
+    }
+    Layers.cursor = {
+        'file':'cursor',
+        'position':(140, 65) # (40, 65)
     }
 
 def main():

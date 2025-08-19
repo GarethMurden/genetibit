@@ -63,3 +63,4 @@ The `game.py` file runs as soon as it's imported so it can be triggered with the
 1. Acces the pico with `repl`
 2.  `import game` to run `game.py`
 
+(`Ctrl`+`X` to quit)
