@@ -35,3 +35,31 @@ Maintan a population of critters with realistic genetic inheritance and selectiv
 
 https://github.com/pimoroni/pimoroni-pico/tree/main/micropython/examples/pico_display
 
+# Notes on `rshell`
+
+## Connect
+
+As an alternative to Thonny, `rshell` can be used to flash the Pico from the terminal.
+
+https://www.martinfitzpatrick.dev/using-micropython-raspberry-pico/
+
+1. Connect the Pico & determine it's COM port (e.g. via Windows device manager)
+2. Start rshell with `rshell`
+3. Check if the board's auto-connected with `boards`
+4. If not, connect with `connect serial COM<port>`
+
+### Upload
+
+`rshell` treats the Pico as a virtual folder, files can be copied to it like so:
+
+`cp <source> /pyboard/<destination>`
+
+Where `<source>` is a path on the PC and `<destination>` is on the Pico's filesystem.
+
+### Run
+
+The `game.py` file runs as soon as it's imported so it can be triggered with the following steps:
+
+1. Acces the pico with `repl`
+2.  `import game` to run `game.py`
+
