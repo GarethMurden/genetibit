@@ -19,24 +19,32 @@ BG = display.create_pen(200, 200, 200)
 display.set_pen(BG)
 display.clear()
 
-CURRENT_SCREEN = {
-    'name':'field',
-    'data':0
+CURRENT_SCREEN = 'field'
+DATA = {
+    'field':{
+        'level':0
+    },
+    'settings':{
+        'cursor_index':0,
+        'brightness':0.6
+    }
 }
 
 class Layer_class():
-    background = {'file':'field', 'position':(0,0)}
-    bottom     = None
-    middle     = None
-    top        = None
-    cursor     = None
+    background  = {'file':'field', 'position':(0,0)}
+    bottom      = None
+    middle      = None
+    top         = None
+    cursor      = None
+    menu_cursor = None
     
     def clear_all(self):
-        self.background = None
-        self.bottom = None
-        self.middle = None
-        self.top = None
-        self.cursor = None
+        self.background  = None
+        self.bottom      = None
+        self.middle      = None
+        self.top         = None
+        self.cursor      = None
+        self.menu_cursor = None
 
     def show(self):
         if self.background is not None:
@@ -49,6 +57,8 @@ class Layer_class():
             self.update_display(self.top['file'], self.top['position'])
         if self.cursor is not None:
             self.update_display(self.cursor['file'], self.cursor['position'])
+        if self.menu_cursor is not None:
+            self.update_display(self.menu_cursor['file'], self.menu_cursor['position'])
         display.update()
 
     def update_display(self, filename, position):
@@ -71,19 +81,20 @@ def menu():
                 print('open menu')
                 Layers.top = {'file':'menu', 'position':(256, 0)}
                 menu_open = True
-                menu_move_cursor(0)
+                menu_cursor_position = 0
+                menu_move_cursor(menu_cursor_position)
                 
         elif menu_open:
             if button_x.value() == 0:
                 print('close menu')
                 Layers.top = None
-                Layers.cursor = None
+                Layers.menu_cursor = None
                 menu_open = False
 
             if button_y.value() == 0:
                 new_screen = menu_options[menu_cursor_position]
                 print(f'moving to "{new_screen}" screen')
-                CURRENT_SCREEN['name'] = new_screen
+                CURRENT_SCREEN = new_screen
                 menu_open = False
 
             if button_a.value() == 0:
@@ -111,7 +122,7 @@ def menu_move_cursor(position):
         move_to = cursor_positions[position]
     else:
         move_to = cursor_positions[0]
-    Layers.cursor = {
+    Layers.menu_cursor = {
         'file':'selector',
         'position':(
             cursor_positions[position][0],
@@ -121,25 +132,25 @@ def menu_move_cursor(position):
     return position
 
 def screens():
+    global CURRENT_SCREEN
     previous_screen_name = ''
     while True:
-        if CURRENT_SCREEN['name'] != previous_screen_name:
-            previous_screen_name = CURRENT_SCREEN['name']
+        if CURRENT_SCREEN != previous_screen_name:
+            previous_screen_name = CURRENT_SCREEN
             Layers.clear_all()
-            if CURRENT_SCREEN['name'] == 'field':
-                screen_field(CURRENT_SCREEN['data'])
-            if CURRENT_SCREEN['name'] == 'breeding':
-                screen_breeding(CURRENT_SCREEN['data'])
-            if CURRENT_SCREEN['name'] == 'market':
-                screen_market()
-            if CURRENT_SCREEN['name'] == 'settings':
-                screen_settings()
+        if CURRENT_SCREEN == 'field':
+            screen_field()
+        if CURRENT_SCREEN == 'breeding':
+            screen_breeding()
+        if CURRENT_SCREEN == 'market':
+            screen_market()
+        if CURRENT_SCREEN == 'settings':
+            screen_settings()
         Layers.show()
         time.sleep(0.2)
 
 
-def screen_breeding(critter):
-    print('breeding screen')
+def screen_breeding():
     Layers.background = {
         'file':'breeding',
         'position':(0, 0)
@@ -149,33 +160,57 @@ def screen_breeding(critter):
         'position':(80, 0)
     }
 
-def screen_field(field_level):
-    print('field screen')
+def screen_field():
     Layers.background = {
-        'file':f'field_{field_level}',
+        'file':f'field_{DATA["field"]["level"]}',
         'position':(0, 0)
     }
 
 def screen_market():
-    print('market screen')
     Layers.background = {
         'file':'market',
         'position':(0, 0)
     }
 
 def screen_settings():
-    print('settings screen')
+    global DATA
+    cursor_positions = [
+        ( 40, 65),
+        (140, 65)
+    ]
+    if button_a.value() == 0:
+        DATA['settings']['cursor_index'] = 0
+    if button_b.value() == 0:
+        DATA['settings']['cursor_index'] = 1
+    if button_y.value() == 0:
+        if DATA['settings']['cursor_index'] == 1:
+            DATA['settings']['brightness'] = min([
+                DATA['settings']['brightness'] + 0.2,
+                1.0
+            ])
+            display.set_backlight(DATA['settings']['brightness'])
+        else:
+            DATA['settings']['brightness'] = max([
+                DATA['settings']['brightness'] - 0.2,
+                0.2
+            ])
+            display.set_backlight(DATA['settings']['brightness'])
     Layers.background = {
         'file':'settings',
         'position':(0, 0)
     }
+    Layers.bottom = {
+        'file':f"settings_brightness{DATA['settings']['brightness']}",
+        'position':(0, 0)
+    }
     Layers.cursor = {
         'file':'cursor',
-        'position':(140, 65) # (40, 65)
+        'position':cursor_positions[DATA['settings']['cursor_index']]
     }
 
+
 def main():
-    screen_thread = _thread.start_new_thread(screens, ())
+    screen_switch_thread = _thread.start_new_thread(screens, ())
     menu()
 
 
