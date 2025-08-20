@@ -4,8 +4,11 @@ from machine import Pin
 import os
 from picographics import PicoGraphics, DISPLAY_PICO_DISPLAY_2, PEN_RGB332
 import pngdec
+import random
 import time
 import _thread
+
+import critters
 
 button_a = Pin(12, Pin.IN, Pin.PULL_UP)
 button_b = Pin(13, Pin.IN, Pin.PULL_UP)
@@ -34,11 +37,12 @@ DATA = {
         'brightness':0.6
     }
 }
+POPULATION = []
 
 class Layer_class():
     background  = {'file':'field', 'position':(0,0)}
     bottom      = None
-    middle      = None
+    middle      = None # multiple overlappnig images allowed
     top         = None
     cursor      = None
     menu_cursor = None
@@ -57,7 +61,8 @@ class Layer_class():
         if self.bottom is not None:
             self.update_display(self.bottom['file'], self.bottom['position'])
         if self.middle is not None:
-            self.update_display(self.middle['file'], self.middle['position'])
+            for image in self.middle:
+                self.update_display(image['file'], image['position'])
         if self.top is not None:
             self.update_display(self.top['file'], self.top['position'])
         if self.cursor is not None:
@@ -74,6 +79,7 @@ def data_load():
     global DATA
     save_file = 'data.json'
     if not file_exits(save_file):
+        DATA['critters'] += critters.generate_starters()
         data_save()
     with open(save_file, 'r', encoding='utf-8') as f:
         DATA = json.loads(f.read())
@@ -185,6 +191,26 @@ def screen_breeding():
     }
 
 def screen_field():
+    global POPULATION
+    if len(POPULATION) == 0:
+        for critter_data in DATA['critters']:
+            POPULATION.append(critters.Critter(
+                critter_data['genes'],
+                critter_data['ancestors'],
+                position=(
+                    random.randint(10,310),
+                    random.randint(10, 410)
+                )
+            ))
+    Layers.middle = []
+    if not MENU_OPEN:
+        for critter in POPULATION:
+            if random.choice([True, True, False]):
+                critter.move()
+            Layers.middle.append({
+                'file':critter.get_sprite(),
+                'position':critter.get_position()
+            })
     Layers.background = {
         'file':f'field_{DATA["field"]["level"]}',
         'position':(0, 0)

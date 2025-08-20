@@ -35,6 +35,12 @@ Maintan a population of critters with realistic genetic inheritance and selectiv
 
 https://github.com/pimoroni/pimoroni-pico/tree/main/micropython/examples/pico_display
 
+# To do next
+
+- Draw critters
+- Generate first critter generation on new game start
+
+
 # Notes on `rshell`
 
 ## Connect
