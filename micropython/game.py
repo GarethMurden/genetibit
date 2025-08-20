@@ -104,7 +104,14 @@ def menu():
         'settings'
     ]
     menu_cursor_position = 0
+    counter = 0
     while True:
+        counter += 1
+        if counter % 1000 == 0:
+            counter = 0
+            print('saving data')
+            data_save()
+            print('save complete')
         if not MENU_OPEN:
             if button_x.value() == 0:
                 print('open menu')
@@ -112,7 +119,7 @@ def menu():
                 MENU_OPEN = True
                 menu_cursor_position = 0
                 menu_move_cursor(menu_cursor_position)
-                data_save()
+                
                 
         elif MENU_OPEN:
             if button_x.value() == 0:
@@ -192,25 +199,26 @@ def screen_breeding():
 
 def screen_field():
     global POPULATION
-    if len(POPULATION) == 0:
+    if len(POPULATION) < len(DATA['critters']):
         for critter_data in DATA['critters']:
             POPULATION.append(critters.Critter(
                 critter_data['genes'],
                 critter_data['ancestors'],
                 position=(
-                    random.randint(10,310),
-                    random.randint(10, 410)
+                    random.randint(10, 310),
+                    random.randint(10, 240)
                 )
             ))
     Layers.middle = []
-    if not MENU_OPEN:
-        for critter in POPULATION:
+    
+    for critter in POPULATION:
+        if not MENU_OPEN:
             if random.choice([True, True, False]):
                 critter.move()
-            Layers.middle.append({
-                'file':critter.get_sprite(),
-                'position':critter.get_position()
-            })
+        Layers.middle.append({
+            'file':critter.get_sprite(),
+            'position':critter.get_position()
+        })
     Layers.background = {
         'file':f'field_{DATA["field"]["level"]}',
         'position':(0, 0)
