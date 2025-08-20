@@ -37,8 +37,13 @@ https://github.com/pimoroni/pimoroni-pico/tree/main/micropython/examples/pico_di
 
 # To do next
 
-- Draw critters
-- Generate first critter generation on new game start
+## Features
+
+- Breeding UI using population critters
+
+## Fixes
+
+- `data_save()` sometimes fails to complete
 
 
 # Notes on `rshell`

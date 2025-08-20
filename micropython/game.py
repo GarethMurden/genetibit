@@ -104,14 +104,7 @@ def menu():
         'settings'
     ]
     menu_cursor_position = 0
-    counter = 0
     while True:
-        counter += 1
-        if counter % 1000 == 0:
-            counter = 0
-            print('saving data')
-            data_save()
-            print('save complete')
         if not MENU_OPEN:
             if button_x.value() == 0:
                 print('open menu')
@@ -171,7 +164,15 @@ def menu_move_cursor(position):
 def screens():
     global CURRENT_SCREEN
     previous_screen_name = ''
+    counter = 0
     while True:
+        counter += 1
+        if counter % 1000 == 0:
+            counter = 0
+            print('saving data')
+            data_save()
+            print('save complete')
+            
         if CURRENT_SCREEN != previous_screen_name:
             previous_screen_name = CURRENT_SCREEN
             Layers.clear_all()
