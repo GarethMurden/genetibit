@@ -26,7 +26,11 @@ display.clear()
 MENU_OPEN = False
 CURRENT_SCREEN = 'field'
 DATA = {
-    'breeding':{},
+    'breeding':{
+        'cursor_index':0,
+        'left_critter_index':0,
+        'right_critter_index':1
+    },
     'critters':[],
     'field':{
         'level':0
@@ -57,23 +61,24 @@ class Layer_class():
 
     def show(self):
         if self.background is not None:
-            self.update_display(self.background['file'], self.background['position'])
+            self.update_display(self.background['file'], self.background['position'], self.background.get('scale', 1))
         if self.bottom is not None:
-            self.update_display(self.bottom['file'], self.bottom['position'])
+            self.update_display(self.bottom['file'], self.bottom['position'], self.bottom.get('scale', 1))
         if self.middle is not None:
             for image in self.middle:
-                self.update_display(image['file'], image['position'])
+                self.update_display(image['file'], image['position'], image.get('scale', 1))
         if self.top is not None:
-            self.update_display(self.top['file'], self.top['position'])
+            self.update_display(self.top['file'], self.top['position'], self.top.get('scale', 1))
         if self.cursor is not None:
-            self.update_display(self.cursor['file'], self.cursor['position'])
+            self.update_display(self.cursor['file'], self.cursor['position'], self.cursor.get('scale', 1))
         if self.menu_cursor is not None:
-            self.update_display(self.menu_cursor['file'], self.menu_cursor['position'])
+            self.update_display(self.menu_cursor['file'], self.menu_cursor['position'], self.menu_cursor.get('scale', 1))
         display.update()
 
-    def update_display(self, filename, position):
+    def update_display(self, filename, position, scale=1):
         png.open_file(f"assets/{filename}.png")
-        png.decode(position[0], position[1])
+        png.decode(position[0], position[1], scale=scale)
+
 
 def data_load():
     global DATA
@@ -112,8 +117,7 @@ def menu():
                 MENU_OPEN = True
                 menu_cursor_position = 0
                 menu_move_cursor(menu_cursor_position)
-                
-                
+
         elif MENU_OPEN:
             if button_x.value() == 0:
                 print('close menu')
@@ -167,12 +171,12 @@ def screens():
     counter = 0
     while True:
         counter += 1
-        if counter % 1000 == 0:
+        if counter % 100 == 0:
             counter = 0
             print('saving data')
             data_save()
             print('save complete')
-            
+
         if CURRENT_SCREEN != previous_screen_name:
             previous_screen_name = CURRENT_SCREEN
             Layers.clear_all()
@@ -187,15 +191,52 @@ def screens():
         Layers.show()
         time.sleep(0.2)
 
-
 def screen_breeding():
+    global DATA
+
+    if not MENU_OPEN:
+        if DATA['breeding']['cursor_index'] == 0:
+            if button_a.value() == 0:
+                DATA['breeding']['left_critter_index'] -= 1
+                if DATA['breeding']['left_critter_index'] < 0:
+                    DATA['breeding']['left_critter_index'] = len(POPULATION) -1
+            if button_b.value() == 0:
+                DATA['breeding']['left_critter_index'] += 1
+                if DATA['breeding']['left_critter_index'] >= len(POPULATION):
+                    DATA['breeding']['left_critter_index'] = 0
+            if button_y.value() == 0:
+                DATA['breeding']['cursor_index'] = 1
+        else:
+            if button_a.value() == 0:
+                DATA['breeding']['right_critter_index'] -= 1
+                if DATA['breeding']['right_critter_index'] == DATA['breeding']['left_critter_index']: # can't have the same on L & R
+                    DATA['breeding']['right_critter_index'] -= 1
+                if DATA['breeding']['right_critter_index'] < 0:
+                    DATA['breeding']['right_critter_index'] = len(POPULATION) -1
+            if button_b.value() == 0:
+                DATA['breeding']['right_critter_index'] += 1
+                if DATA['breeding']['right_critter_index'] == DATA['breeding']['left_critter_index']: # can't have the same on L & R
+                    DATA['breeding']['right_critter_index'] += 1
+                if DATA['breeding']['right_critter_index'] >= len(POPULATION):
+                    DATA['breeding']['right_critter_index'] = 0
+
     Layers.background = {
         'file':'breeding',
         'position':(0, 0)
     }
+    Layers.bottom = {
+        'file':POPULATION[DATA['breeding']['left_critter_index']].get_sprite(),
+        'position':(35, 65),
+        'scale':6
+    }
+    Layers.top = {
+        'file':POPULATION[DATA['breeding']['right_critter_index']].get_sprite(),
+        'position':(200, 65),
+        'scale':6
+    }
     Layers.cursor = {
         'file':'updown',
-        'position':(80, 0)
+        'position':(70, 20)
     }
 
 def screen_field():
@@ -218,7 +259,8 @@ def screen_field():
                 critter.move()
         Layers.middle.append({
             'file':critter.get_sprite(),
-            'position':critter.get_position()
+            'position':critter.get_position(),
+            'scale':2
         })
     Layers.background = {
         'file':f'field_{DATA["field"]["level"]}',
