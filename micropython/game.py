@@ -1,5 +1,7 @@
 
+import json
 from machine import Pin
+import os
 from picographics import PicoGraphics, DISPLAY_PICO_DISPLAY_2, PEN_RGB332
 import pngdec
 import time
@@ -11,7 +13,6 @@ button_x = Pin(14, Pin.IN, Pin.PULL_UP)
 button_y = Pin(15, Pin.IN, Pin.PULL_UP)
 
 display = PicoGraphics(display=DISPLAY_PICO_DISPLAY_2, pen_type=PEN_RGB332)
-display.set_backlight(0.75)
 
 png = pngdec.PNG(display)
 
@@ -19,11 +20,15 @@ BG = display.create_pen(200, 200, 200)
 display.set_pen(BG)
 display.clear()
 
+MENU_OPEN = False
 CURRENT_SCREEN = 'field'
 DATA = {
+    'breeding':{},
+    'critters':[],
     'field':{
         'level':0
     },
+    'market':{},
     'settings':{
         'cursor_index':0,
         'brightness':0.6
@@ -65,8 +70,27 @@ class Layer_class():
         png.open_file(f"assets/{filename}.png")
         png.decode(position[0], position[1])
 
+def data_load():
+    global DATA
+    save_file = 'data.json'
+    if not file_exits(save_file):
+        data_save()
+    with open(save_file, 'r', encoding='utf-8') as f:
+        DATA = json.loads(f.read())
+
+def data_save():
+    with open('data.json', 'w', encoding='utf-8') as f:
+        f.write(json.dumps(DATA))
+
+def file_exits(filename):
+    try:
+        with open(filename, 'r'):
+            return True
+    except OSError:
+        return False
+
 def menu():
-    global CURRENT_SCREEN
+    global CURRENT_SCREEN, MENU_OPEN
     menu_options = [
         'field',
         'breeding',
@@ -74,28 +98,28 @@ def menu():
         'settings'
     ]
     menu_cursor_position = 0
-    menu_open = False
     while True:
-        if not menu_open:
+        if not MENU_OPEN:
             if button_x.value() == 0:
                 print('open menu')
                 Layers.top = {'file':'menu', 'position':(256, 0)}
-                menu_open = True
+                MENU_OPEN = True
                 menu_cursor_position = 0
                 menu_move_cursor(menu_cursor_position)
+                data_save()
                 
-        elif menu_open:
+        elif MENU_OPEN:
             if button_x.value() == 0:
                 print('close menu')
                 Layers.top = None
                 Layers.menu_cursor = None
-                menu_open = False
+                MENU_OPEN = False
 
             if button_y.value() == 0:
                 new_screen = menu_options[menu_cursor_position]
                 print(f'moving to "{new_screen}" screen')
                 CURRENT_SCREEN = new_screen
-                menu_open = False
+                MENU_OPEN = False
 
             if button_a.value() == 0:
                 menu_cursor_position = menu_move_cursor(menu_cursor_position - 1)
@@ -178,23 +202,24 @@ def screen_settings():
         ( 40, 65),
         (140, 65)
     ]
-    if button_a.value() == 0:
-        DATA['settings']['cursor_index'] = 0
-    if button_b.value() == 0:
-        DATA['settings']['cursor_index'] = 1
-    if button_y.value() == 0:
-        if DATA['settings']['cursor_index'] == 1:
-            DATA['settings']['brightness'] = min([
-                DATA['settings']['brightness'] + 0.2,
-                1.0
-            ])
-            display.set_backlight(DATA['settings']['brightness'])
-        else:
-            DATA['settings']['brightness'] = max([
-                DATA['settings']['brightness'] - 0.2,
-                0.2
-            ])
-            display.set_backlight(DATA['settings']['brightness'])
+    if not MENU_OPEN:
+        if button_a.value() == 0:
+            DATA['settings']['cursor_index'] = 0
+        if button_b.value() == 0:
+            DATA['settings']['cursor_index'] = 1
+        if button_y.value() == 0:
+            if DATA['settings']['cursor_index'] == 1:
+                DATA['settings']['brightness'] = min([
+                    DATA['settings']['brightness'] + 0.2,
+                    1.0
+                ])
+                display.set_backlight(DATA['settings']['brightness'])
+            else:
+                DATA['settings']['brightness'] = max([
+                    DATA['settings']['brightness'] - 0.2,
+                    0.2
+                ])
+                display.set_backlight(DATA['settings']['brightness'])
     Layers.background = {
         'file':'settings',
         'position':(0, 0)
@@ -208,18 +233,12 @@ def screen_settings():
         'position':cursor_positions[DATA['settings']['cursor_index']]
     }
 
-
 def main():
+    data_load()
+    display.set_backlight(DATA['settings']['brightness'])
     screen_switch_thread = _thread.start_new_thread(screens, ())
     menu()
 
-
 Layers = Layer_class()
 main()
-
-
-
-
-
-
 
