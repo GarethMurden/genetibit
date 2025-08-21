@@ -10,9 +10,13 @@ Maintan a population of critters with realistic genetic inheritance and selectiv
 
 ![](https://github.com/GarethMurden/genetibit/blob/master/screenshots/screenshot.png?raw=true)
 
+![](https://github.com/GarethMurden/genetibit/blob/master/screenshots/movement_demo.gif?raw=true)
+
 ### View each creatures' stats
 
 ![](https://github.com/GarethMurden/genetibit/blob/master/screenshots/creature_stats.png?raw=true)
+
+![](https://github.com/GarethMurden/genetibit/blob/master/screenshots/screen_change.gif?raw=true)
 
 ### Selectively breed creatures to find interesting traits
 
