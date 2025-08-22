@@ -82,7 +82,13 @@ class Layer_class():
         png.open_file(f"assets/{filename}.png")
         png.decode(position[0], position[1], scale=scale)
 
-
+def data_clear_screen():
+    '''clear cached data only needed while screen open'''
+    global DATA
+    DATA['breeding']['cursor_index'] = 0
+    DATA['breeding']['left_critter_index'] = 0
+    DATA['breeding']['right_critter_index'] = 1
+    
 def data_load():
     global DATA
     save_file = 'data.json'
@@ -140,7 +146,7 @@ def menu():
             if button_b.value() == 0:
                 menu_cursor_position = menu_move_cursor(menu_cursor_position + 1)
         
-        time.sleep(0.2)
+        time.sleep(0.25)
     
 def menu_move_cursor(position):
     cursor_positions = [
@@ -183,6 +189,7 @@ def screens():
         if CURRENT_SCREEN != previous_screen_name:
             previous_screen_name = CURRENT_SCREEN
             Layers.clear_all()
+            data_clear_screen()
         if CURRENT_SCREEN == 'field':
             screen_field()
         if CURRENT_SCREEN == 'breeding':
@@ -239,12 +246,11 @@ def screen_breeding():
 
 
     # TODO
-    # - reset DATA['breeding'] when leaving breeding screen via menu
     # - breeding sequence
     #   - breeding animation
     #   - generate offspring
     #   - show offspring
-    #   - reset DATA['breeding']
+    #   - reset DATA['breeding'] & return to field screen
 
 
     anything_changed = False
@@ -257,11 +263,11 @@ def screen_breeding():
         'position':(35, 65),
         'scale':6
     }
-    Layers.top = {
+    Layers.middle = [{
         'file':POPULATION[DATA['breeding']['right_critter_index']].get_sprite(),
         'position':(190, 65),
         'scale':6
-    }
+    }]
     led.set_rgb(0, 0, 0)
     
 
