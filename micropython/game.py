@@ -3,6 +3,7 @@ import json
 from machine import Pin
 import os
 from picographics import PicoGraphics, DISPLAY_PICO_DISPLAY_2, PEN_RGB332
+from pimoroni import RGBLED
 import pngdec
 import random
 import time
@@ -15,6 +16,8 @@ button_b = Pin(13, Pin.IN, Pin.PULL_UP)
 button_x = Pin(14, Pin.IN, Pin.PULL_UP)
 button_y = Pin(15, Pin.IN, Pin.PULL_UP)
 
+led = RGBLED(26, 27, 28)
+
 display = PicoGraphics(display=DISPLAY_PICO_DISPLAY_2, pen_type=PEN_RGB332)
 
 png = pngdec.PNG(display)
@@ -24,7 +27,7 @@ display.set_pen(BG)
 display.clear()
 
 MENU_OPEN = False
-CURRENT_SCREEN = 'field'
+CURRENT_SCREEN = 'breeding'
 DATA = {
     'breeding':{
         'cursor_index':0,
@@ -196,30 +199,55 @@ def screen_breeding():
 
     if not MENU_OPEN:
         if DATA['breeding']['cursor_index'] == 0:
+            Layers.cursor = {
+                'file':'updown',
+                'position':(75, 45)
+            }
             if button_a.value() == 0:
+                led.set_rgb(0, 50, 0)
                 DATA['breeding']['left_critter_index'] -= 1
                 if DATA['breeding']['left_critter_index'] < 0:
                     DATA['breeding']['left_critter_index'] = len(POPULATION) -1
             if button_b.value() == 0:
+                led.set_rgb(0, 50, 0)
                 DATA['breeding']['left_critter_index'] += 1
                 if DATA['breeding']['left_critter_index'] >= len(POPULATION):
                     DATA['breeding']['left_critter_index'] = 0
             if button_y.value() == 0:
+                led.set_rgb(0, 50, 0)
                 DATA['breeding']['cursor_index'] = 1
+
         else:
+            Layers.cursor = {
+                'file':'updown',
+                'position':(235, 45)
+            }
             if button_a.value() == 0:
+                led.set_rgb(0, 50, 0)
                 DATA['breeding']['right_critter_index'] -= 1
                 if DATA['breeding']['right_critter_index'] == DATA['breeding']['left_critter_index']: # can't have the same on L & R
                     DATA['breeding']['right_critter_index'] -= 1
                 if DATA['breeding']['right_critter_index'] < 0:
                     DATA['breeding']['right_critter_index'] = len(POPULATION) -1
             if button_b.value() == 0:
+                led.set_rgb(0, 50, 0)
                 DATA['breeding']['right_critter_index'] += 1
                 if DATA['breeding']['right_critter_index'] == DATA['breeding']['left_critter_index']: # can't have the same on L & R
                     DATA['breeding']['right_critter_index'] += 1
                 if DATA['breeding']['right_critter_index'] >= len(POPULATION):
                     DATA['breeding']['right_critter_index'] = 0
 
+
+    # TODO
+    # - reset DATA['breeding'] when leaving breeding screen via menu
+    # - breeding sequence
+    #   - breeding animation
+    #   - generate offspring
+    #   - show offspring
+    #   - reset DATA['breeding']
+
+
+    anything_changed = False
     Layers.background = {
         'file':'breeding',
         'position':(0, 0)
@@ -231,28 +259,15 @@ def screen_breeding():
     }
     Layers.top = {
         'file':POPULATION[DATA['breeding']['right_critter_index']].get_sprite(),
-        'position':(200, 65),
+        'position':(190, 65),
         'scale':6
     }
-    Layers.cursor = {
-        'file':'updown',
-        'position':(70, 20)
-    }
+    led.set_rgb(0, 0, 0)
+    
 
 def screen_field():
     global POPULATION
-    if len(POPULATION) < len(DATA['critters']):
-        for critter_data in DATA['critters']:
-            POPULATION.append(critters.Critter(
-                critter_data['genes'],
-                critter_data['ancestors'],
-                position=(
-                    random.randint(10, 310),
-                    random.randint(10, 240)
-                )
-            ))
     Layers.middle = []
-    
     for critter in POPULATION:
         if not MENU_OPEN:
             if random.choice([True, True, False]):
@@ -311,8 +326,20 @@ def screen_settings():
     }
 
 def main():
+    global POPULATION
     data_load()
     display.set_backlight(DATA['settings']['brightness'])
+
+    if len(POPULATION) < len(DATA['critters']):
+        for critter_data in DATA['critters']:
+            POPULATION.append(critters.Critter(
+                critter_data['genes'],
+                critter_data['ancestors'],
+                position=(
+                    random.randint(10, 310),
+                    random.randint(10, 240)
+                )
+            ))
     screen_switch_thread = _thread.start_new_thread(screens, ())
     menu()
 
