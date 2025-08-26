@@ -260,13 +260,13 @@ def screen_breeding():
     }
     Layers.bottom = {
         'file':POPULATION[DATA['breeding']['left_critter_index']].get_sprite(),
-        'position':(35, 65),
-        'scale':6
+        'position':(15, 65),
+        'scale':4
     }
     Layers.middle = [{
         'file':POPULATION[DATA['breeding']['right_critter_index']].get_sprite(),
-        'position':(190, 65),
-        'scale':6
+        'position':(175, 65),
+        'scale':4
     }]
     led.set_rgb(0, 0, 0)
     
