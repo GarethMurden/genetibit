@@ -86,8 +86,7 @@ def data_clear_screen():
     '''clear cached data only needed while screen open'''
     global DATA
     DATA['breeding']['cursor_index'] = 0
-    DATA['breeding']['left_critter_index'] = 0
-    DATA['breeding']['right_critter_index'] = 1
+
     
 def data_load():
     global DATA
@@ -302,9 +301,6 @@ def screen_breeding():
 
 def screen_breeding_result():
     global DATA
-    # TODO
-    #   - show offspring
-    #   - reset DATA['breeding'] & return to field screen
 
     mother = POPULATION[DATA['breeding']['left_critter_index']]
     father = POPULATION[DATA['breeding']['right_critter_index']]
@@ -349,6 +345,8 @@ def screen_breeding_result():
 
     # TODO
     #   - sell some offspring
+    #   - add remaining ones to POPULATION
+    #   - reset DATA['breeding'] & return to field screen
 
 
 def screen_field():
