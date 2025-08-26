@@ -121,7 +121,8 @@ def menu():
     while True:
         if not MENU_OPEN:
             if button_x.value() == 0:
-                print('open menu')
+                led.set_rgb(0, 50, 0)
+                print('[ DEBUG ]: open menu')
                 Layers.top = {'file':'menu', 'position':(256, 0)}
                 MENU_OPEN = True
                 menu_cursor_position = 0
@@ -129,24 +130,29 @@ def menu():
 
         elif MENU_OPEN:
             if button_x.value() == 0:
-                print('close menu')
+                led.set_rgb(0, 50, 0)
+                print('[ DEBUG ]: close menu')
                 Layers.top = None
                 Layers.menu_cursor = None
                 MENU_OPEN = False
 
             if button_y.value() == 0:
+                led.set_rgb(0, 50, 0)
                 new_screen = menu_options[menu_cursor_position]
-                print(f'moving to "{new_screen}" screen')
+                print(f'[ DEBUG ]: moving to "{new_screen}" screen')
                 CURRENT_SCREEN = new_screen
                 MENU_OPEN = False
 
             if button_a.value() == 0:
+                led.set_rgb(0, 50, 0)
                 menu_cursor_position = menu_move_cursor(menu_cursor_position - 1)
             
             if button_b.value() == 0:
+                led.set_rgb(0, 50, 0)
                 menu_cursor_position = menu_move_cursor(menu_cursor_position + 1)
         
         time.sleep(0.25)
+        led.set_rgb(0, 0, 0)
     
 def menu_move_cursor(position):
     cursor_positions = [
@@ -182,9 +188,9 @@ def screens():
         counter += 1
         if counter % 100 == 0:
             counter = 0
-            print('saving data')
+            print('[ DEBUG ]: saving data')
             data_save()
-            print('save complete')
+            print('[ DEBUG ]: save complete')
 
         if CURRENT_SCREEN != previous_screen_name:
             previous_screen_name = CURRENT_SCREEN
@@ -194,6 +200,8 @@ def screens():
             screen_field()
         if CURRENT_SCREEN == 'breeding':
             screen_breeding()
+        if CURRENT_SCREEN == 'breeding_result':
+            screen_breeding_result()
         if CURRENT_SCREEN == 'market':
             screen_market()
         if CURRENT_SCREEN == 'settings':
@@ -202,7 +210,7 @@ def screens():
         time.sleep(0.2)
 
 def screen_breeding():
-    global DATA
+    global DATA, CURRENT_SCREEN
 
     if not MENU_OPEN:
         if DATA['breeding']['cursor_index'] == 0:
@@ -244,16 +252,10 @@ def screen_breeding():
                 if DATA['breeding']['right_critter_index'] >= len(POPULATION):
                     DATA['breeding']['right_critter_index'] = 0
 
+            if button_y.value() == 0:
+                led.set_rgb(0, 50, 0)
+                CURRENT_SCREEN = 'breeding_result' # change screen on next loop iteration
 
-    # TODO
-    # - breeding sequence
-    #   - breeding animation
-    #   - generate offspring
-    #   - show offspring
-    #   - reset DATA['breeding'] & return to field screen
-
-
-    anything_changed = False
     Layers.background = {
         'file':'breeding',
         'position':(0, 0)
@@ -269,7 +271,85 @@ def screen_breeding():
         'scale':4
     }]
     led.set_rgb(0, 0, 0)
-    
+
+    # The block below will execute once before the user is taken 
+    # to the next screen to see the results
+    if CURRENT_SCREEN == 'breeding_result':
+        print('[ DEBUG ]: generate offspring')
+        # TODO: breeding animation (egg?)
+
+        mother = POPULATION[DATA['breeding']['left_critter_index']]
+        father = POPULATION[DATA['breeding']['right_critter_index']]
+        children = []
+        for x in range(4):
+            m_gamete = mother.get_gamete()
+            f_gamete = father.get_gamete()
+            child_genotype = {}
+            for key in m_gamete:
+                child_genotype[key] = [
+                    m_gamete[key],
+                    f_gamete[key]
+                ]
+                child = critters.Critter(
+                    child_genotype,
+                    critters.build_ancestry(mother, father)
+                )
+            print(f'[ DEBUG ]: child = {child.get_name()}')
+            print(f"           {child_genotype}\n")
+            children.append(child)
+        DATA['breeding']['children'] = children
+
+
+def screen_breeding_result():
+    global DATA
+    # TODO
+    #   - show offspring
+    #   - reset DATA['breeding'] & return to field screen
+
+    mother = POPULATION[DATA['breeding']['left_critter_index']]
+    father = POPULATION[DATA['breeding']['right_critter_index']]
+    children = DATA['breeding']['children']
+
+    Layers.background = {
+        'file':'blank',
+        'position':(0, 0)
+    }
+    Layers.middle = [
+        {
+            'file':mother.get_sprite(),
+            'position':(75, 50),
+            'scale':2
+        },
+        {
+            'file':father.get_sprite(),
+            'position':(200, 50),
+            'scale':2
+        },
+        {
+            'file':children[0].get_sprite(),
+            'position':(20, 150),
+            'scale':2
+        },
+        {
+            'file':children[1].get_sprite(),
+            'position':(100, 150),
+            'scale':2
+        },
+        {
+            'file':children[2].get_sprite(),
+            'position':(180, 150),
+            'scale':2
+        },
+        {
+            'file':children[3].get_sprite(),
+            'position':(260, 150),
+            'scale':2
+        }
+    ]
+
+    # TODO
+    #   - sell some offspring
+
 
 def screen_field():
     global POPULATION

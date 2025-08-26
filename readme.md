@@ -4,23 +4,30 @@ Maintan a population of critters with realistic genetic inheritance and selectiv
 
 ## Gameplay
 
+See your creatures in the field
+
 `Work in progress`
 
-### See all your creatures in the field
-
-![](https://github.com/GarethMurden/genetibit/blob/master/screenshots/screenshot.png?raw=true)
-
-![](https://github.com/GarethMurden/genetibit/blob/master/screenshots/movement_demo.gif?raw=true)
-
-### View each creatures' stats
-
-![](https://github.com/GarethMurden/genetibit/blob/master/screenshots/creature_stats.png?raw=true)
-
-![](https://github.com/GarethMurden/genetibit/blob/master/screenshots/screen_change.gif?raw=true)
-
-### Selectively breed creatures to find interesting traits
+Selectively breed creatures to find interesting traits
 
 ![](https://github.com/GarethMurden/genetibit/blob/master/screenshots/inheritance_example.png?raw=true)
+
+Introduce new genes from random visitors
+
+`Work in progress`
+
+Sell creatures with rare trates at the market
+
+`Work in progress`
+
+Upgrade your field to fit more creatures
+
+`Work in progress`
+
+Earn ribbons by completing objectives
+
+`Work in progress`
+
 
 ## Hardware
 
