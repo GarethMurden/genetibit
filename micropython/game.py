@@ -27,7 +27,7 @@ display.set_pen(BG)
 display.clear()
 
 MENU_OPEN = False
-CURRENT_SCREEN = 'breeding'
+CURRENT_SCREEN = 'breeding_result'#'field'
 DATA = {
     'breeding':{
         'cursor_index':0,
@@ -208,7 +208,6 @@ def screens():
         if CURRENT_SCREEN == 'settings':
             screen_settings()
         Layers.show()
-        time.sleep(0.2)
 
 def screen_breeding():
     global DATA, CURRENT_SCREEN
@@ -282,8 +281,8 @@ def screen_breeding_animation():
     }
     Layers.bottom = {
         'file':'animation_hatch/hatch01',
-        'position':(120, 145),
-        'scale':2
+        'position':(60, 100),
+        'scale':4
     }
     Layers.show()
 
@@ -308,41 +307,41 @@ def screen_breeding_animation():
     time.sleep(2)
     Layers.bottom = {
         'file':'animation_hatch/hatch02',
-        'position':(120, 145),
-        'scale':2
+        'position':(60, 100),
+        'scale':4
     }
     Layers.show()
     Layers.bottom = {
         'file':'animation_hatch/hatch03',
-        'position':(120, 145),
-        'scale':2
+        'position':(60, 100),
+        'scale':4
     }
     Layers.show()
     time.sleep(1)
     Layers.bottom = {
         'file':'animation_hatch/hatch04',
-        'position':(120, 145),
-        'scale':2
+        'position':(60, 100),
+        'scale':4
     }
     Layers.show()
     time.sleep(1)
     Layers.bottom = {
         'file':'animation_hatch/hatch05',
-        'position':(120, 145),
-        'scale':2
+        'position':(60, 100),
+        'scale':4
     }
     Layers.show()
     time.sleep(0.25)
     Layers.bottom = {
         'file':'animation_hatch/hatch06',
-        'position':(120, 145),
-        'scale':2
+        'position':(60, 100),
+        'scale':4
     }
     Layers.show()
     Layers.bottom = {
         'file':'animation_hatch/hatch07',
-        'position':(120, 145),
-        'scale':2
+        'position':(60, 100),
+        'scale':4
     }
     Layers.show()
     time.sleep(1)
@@ -359,39 +358,39 @@ def screen_breeding_result():
         children.append(critters.Critter(child['genes'], ancestors=child['ancestors']))
 
     Layers.background = {
-        'file':'blank',
+        'file':'breeding_result',
         'position':(0, 0)
     }
     Layers.middle = [
         {
             'file':mother.get_sprite(),
-            'position':(75, 50),
-            'scale':2
+            'position':(60, 20),
+            'scale':3
         },
         {
             'file':father.get_sprite(),
-            'position':(200, 50),
-            'scale':2
+            'position':(160, 22),
+            'scale':3
         },
         {
             'file':children[0].get_sprite(),
-            'position':(20, 150),
-            'scale':2
+            'position':(5, 115),
+            'scale':3
         },
         {
             'file':children[1].get_sprite(),
-            'position':(100, 150),
-            'scale':2
+            'position':(75, 115),
+            'scale':3
         },
         {
             'file':children[2].get_sprite(),
-            'position':(180, 150),
-            'scale':2
+            'position':(155, 115),
+            'scale':3
         },
         {
             'file':children[3].get_sprite(),
-            'position':(260, 150),
-            'scale':2
+            'position':(230, 115),
+            'scale':3
         }
     ]
 

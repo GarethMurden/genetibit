@@ -1,1 +1,0 @@
-Population & family tree data will be stored in this directory
