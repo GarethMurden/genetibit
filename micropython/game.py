@@ -349,13 +349,65 @@ def screen_breeding_animation():
     CURRENT_SCREEN = 'breeding_result'
 
 def screen_breeding_result():
-    global DATA
+    global DATA, CURRENT_SCREEN
 
     mother = POPULATION[DATA['breeding']['left_critter_index']]
     father = POPULATION[DATA['breeding']['right_critter_index']]
     children = []
     for child in DATA['breeding']['children']:
         children.append(critters.Critter(child['genes'], ancestors=child['ancestors']))
+
+    cursor_positions = [
+        ( 10,  25), # close button
+        ( 45, 210),
+        (115, 210),
+        (190, 210),
+        (270, 210)
+    ]
+
+    if 'sell_selections' not in DATA['breeding']:
+        DATA['breeding']['sell_selections'] = [False, False, False, False]
+
+    if not MENU_OPEN:
+        if DATA['breeding']['cursor_index'] == 0:
+            if button_a.value() == 0:
+                led.set_rgb(0, 50, 0)
+                DATA['breeding']['cursor_index'] -= 1
+                if DATA['breeding']['cursor_index'] < 0:
+                    DATA['breeding']['cursor_index'] = len(cursor_positions) -1
+            if button_b.value() == 0:
+                led.set_rgb(0, 50, 0)
+                DATA['breeding']['cursor_index'] += 1
+                if DATA['breeding']['cursor_index'] == len(cursor_positions):
+                    DATA['breeding']['cursor_index'] = 0
+            if button_y.value() == 0:
+                led.set_rgb(0, 50, 0)
+                if DATA['breeding']['cursor_index'] == 0:
+                    POPULATION += children
+                    
+                    # TODO:
+                    #   - for each child not sold, add to POPULATION & DATA['critters']
+
+                    CURRENT_SCREEN = 'field'
+                else:
+                    DATA['breeding']['sell_selections'][DATA['breeding']['cursor_index'] -1] = True
+
+        Layers.cursor = {
+            'file':'cursor',
+            'position':cursor_positions[DATA['breeding']['cursor_index']]
+        }
+
+    # checkmark_positions = [
+    #     ( 52, 213),
+    #     (120, 213),
+    #     (320, 213),
+    #     (275, 213)
+    # ]
+    # for counter, selected in enumerate(DATA['breeding']['sell_selections']):
+    #     if selected:
+    #         # TODO: draw checkmarks
+    #         pass
+
 
     Layers.background = {
         'file':'breeding_result',

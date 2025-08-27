@@ -12,22 +12,25 @@ Selectively breed creatures to find interesting traits
 
 ![](https://github.com/GarethMurden/genetibit/blob/master/screenshots/inheritance_example.png?raw=true)
 
-Introduce new genes from random visitors
+Introduce new genes from visiting critters
 
 ![](https://github.com/GarethMurden/genetibit/blob/master/screenshots/breeding_selection.png?raw=true)
 
 Sell creatures with rare trates at the market
 
-`Work in progress`
+`Coming soon`
 
 Upgrade your field to fit more creatures
 
-`Work in progress`
+`Coming soon`
 
 Earn ribbons by completing objectives
 
-`Work in progress`
+`Coming soon`
 
+Connect two devices to breed your critters with your friends'
+
+`Coming soon`
 
 ## Hardware
 
@@ -36,30 +39,35 @@ Earn ribbons by completing objectives
 - [Pico display & buttons](https://thepihut.com/products/pico-display-pack-2-8?variant=43884934791363)
 - Optional [magnetic connector](https://thepihut.com/products/diy-magnetic-connector-straight-angle-five-contact-pins?variant=42058938253507) for device-to-device communication
 
-
 ## Credits
 
 - Top down tileset from [Otterisk](https://otterisk.itch.io/)
 - Sproutlands UI from [Cup Nooble](https://cupnooble.itch.io/)
 
+# Development notes
+
+## To do
+
+- Breeding
+	- Select offspring to sell
+	- Add those not sold to the population
+- Implement currency
+- Upgrade field
+- Visiting critters
+- Ribbons & objectives
+- Device-to-device communication
+
+- Fixes
+	- Cursor freezes on breeding_result screen
+
 ## Resources 
 
 https://github.com/pimoroni/pimoroni-pico/tree/main/micropython/examples/pico_display
 
-# To do next
 
-## Features
+## Notes on `rshell`
 
-- Breeding UI using population critters
-
-## Fixes
-
-- `data_save()` sometimes fails to complete
-
-
-# Notes on `rshell`
-
-## Connect
+### Connect
 
 As an alternative to Thonny, `rshell` can be used to flash the Pico from the terminal.
 
