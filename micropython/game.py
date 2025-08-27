@@ -199,6 +199,8 @@ def screens():
             screen_field()
         if CURRENT_SCREEN == 'breeding':
             screen_breeding()
+        if CURRENT_SCREEN == 'breeding_animation':
+            screen_breeding_animation()
         if CURRENT_SCREEN == 'breeding_result':
             screen_breeding_result()
         if CURRENT_SCREEN == 'market':
@@ -253,7 +255,7 @@ def screen_breeding():
 
             if button_y.value() == 0:
                 led.set_rgb(0, 50, 0)
-                CURRENT_SCREEN = 'breeding_result' # change screen on next loop iteration
+                CURRENT_SCREEN = 'breeding_animation' # change screen on next loop iteration
 
     Layers.background = {
         'file':'breeding',
@@ -271,40 +273,90 @@ def screen_breeding():
     }]
     led.set_rgb(0, 0, 0)
 
-    # The block below will execute once before the user is taken 
-    # to the next screen to see the results
-    if CURRENT_SCREEN == 'breeding_result':
-        print('[ DEBUG ]: generate offspring')
-        # TODO: breeding animation (egg?)
+def screen_breeding_animation():
+    global CURRENT_SCREEN
+    Layers.clear_all()
+    Layers.background = {
+        'file':'blank',
+        'position':(0, 0)
+    }
+    Layers.bottom = {
+        'file':'animation_hatch/hatch01',
+        'position':(120, 145),
+        'scale':2
+    }
+    Layers.show()
 
-        mother = POPULATION[DATA['breeding']['left_critter_index']]
-        father = POPULATION[DATA['breeding']['right_critter_index']]
-        children = []
-        for x in range(4):
-            m_gamete = mother.get_gamete()
-            f_gamete = father.get_gamete()
-            child_genotype = {}
-            for key in m_gamete:
-                child_genotype[key] = [
-                    m_gamete[key],
-                    f_gamete[key]
-                ]
-                child = critters.Critter(
-                    child_genotype,
-                    critters.build_ancestry(mother, father)
-                )
-            print(f'[ DEBUG ]: child = {child.get_name()}')
-            print(f"           {child_genotype}\n")
-            children.append(child)
-        DATA['breeding']['children'] = children
+    mother = POPULATION[DATA['breeding']['left_critter_index']]
+    father = POPULATION[DATA['breeding']['right_critter_index']]
+    DATA['breeding']['children'] = []
+    for x in range(4):
+        m_gamete = mother.get_gamete()
+        f_gamete = father.get_gamete()
+        child_genotype = {}
+        for key in m_gamete:
+            child_genotype[key] = [
+                m_gamete[key],
+                f_gamete[key]
+            ]
+            DATA['breeding']['children'].append({
+                'genes':child_genotype,
+                'ancestors':critters.build_ancestry(mother, father)
+            })
 
+    # HATCHING ANIMATION
+    time.sleep(2)
+    Layers.bottom = {
+        'file':'animation_hatch/hatch02',
+        'position':(120, 145),
+        'scale':2
+    }
+    Layers.show()
+    Layers.bottom = {
+        'file':'animation_hatch/hatch03',
+        'position':(120, 145),
+        'scale':2
+    }
+    Layers.show()
+    time.sleep(1)
+    Layers.bottom = {
+        'file':'animation_hatch/hatch04',
+        'position':(120, 145),
+        'scale':2
+    }
+    Layers.show()
+    time.sleep(1)
+    Layers.bottom = {
+        'file':'animation_hatch/hatch05',
+        'position':(120, 145),
+        'scale':2
+    }
+    Layers.show()
+    time.sleep(0.25)
+    Layers.bottom = {
+        'file':'animation_hatch/hatch06',
+        'position':(120, 145),
+        'scale':2
+    }
+    Layers.show()
+    Layers.bottom = {
+        'file':'animation_hatch/hatch07',
+        'position':(120, 145),
+        'scale':2
+    }
+    Layers.show()
+    time.sleep(1)
+    Layers.bottom = None
+    CURRENT_SCREEN = 'breeding_result'
 
 def screen_breeding_result():
     global DATA
 
     mother = POPULATION[DATA['breeding']['left_critter_index']]
     father = POPULATION[DATA['breeding']['right_critter_index']]
-    children = DATA['breeding']['children']
+    children = []
+    for child in DATA['breeding']['children']:
+        children.append(critters.Critter(child['genes'], ancestors=child['ancestors']))
 
     Layers.background = {
         'file':'blank',
