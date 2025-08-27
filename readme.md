@@ -58,6 +58,7 @@ Connect two devices to breed your critters with your friends'
 - Device-to-device communication
 
 - Fixes
+	- POPULATION `local variable referenced before assignment` in breeding_result screen
 	- Cursor freezes on breeding_result screen
 
 ## Resources 

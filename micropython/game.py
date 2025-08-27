@@ -27,7 +27,7 @@ display.set_pen(BG)
 display.clear()
 
 MENU_OPEN = False
-CURRENT_SCREEN = 'breeding_result'#'field'
+CURRENT_SCREEN = 'breeding'#'field'
 DATA = {
     'breeding':{
         'cursor_index':0,
@@ -86,7 +86,6 @@ def data_clear_screen():
     '''clear cached data only needed while screen open'''
     global DATA
     DATA['breeding']['cursor_index'] = 0
-
     
 def data_load():
     global DATA
@@ -351,6 +350,7 @@ def screen_breeding_animation():
 def screen_breeding_result():
     global DATA, CURRENT_SCREEN
 
+    print(POPULATION)
     mother = POPULATION[DATA['breeding']['left_critter_index']]
     father = POPULATION[DATA['breeding']['right_critter_index']]
     children = []
@@ -375,22 +375,27 @@ def screen_breeding_result():
                 DATA['breeding']['cursor_index'] -= 1
                 if DATA['breeding']['cursor_index'] < 0:
                     DATA['breeding']['cursor_index'] = len(cursor_positions) -1
+                print(f"A pressed; index={DATA['breeding']['cursor_index']}")
+            
             if button_b.value() == 0:
                 led.set_rgb(0, 50, 0)
                 DATA['breeding']['cursor_index'] += 1
                 if DATA['breeding']['cursor_index'] == len(cursor_positions):
                     DATA['breeding']['cursor_index'] = 0
+                print(f"B pressed; index={DATA['breeding']['cursor_index']}")
             if button_y.value() == 0:
                 led.set_rgb(0, 50, 0)
-                if DATA['breeding']['cursor_index'] == 0:
-                    POPULATION += children
+                if DATA['breeding']['cursor_index'] != 0:
+                    DATA['breeding']['sell_selections'][DATA['breeding']['cursor_index'] -1] = True
+                    print(f"A pressed; sell_selections[{DATA['breeding']['cursor_index']}]=True")
                     
+                else:
+                    POPULATION += children
+
                     # TODO:
                     #   - for each child not sold, add to POPULATION & DATA['critters']
 
                     CURRENT_SCREEN = 'field'
-                else:
-                    DATA['breeding']['sell_selections'][DATA['breeding']['cursor_index'] -1] = True
 
         Layers.cursor = {
             'file':'cursor',
@@ -519,14 +524,16 @@ def main():
 
     if len(POPULATION) < len(DATA['critters']):
         for critter_data in DATA['critters']:
-            POPULATION.append(critters.Critter(
+            critter = critters.Critter(
                 critter_data['genes'],
                 critter_data['ancestors'],
                 position=(
                     random.randint(10, 310),
                     random.randint(10, 240)
                 )
-            ))
+            )
+            print(f' [ debug ] : {critter.get_name()}')
+            POPULATION.append(critter)
     screen_switch_thread = _thread.start_new_thread(screens, ())
     menu()
 
