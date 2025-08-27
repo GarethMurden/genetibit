@@ -14,7 +14,7 @@ Selectively breed creatures to find interesting traits
 
 Introduce new genes from random visitors
 
-`Work in progress`
+![](https://github.com/GarethMurden/genetibit/blob/master/screenshots/breeding_selection.png?raw=true)
 
 Sell creatures with rare trates at the market
 
