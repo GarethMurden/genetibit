@@ -6,7 +6,7 @@ Maintan a population of critters with realistic genetic inheritance and selectiv
 
 See your creatures in the field
 
-`Work in progress`
+![](https://github.com/GarethMurden/genetibit/blob/master/screenshots/field.png?raw=true)
 
 Selectively breed creatures to find interesting traits
 
