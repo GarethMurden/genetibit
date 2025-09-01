@@ -348,9 +348,8 @@ def screen_breeding_animation():
     CURRENT_SCREEN = 'breeding_result'
 
 def screen_breeding_result():
-    global DATA, CURRENT_SCREEN
+    global DATA, CURRENT_SCREEN, POPULATION
 
-    print(POPULATION)
     mother = POPULATION[DATA['breeding']['left_critter_index']]
     father = POPULATION[DATA['breeding']['right_critter_index']]
     children = []
@@ -369,49 +368,40 @@ def screen_breeding_result():
         DATA['breeding']['sell_selections'] = [False, False, False, False]
 
     if not MENU_OPEN:
-        if DATA['breeding']['cursor_index'] == 0:
-            if button_a.value() == 0:
-                led.set_rgb(0, 50, 0)
-                DATA['breeding']['cursor_index'] -= 1
-                if DATA['breeding']['cursor_index'] < 0:
-                    DATA['breeding']['cursor_index'] = len(cursor_positions) -1
-                print(f"A pressed; index={DATA['breeding']['cursor_index']}")
-            
-            if button_b.value() == 0:
-                led.set_rgb(0, 50, 0)
-                DATA['breeding']['cursor_index'] += 1
-                if DATA['breeding']['cursor_index'] == len(cursor_positions):
-                    DATA['breeding']['cursor_index'] = 0
-                print(f"B pressed; index={DATA['breeding']['cursor_index']}")
-            if button_y.value() == 0:
-                led.set_rgb(0, 50, 0)
-                if DATA['breeding']['cursor_index'] != 0:
-                    DATA['breeding']['sell_selections'][DATA['breeding']['cursor_index'] -1] = True
-                    print(f"A pressed; sell_selections[{DATA['breeding']['cursor_index']}]=True")
-                    
+        if button_a.value() == 0:
+            led.set_rgb(0, 50, 0)
+            DATA['breeding']['cursor_index'] -= 1
+            if DATA['breeding']['cursor_index'] < 0:
+                DATA['breeding']['cursor_index'] = len(cursor_positions) -1
+            print(f"A pressed; index={DATA['breeding']['cursor_index']}")
+        
+        if button_b.value() == 0:
+            led.set_rgb(0, 50, 0)
+            DATA['breeding']['cursor_index'] += 1
+            if DATA['breeding']['cursor_index'] == len(cursor_positions):
+                DATA['breeding']['cursor_index'] = 0
+            print(f"B pressed; index={DATA['breeding']['cursor_index']}")
+        if button_y.value() == 0:
+            led.set_rgb(0, 50, 0)
+            if DATA['breeding']['cursor_index'] != 0:
+                if DATA['breeding']['sell_selections'][DATA['breeding']['cursor_index'] -1]:
+                    DATA['breeding']['sell_selections'][DATA['breeding']['cursor_index'] -1] = False
                 else:
-                    POPULATION += children
+                    DATA['breeding']['sell_selections'][DATA['breeding']['cursor_index'] -1] = True
+                print(f"A pressed; sell_selections[{DATA['breeding']['cursor_index']}]=True")
+                
+            else:
+                POPULATION += children
 
-                    # TODO:
-                    #   - for each child not sold, add to POPULATION & DATA['critters']
+                # TODO:
+                #   - for each child not sold, add to POPULATION & DATA['critters']
 
-                    CURRENT_SCREEN = 'field'
+                CURRENT_SCREEN = 'field'
 
         Layers.cursor = {
             'file':'cursor',
             'position':cursor_positions[DATA['breeding']['cursor_index']]
         }
-
-    # checkmark_positions = [
-    #     ( 52, 213),
-    #     (120, 213),
-    #     (320, 213),
-    #     (275, 213)
-    # ]
-    # for counter, selected in enumerate(DATA['breeding']['sell_selections']):
-    #     if selected:
-    #         # TODO: draw checkmarks
-    #         pass
 
 
     Layers.background = {
@@ -450,6 +440,19 @@ def screen_breeding_result():
             'scale':3
         }
     ]
+
+    checkmark_positions = [
+        ( 50, 213),
+        (120, 213),
+        (195, 213),
+        (275, 213)
+    ]
+    for counter, selected in enumerate(DATA['breeding']['sell_selections']):
+        if selected:
+            Layers.middle.append({
+                'file':'tick',
+                'position':checkmark_positions[counter],
+            })
 
     # TODO
     #   - sell some offspring
@@ -532,7 +535,6 @@ def main():
                     random.randint(10, 240)
                 )
             )
-            print(f' [ debug ] : {critter.get_name()}')
             POPULATION.append(critter)
     screen_switch_thread = _thread.start_new_thread(screens, ())
     menu()
