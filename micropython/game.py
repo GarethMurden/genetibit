@@ -181,15 +181,7 @@ def menu_move_cursor(position):
 def screens():
     global CURRENT_SCREEN
     previous_screen_name = ''
-    counter = 0
     while True:
-        counter += 1
-        if counter % 100 == 0:
-            counter = 0
-            print('[ DEBUG ]: saving data')
-            data_save()
-            print('[ DEBUG ]: save complete')
-
         if CURRENT_SCREEN != previous_screen_name:
             previous_screen_name = CURRENT_SCREEN
             Layers.clear_all()
@@ -396,13 +388,13 @@ def screen_breeding_result():
                 # TODO:
                 #   - for each child not sold, add to POPULATION & DATA['critters']
 
+                data_save()
                 CURRENT_SCREEN = 'field'
 
         Layers.cursor = {
             'file':'cursor',
             'position':cursor_positions[DATA['breeding']['cursor_index']]
         }
-
 
     Layers.background = {
         'file':'breeding_result',
@@ -507,6 +499,8 @@ def screen_settings():
                     0.2
                 ])
                 display.set_backlight(DATA['settings']['brightness'])
+            data_save()
+
     Layers.background = {
         'file':'settings',
         'position':(0, 0)
