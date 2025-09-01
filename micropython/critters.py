@@ -65,11 +65,11 @@ class Critter():
 	def move(self):
 		if random.choice(['h', 'h', 'v']) == 'h':
 			change = random.randint(-5, 5) * 2
-			if 10 < self.position[0] + change < 310:
+			if 10 < self.position[0] + change < 280:
 				self.position[0] = self.position[0] + change
 		else:
 			change = random.randint(-5, 5) * 2
-			if 10 < self.position[1] + change < 230:
+			if 10 < self.position[1] + change < 210:
 				self.position[1] = self.position[1] + change
 
 def build_ancestry(parent_a, parent_b):

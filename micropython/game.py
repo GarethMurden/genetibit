@@ -286,7 +286,6 @@ def screen_breeding_animation():
         time.sleep(0.5)
         m_gamete = mother.get_gamete()
         f_gamete = father.get_gamete()
-        print(f'{m_gamete=} {f_gamete=}')
         child_genotype = {}
         for key in m_gamete:
             child_genotype[key] = [
@@ -297,7 +296,6 @@ def screen_breeding_animation():
             'genes':child_genotype,
             'ancestors':critters.build_ancestry(mother, father)
         })
-        print(f'{child_genotype=}\n')
 
     # HATCHING ANIMATION
     Layers.bottom = {
@@ -349,7 +347,7 @@ def screen_breeding_result():
     mother = POPULATION[DATA['breeding']['left_critter_index']]
     father = POPULATION[DATA['breeding']['right_critter_index']]
     children = []
-    print(f"[DEBUG] : {len(DATA['breeding']['children'])=}")
+
     for child in DATA['breeding']['children']:
         children.append(critters.Critter(child['genes'], ancestors=child['ancestors']))
 
@@ -370,14 +368,13 @@ def screen_breeding_result():
             DATA['breeding']['cursor_index'] -= 1
             if DATA['breeding']['cursor_index'] < 0:
                 DATA['breeding']['cursor_index'] = len(cursor_positions) -1
-            print(f"A pressed; index={DATA['breeding']['cursor_index']}")
         
         if button_b.value() == 0:
             led.set_rgb(0, 50, 0)
             DATA['breeding']['cursor_index'] += 1
             if DATA['breeding']['cursor_index'] == len(cursor_positions):
                 DATA['breeding']['cursor_index'] = 0
-            print(f"B pressed; index={DATA['breeding']['cursor_index']}")
+
         if button_y.value() == 0:
             led.set_rgb(0, 50, 0)
             if DATA['breeding']['cursor_index'] != 0:
@@ -385,7 +382,6 @@ def screen_breeding_result():
                     DATA['breeding']['sell_selections'][DATA['breeding']['cursor_index'] -1] = False
                 else:
                     DATA['breeding']['sell_selections'][DATA['breeding']['cursor_index'] -1] = True
-                print(f"A pressed; sell_selections[{DATA['breeding']['cursor_index']}]=True")
                 
             else:
                 data_save()
@@ -447,11 +443,6 @@ def screen_breeding_result():
             }
         ]
 
-        # DEBUG
-        print()
-        for counter, child in enumerate(children):
-            print(f'{counter +1}: {child.get_genotype()}')
-
         checkmark_positions = [
             ( 50, 213),
             (120, 213),
@@ -464,8 +455,6 @@ def screen_breeding_result():
                     'file':'tick',
                     'position':checkmark_positions[counter],
                 })
-
-
 
 def screen_field():
     global POPULATION
