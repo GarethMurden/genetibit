@@ -194,6 +194,8 @@ def screens():
             screen_breeding_animation()
         if CURRENT_SCREEN == 'breeding_result':
             screen_breeding_result()
+        if CURRENT_SCREEN == 'breeding_sale':
+            screen_breeding_sale()
         if CURRENT_SCREEN == 'market':
             screen_market()
         if CURRENT_SCREEN == 'settings':
@@ -281,21 +283,23 @@ def screen_breeding_animation():
     father = POPULATION[DATA['breeding']['right_critter_index']]
     DATA['breeding']['children'] = []
     for x in range(4):
+        time.sleep(0.5)
         m_gamete = mother.get_gamete()
         f_gamete = father.get_gamete()
+        print(f'{m_gamete=} {f_gamete=}')
         child_genotype = {}
         for key in m_gamete:
             child_genotype[key] = [
                 m_gamete[key],
                 f_gamete[key]
             ]
-            DATA['breeding']['children'].append({
-                'genes':child_genotype,
-                'ancestors':critters.build_ancestry(mother, father)
-            })
+        DATA['breeding']['children'].append({
+            'genes':child_genotype,
+            'ancestors':critters.build_ancestry(mother, father)
+        })
+        print(f'{child_genotype=}\n')
 
     # HATCHING ANIMATION
-    time.sleep(2)
     Layers.bottom = {
         'file':'animation_hatch/hatch02',
         'position':(60, 100),
@@ -345,6 +349,7 @@ def screen_breeding_result():
     mother = POPULATION[DATA['breeding']['left_critter_index']]
     father = POPULATION[DATA['breeding']['right_critter_index']]
     children = []
+    print(f"[DEBUG] : {len(DATA['breeding']['children'])=}")
     for child in DATA['breeding']['children']:
         children.append(critters.Critter(child['genes'], ancestors=child['ancestors']))
 
@@ -383,73 +388,83 @@ def screen_breeding_result():
                 print(f"A pressed; sell_selections[{DATA['breeding']['cursor_index']}]=True")
                 
             else:
-                POPULATION += children
-
-                # TODO:
-                #   - for each child not sold, add to POPULATION & DATA['critters']
-
                 data_save()
-                CURRENT_SCREEN = 'field'
+                if any(DATA['breeding']['sell_selections']):
+                    CURRENT_SCREEN = 'breeding_sale'
+
+                else: # no offspring sold
+                    # reset breeding data
+                    del DATA['breeding']['sell_selections']
+                    DATA['breeding']['cursor_index'] = 0
+                    # add all to population
+                    POPULATION += children
+                    DATA['critters'] += [{'ancestors':child.ancestors, 'genes':child.get_genotype()} for child in children]
+                    # return to field
+                    CURRENT_SCREEN = 'field'
+                    for critter in POPULATION:
+                        print(critter.get_name())
 
         Layers.cursor = {
             'file':'cursor',
             'position':cursor_positions[DATA['breeding']['cursor_index']]
         }
 
-    Layers.background = {
-        'file':'breeding_result',
-        'position':(0, 0)
-    }
-    Layers.middle = [
-        {
-            'file':mother.get_sprite(),
-            'position':(60, 20),
-            'scale':3
-        },
-        {
-            'file':father.get_sprite(),
-            'position':(160, 22),
-            'scale':3
-        },
-        {
-            'file':children[0].get_sprite(),
-            'position':(5, 115),
-            'scale':3
-        },
-        {
-            'file':children[1].get_sprite(),
-            'position':(75, 115),
-            'scale':3
-        },
-        {
-            'file':children[2].get_sprite(),
-            'position':(155, 115),
-            'scale':3
-        },
-        {
-            'file':children[3].get_sprite(),
-            'position':(230, 115),
-            'scale':3
+    if CURRENT_SCREEN == 'breeding_result':
+        Layers.background = {
+            'file':'breeding_result',
+            'position':(0, 0)
         }
-    ]
+        Layers.middle = [
+            {
+                'file':mother.get_sprite(),
+                'position':(60, 20),
+                'scale':3
+            },
+            {
+                'file':father.get_sprite(),
+                'position':(160, 22),
+                'scale':3
+            },
+            {
+                'file':children[0].get_sprite(),
+                'position':(5, 115),
+                'scale':3
+            },
+            {
+                'file':children[1].get_sprite(),
+                'position':(75, 115),
+                'scale':3
+            },
+            {
+                'file':children[2].get_sprite(),
+                'position':(155, 115),
+                'scale':3
+            },
+            {
+                'file':children[3].get_sprite(),
+                'position':(230, 115),
+                'scale':3
+            }
+        ]
 
-    checkmark_positions = [
-        ( 50, 213),
-        (120, 213),
-        (195, 213),
-        (275, 213)
-    ]
-    for counter, selected in enumerate(DATA['breeding']['sell_selections']):
-        if selected:
-            Layers.middle.append({
-                'file':'tick',
-                'position':checkmark_positions[counter],
-            })
+        # DEBUG
+        print()
+        for counter, child in enumerate(children):
+            print(f'{counter +1}: {child.get_genotype()}')
 
-    # TODO
-    #   - sell some offspring
-    #   - add remaining ones to POPULATION
-    #   - reset DATA['breeding'] & return to field screen
+        checkmark_positions = [
+            ( 50, 213),
+            (120, 213),
+            (195, 213),
+            (275, 213)
+        ]
+        for counter, selected in enumerate(DATA['breeding']['sell_selections']):
+            if selected:
+                Layers.middle.append({
+                    'file':'tick',
+                    'position':checkmark_positions[counter],
+                })
+
 
 
 def screen_field():
