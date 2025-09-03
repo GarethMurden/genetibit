@@ -38,7 +38,9 @@ DATA = {
     'field':{
         'level':0
     },
-    'market':{},
+    'market':{
+        'gold':0
+    },
     'settings':{
         'cursor_index':0,
         'brightness':0.6
@@ -398,7 +400,7 @@ def screen_breeding_result():
                     # return to field
                     CURRENT_SCREEN = 'field'
                     for critter in POPULATION:
-                        print(critter.get_name())
+                        print(f'{critter.get_name()} {critter.get_colour()} = {critter.get_value()}')
 
         Layers.cursor = {
             'file':'cursor',
@@ -529,8 +531,8 @@ def main():
                 critter_data['genes'],
                 critter_data['ancestors'],
                 position=(
-                    random.randint(10, 310),
-                    random.randint(10, 240)
+                    random.randint(10, 280),
+                    random.randint(10, 210)
                 )
             )
             POPULATION.append(critter)

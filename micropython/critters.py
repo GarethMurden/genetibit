@@ -1,18 +1,18 @@
 import random
 
+HEAD_OPTIONS = ['sa', 'se', 'shi', 'so', 'su']
+BODY_OPTIONS = ['ka', 'ke', 'ki',  'ko', 'ku']
+LEG_OPTIONS = ['chi', 'ta', 'te',  'to', 'tsu']
+
 class Critter():
-	def __init__(self, genes, ancestors=['unknown','unknown'], position=(0,0)):
+	def __init__(self, genes, ancestors=['unknown','unknown'], position=None):
 		self.ancestors = ancestors
-		# ancestors = [
-		# 	['sekote_blue', 'sakochi_blue']
-		# ]
 		self.genes = genes
-		# genes = {
-		# 	'head':['sa','sa'],
-		# 	'body':['ka','ka'],
-		# 	'legs':['ta','ta'],
-		#	'colour':['blue', 'blue']
-		# }
+		if position is None:
+			position = (
+				random.randint(10, 280),
+				random.randint(10, 210)
+			)
 		self.position = [position[0], position[1]]
 
 	def get_colour(self):
@@ -53,6 +53,33 @@ class Critter():
 			'legs':sorted(self.genes['legs'])[0],
 			'colour':self.get_colour()
 		}
+
+	def get_value(self):
+		ranks = [
+			'D',
+			'C',
+			'B',
+			'A',
+			'S'
+		]
+		phenotype = self.get_phenotype()
+		head_value = HEAD_OPTIONS.index(phenotype['head']) +1
+		body_value = BODY_OPTIONS.index(phenotype['body']) +1
+		legs_value = LEG_OPTIONS.index( phenotype['legs']) +1
+
+		genes = self.get_genotype()
+		if genes['colour'][0] == genes['colour'][1]:
+			colour_value = 5
+		else:
+			colour_value = 3
+		return {
+			'head':{'rank':ranks[head_value -1], 'value':head_value},
+			'body':{'rank':ranks[body_value -1], 'value':body_value},
+			'legs':{'rank':ranks[legs_value -1], 'value':legs_value},
+			'colour':{'rank':ranks[colour_value -1], 'value':colour_value},
+			'total':sum([head_value, body_value, legs_value, colour_value])
+		}
+
 
 	def get_position(self):
 		return tuple(self.position)
@@ -95,12 +122,9 @@ def generate_starters():
 		['blue', 'blue'],
 		['red', 'red']
 	])
-	head_options = ['sa', 'shi', 'su', 'se', 'so']
-	head = random.choice(head_options)
-	body_options = ['ka', 'ki', 'ku', 'ke', 'ko']
-	body = random.choice(body_options)
-	leg_options = ['ta', 'chi', 'tsu', 'te', 'to']
-	legs = random.choice(leg_options)
+	head = random.choice(HEAD_OPTION)
+	body = random.choice(BODY_OPTIONS)
+	legs = random.choice(LEG_OPTIONS)
 	first = {
 		'genes':{
 			'head':[head, head],
@@ -112,9 +136,9 @@ def generate_starters():
 	}
 	second = {
 		'genes':{
-			'head':[head, random.choice(head_options)],
-			'body':[body, random.choice(body_options)],
-			'legs':[legs, random.choice(leg_options)],
+			'head':[head, random.choice(HEAD_OPTION)],
+			'body':[body, random.choice(BODY_OPTIONS)],
+			'legs':[legs, random.choice(LEG_OPTIONS)],
 			'colour':colour
 		},
 		'ancestors':['unknown', 'unknown']
