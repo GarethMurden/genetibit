@@ -22,8 +22,9 @@ display = PicoGraphics(display=DISPLAY_PICO_DISPLAY_2, pen_type=PEN_RGB332)
 
 png = pngdec.PNG(display)
 
-BG = display.create_pen(200, 200, 200)
-display.set_pen(BG)
+TEXT = display.create_pen(0, 0, 0)
+IMAGES = display.create_pen(200, 200, 200)
+display.set_pen(IMAGES)
 display.clear()
 
 MENU_OPEN = False
@@ -51,10 +52,11 @@ POPULATION = []
 class Layer_class():
     background  = {'file':'field', 'position':(0,0)}
     bottom      = None
-    middle      = None # multiple overlappnig images allowed
+    middle      = None # multiple overlapping images allowed
     top         = None
     cursor      = None
     menu_cursor = None
+    text        = None # multiple text entries allowed
     
     def clear_all(self):
         self.background  = None
@@ -63,6 +65,7 @@ class Layer_class():
         self.top         = None
         self.cursor      = None
         self.menu_cursor = None
+        self.text        = None
 
     def show(self):
         if self.background is not None:
@@ -78,6 +81,17 @@ class Layer_class():
             self.update_display(self.cursor['file'], self.cursor['position'], self.cursor.get('scale', 1))
         if self.menu_cursor is not None:
             self.update_display(self.menu_cursor['file'], self.menu_cursor['position'], self.menu_cursor.get('scale', 1))
+        if self.text is not None:
+            display.set_pen(TEXT)
+            # display.clear()
+            for entry in self.text:
+                display.text(
+                    str(entry['text']),
+                    entry['position'][0],
+                    entry['position'][1],
+                    scale=entry['scale']
+                )
+            display.set_pen(IMAGES)
         display.update()
 
     def update_display(self, filename, position, scale=1):
@@ -265,6 +279,20 @@ def screen_breeding():
         'position':(175, 65),
         'scale':4
     }]
+
+    Layers.text = [
+        {
+            'text':len(POPULATION[DATA['breeding']['right_critter_index']].ancestors),
+            'position':(80, 189),
+            'scale': 2
+        },
+        {
+            'text':len(POPULATION[DATA['breeding']['left_critter_index']].ancestors),
+            'position':(235, 189),
+            'scale': 2
+        }
+    ]
+
     led.set_rgb(0, 0, 0)
 
 def screen_breeding_animation():
@@ -343,6 +371,47 @@ def screen_breeding_animation():
     Layers.bottom = None
     CURRENT_SCREEN = 'breeding_result'
 
+def screen_breeding_sale(children, sell_indicies):
+    global DATA, CURRENT_SCREEN, POPULATION
+
+    kept = []
+    sold = []
+    for index, sell in enumerate(sell_indicies):
+        if sell:
+            sold.append(children[index])
+        else:
+            kept.append(children[index])
+
+    for critter in sold:
+        print(f"{critter.get_name()} {critter.get_colour()} = {critter.get_value()['total']}G")
+
+    Layers.background = {
+        'file':'blank',
+        'position':(0,0)
+    }
+
+    time.sleep(3)
+    # TODO:
+    #   - Show valuation screen
+    #   - Show critter value ranks for each trait
+
+    Layers.text = [
+
+    ]
+
+    # reset breeding data
+    del DATA['breeding']['sell_selections']
+    DATA['breeding']['cursor_index'] = 0
+    
+    # add all to population
+    POPULATION += kept
+    DATA['critters'] += [{'ancestors':child.ancestors, 'genes':child.get_genotype()} for child in kept]
+    data_save()
+
+    # return to field
+    CURRENT_SCREEN = 'field'
+
+
 def screen_breeding_result():
     global DATA, CURRENT_SCREEN, POPULATION
 
@@ -388,7 +457,7 @@ def screen_breeding_result():
             else:
                 data_save()
                 if any(DATA['breeding']['sell_selections']):
-                    CURRENT_SCREEN = 'breeding_sale'
+                    screen_breeding_sale(children, DATA['breeding']['sell_selections'])
 
                 else: # no offspring sold
                     # reset breeding data
@@ -399,8 +468,6 @@ def screen_breeding_result():
                     DATA['critters'] += [{'ancestors':child.ancestors, 'genes':child.get_genotype()} for child in children]
                     # return to field
                     CURRENT_SCREEN = 'field'
-                    for critter in POPULATION:
-                        print(f'{critter.get_name()} {critter.get_colour()} = {critter.get_value()}')
 
         Layers.cursor = {
             'file':'cursor',
@@ -457,6 +524,30 @@ def screen_breeding_result():
                     'file':'tick',
                     'position':checkmark_positions[counter],
                 })
+
+        # write values beneath children
+        Layers.text = [
+            {
+                'text':children[0].get_value()['total'],
+                'position':(50, 190),
+                'scale': 2
+            },
+            {
+                'text':children[1].get_value()['total'],
+                'position':(120, 190),
+                'scale': 2
+            },
+            {
+                'text':children[2].get_value()['total'],
+                'position':(195, 190),
+                'scale': 2
+            },
+            {
+                'text':children[3].get_value()['total'],
+                'position':(273, 190),
+                'scale': 2
+            },
+        ]
 
 def screen_field():
     global POPULATION
