@@ -89,7 +89,7 @@ class Layer_class():
                     str(entry['text']),
                     entry['position'][0],
                     entry['position'][1],
-                    scale=entry['scale']
+                    scale=entry.get('scale', 1)
                 )
             display.set_pen(IMAGES)
         display.update()
@@ -108,6 +108,7 @@ def data_load():
     save_file = 'data.json'
     if not file_exits(save_file):
         DATA['critters'] += critters.generate_starters()
+        DATA['market']['total'] = 0
         data_save()
     with open(save_file, 'r', encoding='utf-8') as f:
         DATA = json.loads(f.read())
@@ -138,6 +139,10 @@ def menu():
                 led.set_rgb(0, 50, 0)
                 print('[ DEBUG ]: open menu')
                 Layers.top = {'file':'menu', 'position':(256, 0)}
+                Layers.text = [{
+                    'text':str(DATA['market']['total']),
+                    'position':(285, 10)
+                }]
                 MENU_OPEN = True
                 menu_cursor_position = 0
                 menu_move_cursor(menu_cursor_position)
@@ -382,8 +387,11 @@ def screen_breeding_sale(children, sell_indicies):
         else:
             kept.append(children[index])
 
+    if 'total' not in DATA['market']:
+        DATA['market']['total'] = 0
     for critter in sold:
         print(f"{critter.get_name()} {critter.get_colour()} = {critter.get_value()['total']}G")
+        DATA['market']['total'] += int(critter.get_value()['total'])
 
     Layers.background = {
         'file':'blank',

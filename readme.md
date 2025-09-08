@@ -48,10 +48,7 @@ Connect two devices to breed your critters with your friends'
 
 ## To do
 
-- Breeding
-	- Select offspring to sell
-	- Add those not sold to the population
-- Implement currency
+- Breeding result icome screen
 - Upgrade field
 - Visiting critters
 - Ribbons & objectives
