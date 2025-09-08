@@ -48,7 +48,8 @@ Connect two devices to breed your critters with your friends'
 
 ## To do
 
-- Breeding result icome screen
+- Breeding result income screen
+	- Ribbon icons for trait ranks
 - Upgrade field
 - Visiting critters
 - Ribbons & objectives

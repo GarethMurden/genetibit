@@ -378,6 +378,12 @@ def screen_breeding_animation():
 
 def screen_breeding_sale(children, sell_indicies):
     global DATA, CURRENT_SCREEN, POPULATION
+    Layers.clear_all()
+    Layers.bottom = {
+        'file':'blank',
+        'position':(0,0)
+    }
+    Layers.middle = []
 
     kept = []
     sold = []
@@ -389,9 +395,17 @@ def screen_breeding_sale(children, sell_indicies):
 
     if 'total' not in DATA['market']:
         DATA['market']['total'] = 0
-    for critter in sold:
+    for counter, critter in enumerate(sold):
         print(f"{critter.get_name()} {critter.get_colour()} = {critter.get_value()['total']}G")
         DATA['market']['total'] += int(critter.get_value()['total'])
+
+        Layers.middle.append({
+            'file':     critter.get_sprite(),
+            'position': (10, 10 + (48 * counter)),
+            'scale':    2
+        })
+        # TODO: Show ribbon for each trait rank 
+
 
     Layers.background = {
         'file':'blank',
@@ -399,14 +413,7 @@ def screen_breeding_sale(children, sell_indicies):
     }
 
     time.sleep(3)
-    # TODO:
-    #   - Show valuation screen
-    #   - Show critter value ranks for each trait
-
-    Layers.text = [
-
-    ]
-
+    
     # reset breeding data
     del DATA['breeding']['sell_selections']
     DATA['breeding']['cursor_index'] = 0
