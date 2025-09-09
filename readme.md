@@ -56,8 +56,11 @@ Connect two devices to breed your critters with your friends'
 - Device-to-device communication
 
 - Fixes
-	- POPULATION `local variable referenced before assignment` in breeding_result screen
-	- Cursor freezes on breeding_result screen
+	- generation labels on breeding screen don't match critter
+		- unique ID/number for each critter may be better
+	- gold total sticks after menu close
+	- selecting the current screen from the menu leaves menu open
+	- futher improve button responsiveness
 
 ## Resources 
 

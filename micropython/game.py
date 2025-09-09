@@ -395,25 +395,31 @@ def screen_breeding_sale(children, sell_indicies):
 
     if 'total' not in DATA['market']:
         DATA['market']['total'] = 0
-    for counter, critter in enumerate(sold):
-        print(f"{critter.get_name()} {critter.get_colour()} = {critter.get_value()['total']}G")
-        DATA['market']['total'] += int(critter.get_value()['total'])
+    for v_counter, critter in enumerate(sold):
+        value = critter.get_value()
+        DATA['market']['total'] += int(value['total'])
 
+        vertical_position = 10 + (48 * v_counter)
         Layers.middle.append({
             'file':     critter.get_sprite(),
-            'position': (10, 10 + (48 * counter)),
+            'position': (10, vertical_position),
             'scale':    2
         })
-        # TODO: Show ribbon for each trait rank 
 
+        ribbons = ['colour', 'legs', 'body', 'head']
+        for h_counter, ribbon in enumerate(ribbons):
+            if value[ribbon]['rank'] != 'D':
+                Layers.middle.append({
+                    'file':f"ribbon/ribbon_{value[ribbon]['rank'].lower()}",
+                    'position':(100 + h_counter * 18, vertical_position + 15)
+                })
 
     Layers.background = {
         'file':'blank',
         'position':(0,0)
     }
+    Layers.show()
 
-    time.sleep(3)
-    
     # reset breeding data
     del DATA['breeding']['sell_selections']
     DATA['breeding']['cursor_index'] = 0
@@ -423,8 +429,10 @@ def screen_breeding_sale(children, sell_indicies):
     DATA['critters'] += [{'ancestors':child.ancestors, 'genes':child.get_genotype()} for child in kept]
     data_save()
 
-    # return to field
-    CURRENT_SCREEN = 'field'
+    while True: # Wait for button press, then return to field
+        if button_y.value() == 0:
+            CURRENT_SCREEN = 'field'
+            break
 
 
 def screen_breeding_result():
