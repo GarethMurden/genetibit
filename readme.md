@@ -49,8 +49,9 @@ Connect two devices to breed your critters with your friends'
 ## To do
 
 - Breeding result income screen
-	- Ribbon icons for trait ranks
+	- Move sell/keep selection to breeding_sell screen
 - Upgrade field
+	- Population limits
 - Visiting critters
 - Ribbons & objectives
 - Device-to-device communication
