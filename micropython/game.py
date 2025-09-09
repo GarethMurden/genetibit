@@ -379,8 +379,8 @@ def screen_breeding_animation():
 def screen_breeding_sale(children, sell_indicies):
     global DATA, CURRENT_SCREEN, POPULATION
     Layers.clear_all()
-    Layers.bottom = {
-        'file':'blank',
+    Layers.background = {
+        'file':'breeding_sell',
         'position':(0,0)
     }
     Layers.middle = []
@@ -414,10 +414,6 @@ def screen_breeding_sale(children, sell_indicies):
                     'position':(100 + h_counter * 18, vertical_position + 15)
                 })
 
-    Layers.background = {
-        'file':'blank',
-        'position':(0,0)
-    }
     Layers.show()
 
     # reset breeding data
