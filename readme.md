@@ -47,19 +47,17 @@ Connect two devices to breed your critters with your friends'
 # Development notes
 
 ## To do
-
-- Breeding result income screen
-	- Move sell/keep selection to breeding_sell screen
+- Unique ID for each critter
+	- Display on breeding screen instead of generation no.
 - Upgrade field
 	- Population limits
 	- Sell critters from field
+- Breeding cooldown for individual critters
 - Visiting critters
 - Ribbons & objectives
 - Device-to-device communication
 
 - Fixes
-	- generation labels on breeding screen don't match critter
-		- unique ID/number for each critter may be better
 	- gold total sticks after menu close
 	- selecting the current screen from the menu leaves menu open
 	- Opening menu within breeding result flow should not be allowed

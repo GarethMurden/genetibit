@@ -446,7 +446,6 @@ def screen_breeding_sale(children):
 
             if button_y.value() == 0:
                 led.set_rgb(0, 50, 0)
-                print(f"{DATA['breeding']['cursor_index']=} {(len(cursor_positions) -1)=}")
                 if DATA['breeding']['cursor_index'] != len(cursor_positions) -1: # sell checkbox highlighted
                     if DATA['breeding']['sell_selections'][DATA['breeding']['cursor_index']]:
                         DATA['breeding']['sell_selections'][DATA['breeding']['cursor_index']] = False
