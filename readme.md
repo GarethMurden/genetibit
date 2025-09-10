@@ -52,6 +52,7 @@ Connect two devices to breed your critters with your friends'
 	- Move sell/keep selection to breeding_sell screen
 - Upgrade field
 	- Population limits
+	- Sell critters from field
 - Visiting critters
 - Ribbons & objectives
 - Device-to-device communication
@@ -61,6 +62,7 @@ Connect two devices to breed your critters with your friends'
 		- unique ID/number for each critter may be better
 	- gold total sticks after menu close
 	- selecting the current screen from the menu leaves menu open
+	- Opening menu within breeding result flow should not be allowed
 	- futher improve button responsiveness
 
 ## Resources 
