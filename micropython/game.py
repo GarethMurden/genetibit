@@ -416,10 +416,10 @@ def screen_breeding_sale(children):
         (218, 215) # OK button
     ]
     checkmark_positions = [
-        (250,  33),
-        (250,  82),
-        (250, 131),
-        (250, 178)
+        (252,  33),
+        (252,  81),
+        (252, 129),
+        (252, 176)
     ]
     if 'sell_selections' not in DATA['breeding']:
         DATA['breeding']['sell_selections'] = [False, False, False, False]
