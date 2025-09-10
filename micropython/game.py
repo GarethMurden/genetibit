@@ -427,57 +427,67 @@ def screen_breeding_sale(children):
 
     if 'total' not in DATA['market']:
         DATA['market']['total'] = 0
+    previous_cursor_index = None
+    previous_sell_selections = None
     while True:
-        if not MENU_OPEN:
-            if button_a.value() == 0:
-                led.set_rgb(0, 50, 0)
-                DATA['breeding']['cursor_index'] -= 1
-                if DATA['breeding']['cursor_index'] < 0:
-                    DATA['breeding']['cursor_index'] = len(cursor_positions) -1
+        update_screen = False
+        if button_a.value() == 0:
+            led.set_rgb(0, 50, 0)
+            DATA['breeding']['cursor_index'] -= 1
+            if DATA['breeding']['cursor_index'] < 0:
+                DATA['breeding']['cursor_index'] = len(cursor_positions) -1
+        
+        if button_b.value() == 0:
+            led.set_rgb(0, 50, 0)
+            DATA['breeding']['cursor_index'] += 1
+            if DATA['breeding']['cursor_index'] == len(cursor_positions):
+                DATA['breeding']['cursor_index'] = 0
+
+        if button_y.value() == 0:
+            led.set_rgb(0, 50, 0)
+            if DATA['breeding']['cursor_index'] != len(cursor_positions): # sell checkbox highlighted
+                if DATA['breeding']['sell_selections'][DATA['breeding']['cursor_index']]:
+                    DATA['breeding']['sell_selections'][DATA['breeding']['cursor_index']] = False
+                else:
+                    DATA['breeding']['sell_selections'][DATA['breeding']['cursor_index']] = True
             
-            if button_b.value() == 0:
-                led.set_rgb(0, 50, 0)
-                DATA['breeding']['cursor_index'] += 1
-                if DATA['breeding']['cursor_index'] == len(cursor_positions):
-                    DATA['breeding']['cursor_index'] = 0
 
-            if button_y.value() == 0:
-                led.set_rgb(0, 50, 0)
-                if DATA['breeding']['cursor_index'] != len(cursor_positions): # sell checkbox highlighted
-                    if DATA['breeding']['sell_selections'][DATA['breeding']['cursor_index']]:
-                        DATA['breeding']['sell_selections'][DATA['breeding']['cursor_index']] = False
+            else: # ok button highlighted
+                for index, sold in DATA['breeding']['sell_selections']:
+                    if sold:
+                        DATA['market']['total'] += children[index].get_value()['total']
                     else:
-                        DATA['breeding']['sell_selections'][DATA['breeding']['cursor_index']] = True
-                
+                        POPULATION.append(children[index])
+                        DATA['critters'].append({
+                            'ancestors':children[index].ancestors,
+                            'genes':children[index].get_genotype()
+                        })
+                del DATA['breeding']['sell_selections']
+                DATA['breeding']['cursor_index'] = 0
+                data_save()
+                CURRENT_SCREEN = 'field'
+                break
 
-                else: # ok button highlighted
-                    for index, sold in DATA['breeding']['sell_selections']:
-                        if sold:
-                            DATA['market']['total'] += children[index].get_value()['total']
-                        else:
-                            POPULATION.append(children[index])
-                            DATA['critters'].append({
-                                'ancestors':children[index].ancestors,
-                                'genes':children[index].get_genotype()
-                            })
-                    del DATA['breeding']['sell_selections']
-                    DATA['breeding']['cursor_index'] = 0
-                    data_save()
-                    CURRENT_SCREEN = 'field'
-                    break
-
+        if previous_cursor_index != DATA['breeding']['cursor_index']:
+            update_screen = True
+            previous_cursor_index = DATA['breeding']['cursor_index']
             Layers.cursor = {
                 'file':'cursor',
                 'position':cursor_positions[DATA['breeding']['cursor_index']]
             }
 
+        if previous_sell_selections != DATA['breeding']['sell_selections']:
+            update_screen = True
+            previous_sell_selections = DATA['breeding']['sell_selections'].copy()
             for counter, selected in enumerate(DATA['breeding']['sell_selections']):
                 if selected:
                     Layers.middle.append({
                         'file':'tick',
                         'position':checkmark_positions[counter],
                     })
-        Layers.show()
+        if update_screen:
+            print('update screen')
+            Layers.show()
 
 def screen_breeding_result():
     global DATA, CURRENT_SCREEN, POPULATION
