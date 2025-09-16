@@ -285,12 +285,12 @@ def screen_breeding():
 
     Layers.text = [
         {
-            'text':len(POPULATION[DATA['breeding']['right_critter_index']].ancestors),
+            'text':POPULATION[DATA['breeding']['right_critter_index']].uid,
             'position':(80, 189),
             'scale': 2
         },
         {
-            'text':len(POPULATION[DATA['breeding']['left_critter_index']].ancestors),
+            'text':POPULATION[DATA['breeding']['left_critter_index']].uid,
             'position':(235, 189),
             'scale': 2
         }
@@ -461,7 +461,7 @@ def screen_breeding_sale(children):
                             DATA['critters'].append({
                                 'ancestors':children[index].ancestors,
                                 'genes':children[index].get_genotype(),
-                                'id':children[index].id
+                                'uid':children[index].uid
                             })
                     del DATA['breeding']['sell_selections']
                     DATA['breeding']['cursor_index'] = 0
@@ -618,7 +618,7 @@ def main():
                     random.randint(10, 280),
                     random.randint(10, 210)
                 ),
-                id=critter_data['id']
+                uid=critter_data['uid']
             )
             POPULATION.append(critter)
     screen_switch_thread = _thread.start_new_thread(screens, ())

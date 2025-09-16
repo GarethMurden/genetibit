@@ -49,8 +49,8 @@ Connect two devices to breed your critters with your friends'
 ## To do
 
 - Features
-	- Unique ID for each critter
-		- Display on breeding screen instead of generation no.
+
+	- Display ID on breeding screen instead of generation no.
 	- Upgrade field
 		- Population limits
 	- Select critter from field to view info
