@@ -24,7 +24,7 @@ Upgrade your field to fit more creatures
 
 `Coming soon`
 
-Earn ribbons by completing objectives
+Enter your critters in shows to earn ribbons
 
 `Coming soon`
 
@@ -57,7 +57,7 @@ Connect two devices to breed your critters with your friends'
 		- Sell critters from field
 	- Breeding cooldown for individual critters
 	- Visiting critters
-	- Ribbons & objectives
+	- Competitions
 	- Device-to-device communication
 
 - Fixes

@@ -14,6 +14,7 @@ class Critter():
 				random.randint(10, 210)
 			)
 		self.position = [position[0], position[1]]
+		self.id = generate_id()
 
 	def get_colour(self):
 		colour = sorted(self.genes['colour'])
@@ -116,13 +117,17 @@ def build_ancestry(parent_a, parent_b):
 		ancestry.append(generation)
 	return ancestry
 
+def generate_id():
+	source = ['c','b','d','f','g','h','j','k','m','n','p','q','r','s','t','v','w','x','y','z','1','2','3','4','5','6','7','8','9']
+	return ''.join(random.sample(source, 4))
+
 def generate_starters():
 	colour = random.choice([
 		['yellow', 'yellow'],
 		['blue', 'blue'],
 		['red', 'red']
 	])
-	head = random.choice(HEAD_OPTION)
+	head = random.choice(HEAD_OPTIONS)
 	body = random.choice(BODY_OPTIONS)
 	legs = random.choice(LEG_OPTIONS)
 	first = {
@@ -136,7 +141,7 @@ def generate_starters():
 	}
 	second = {
 		'genes':{
-			'head':[head, random.choice(HEAD_OPTION)],
+			'head':[head, random.choice(HEAD_OPTIONS)],
 			'body':[body, random.choice(BODY_OPTIONS)],
 			'legs':[legs, random.choice(LEG_OPTIONS)],
 			'colour':colour
