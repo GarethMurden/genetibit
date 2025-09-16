@@ -460,7 +460,8 @@ def screen_breeding_sale(children):
                             POPULATION.append(children[index])
                             DATA['critters'].append({
                                 'ancestors':children[index].ancestors,
-                                'genes':children[index].get_genotype()
+                                'genes':children[index].get_genotype(),
+                                'id':children[index].id
                             })
                     del DATA['breeding']['sell_selections']
                     DATA['breeding']['cursor_index'] = 0
@@ -616,7 +617,8 @@ def main():
                 position=(
                     random.randint(10, 280),
                     random.randint(10, 210)
-                )
+                ),
+                id=critter_data['id']
             )
             POPULATION.append(critter)
     screen_switch_thread = _thread.start_new_thread(screens, ())

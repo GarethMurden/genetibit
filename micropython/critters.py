@@ -5,7 +5,7 @@ BODY_OPTIONS = ['ka', 'ke', 'ki',  'ko', 'ku']
 LEG_OPTIONS = ['chi', 'ta', 'te',  'to', 'tsu']
 
 class Critter():
-	def __init__(self, genes, ancestors=['unknown','unknown'], position=None):
+	def __init__(self, genes, ancestors=['unknown','unknown'], position=None, uid=None):
 		self.ancestors = ancestors
 		self.genes = genes
 		if position is None:
@@ -14,7 +14,9 @@ class Critter():
 				random.randint(10, 210)
 			)
 		self.position = [position[0], position[1]]
-		self.id = generate_id()
+		if uid is None:
+			uid = generate_id()
+		self.uid = generate_id()
 
 	def get_colour(self):
 		colour = sorted(self.genes['colour'])
@@ -137,7 +139,8 @@ def generate_starters():
 			'legs':[legs, legs],
 			'colour':colour
 		},
-		'ancestors':['unknown', 'unknown']
+		'ancestors':['unknown', 'unknown'],
+		'uid':generate_id()
 	}
 	second = {
 		'genes':{
@@ -146,6 +149,7 @@ def generate_starters():
 			'legs':[legs, random.choice(LEG_OPTIONS)],
 			'colour':colour
 		},
-		'ancestors':['unknown', 'unknown']
+		'ancestors':['unknown', 'unknown'],
+		'uid':generate_id()
 	}
 	return [first, second]
