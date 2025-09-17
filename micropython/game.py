@@ -285,13 +285,13 @@ def screen_breeding():
 
     Layers.text = [
         {
-            'text':POPULATION[DATA['breeding']['right_critter_index']].uid,
-            'position':(80, 189),
+            'text':POPULATION[DATA['breeding']['left_critter_index']].uid,
+            'position':(50, 189),
             'scale': 2
         },
         {
-            'text':POPULATION[DATA['breeding']['left_critter_index']].uid,
-            'position':(235, 189),
+            'text':POPULATION[DATA['breeding']['right_critter_index']].uid,
+            'position':(210, 189),
             'scale': 2
         }
     ]
@@ -517,22 +517,22 @@ def screen_breeding_result():
         },
         {
             'file':children[0].get_sprite(),
-            'position':(5, 115),
+            'position':(5, 125),
             'scale':3
         },
         {
             'file':children[1].get_sprite(),
-            'position':(75, 115),
+            'position':(75, 125),
             'scale':3
         },
         {
             'file':children[2].get_sprite(),
-            'position':(155, 115),
+            'position':(155, 125),
             'scale':3
         },
         {
             'file':children[3].get_sprite(),
-            'position':(230, 115),
+            'position':(230, 125),
             'scale':3
         }
     ]

@@ -120,8 +120,12 @@ def build_ancestry(parent_a, parent_b):
 	return ancestry
 
 def generate_id():
-	source = ['c','b','d','f','g','h','j','k','m','n','p','q','r','s','t','v','w','x','y','z','1','2','3','4','5','6','7','8','9']
-	return ''.join(random.sample(source, 4))
+	source = ['a', 'i', 'u', 'e', 'o', 'ka', 'ki', 'ku', 'ke', 'ko', 'sa', 'su', 'se', 'so', 'ta', 'te', 'to', 'ma', 'mi', 'mu', 'me', 'mo', 'ra', 'ri', 'ru', 're', 'ro', 'ya', 'ma', 'mo', 'wa', 'n']
+	# source = ['c','b','d','f','g','h','j','k','m','n','p','r','s','t','v','w','x','y','z']
+	uid = []
+	for x in range(3):
+		uid.append(random.choice(source))
+	return ''.join(uid).upper()
 
 def generate_starters():
 	colour = random.choice([
