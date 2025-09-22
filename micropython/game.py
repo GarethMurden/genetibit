@@ -564,6 +564,14 @@ def screen_market():
         'file':'market',
         'position':(0, 0)
     }
+    # TODO:
+    #   - Market items:
+    #       - Field upgrade
+    #       - Bring in new breeding options
+    #       - Compete in show (plane ticket?)
+    #   - Sale logic
+    #   - Sale animation
+    #   - Stock refresh / repurchase timeout
 
 def screen_settings():
     global DATA

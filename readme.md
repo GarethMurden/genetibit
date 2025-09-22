@@ -49,18 +49,20 @@ Connect two devices to breed your critters with your friends'
 ## To do
 
 - Features
-
-	- Display ID on breeding screen instead of generation no.
+	
 	- Upgrade field
 		- Population limits
 	- Select critter from field to view info
 		- Sell critters from field
-	- Breeding cooldown for individual critters
+	- Timer/cooldown logic
+		- Breeding cooldown for individual critters
+		- Restock cooldown for market
 	- Visiting critters
 	- Competitions
 	- Device-to-device communication
 
 - Fixes
+	- shouldn't be possible to breed a critter to itself
 	- gold total sticks after menu close
 	- selecting the current screen from the menu leaves menu open
 	- Opening menu within breeding result flow should not be allowed
