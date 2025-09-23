@@ -18,7 +18,7 @@ class Critter():
         self.cooldown = None
         if uid is None:
             self.uid = generate_id()
-            set_cooldown(self)
+            self.set_cooldown()
         else:
             self.uid = uid
         
@@ -110,28 +110,24 @@ class Critter():
         self.cooldown = {'duration':seconds, 'end':time.time() + seconds}
 
     def check_cooldown(self):
-        if self.cooldown is None:
-            in_effect = False
-            icon = '/assets/timeout/001.png'
-        else:
+        in_effect = False
+        icon = 'timeout/001'
+        if self.cooldown is not None:
             current_time = time.time()
             if self.cooldown['end'] > current_time:
                 in_effect = True
                 timeout_files = {
-                    1: '001.png',
-                    25:'025.png',
-                    50:'050.png',
-                    75:'075.png',
-                    90:'090.png'
+                    1: '001',
+                    25:'025',
+                    50:'050',
+                    75:'075',
+                    90:'090'
                 }
-                remaining = cooldown['end'] - current_time
+                remaining = self.cooldown['end'] - current_time
                 percentage = int(remaining / self.cooldown['duration'] * 100)
                 for key in timeout_files:
                     if percentage > key:
-                        icon = f'/assets/timeout/{timeout_files[key]}'
-            else:
-                in_effect = False
-                icon = '/assets/timeout/001.png'
+                        icon = f'timeout/{timeout_files[key]}'
         return in_effect, icon
 
 def build_ancestry(parent_a, parent_b):

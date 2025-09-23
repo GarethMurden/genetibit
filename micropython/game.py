@@ -26,6 +26,11 @@ IMAGES = display.create_pen(200, 200, 200)
 display.set_pen(IMAGES)
 display.clear()
 
+COOLDOWNS = {
+    'breeding': 120, # cooldown before critter can be bred again
+    'stock':   3600  # cooldown before market restocks sold items
+}
+
 MENU_OPEN = False
 CURRENT_SCREEN = 'breeding'#'field'
 DATA = {
@@ -264,8 +269,8 @@ def screen_breeding():
 
             if button_y.value() == 0:
                 led.set_rgb(0, 50, 0)
-                POPULATION[DATA['breeding']['left_critter_index']].set_cooldown( seconds=60)
-                POPULATION[DATA['breeding']['right_critter_index']].set_cooldown(seconds=60)
+                POPULATION[DATA['breeding']['left_critter_index']].set_cooldown( seconds=COOLDOWNS['breeding'])
+                POPULATION[DATA['breeding']['right_critter_index']].set_cooldown(seconds=COOLDOWNS['breeding'])
                 CURRENT_SCREEN = 'breeding_animation' # change screen on next loop iteration
 
     Layers.background = {
@@ -290,14 +295,14 @@ def screen_breeding():
         Layers.middle.append({
             'file':icon,
             'position':(15, 65),
-            'scale':1
+            'scale':4
         })
     timeout_in_effect, icon = POPULATION[DATA['breeding']['right_critter_index']].check_cooldown()
     if timeout_in_effect:
         Layers.middle.append({
             'file':icon,
-            'position':(15, 65),
-            'scale':1
+            'position':(175, 65),
+            'scale':4
         })
 
     Layers.text = [

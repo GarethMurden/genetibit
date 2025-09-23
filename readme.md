@@ -49,14 +49,15 @@ Connect two devices to breed your critters with your friends'
 ## To do
 
 - Features
-	
+	- Timer/cooldown logic
+		- Improve cooldown icon
+		- Breeding cooldown for individual critters
+		- Restock cooldown for market
+
 	- Upgrade field
 		- Population limits
 	- Select critter from field to view info
 		- Sell critters from field
-	- Timer/cooldown logic
-		- Breeding cooldown for individual critters
-		- Restock cooldown for market
 	- Visiting critters
 	- Competitions
 	- Device-to-device communication
