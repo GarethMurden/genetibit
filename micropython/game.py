@@ -83,7 +83,6 @@ class Layer_class():
             self.update_display(self.menu_cursor['file'], self.menu_cursor['position'], self.menu_cursor.get('scale', 1))
         if self.text is not None:
             display.set_pen(TEXT)
-            # display.clear()
             for entry in self.text:
                 display.text(
                     str(entry['text']),
@@ -97,6 +96,28 @@ class Layer_class():
     def update_display(self, filename, position, scale=1):
         png.open_file(f"assets/{filename}.png")
         png.decode(position[0], position[1], scale=scale)
+
+def check_cooldown(cooldown):
+    current_time = time.time()
+    if cooldown['end'] > current_time:
+        in_effect = True
+        timeout_files = {
+            1: '001.png',
+            25:'025.png',
+            50:'050.png',
+            75:'075.png',
+            90:'090.png'
+        }
+        remaining = cooldown['end'] - current_time
+        percentage = int(remaining / cooldown['duration'] * 100)
+        for key in timeout_files:
+            if percentage > key:
+                icon = f'/assets/timeout/{timeout_files[key]}'
+    else:
+        in_effect = False
+        icon = '/assets/timeout/001.png'
+    return in_effect, icon
+
 
 def data_clear_screen():
     '''clear cached data only needed while screen open'''
@@ -272,16 +293,33 @@ def screen_breeding():
         'file':'breeding',
         'position':(0, 0)
     }
-    Layers.bottom = {
-        'file':POPULATION[DATA['breeding']['left_critter_index']].get_sprite(),
-        'position':(15, 65),
-        'scale':4
-    }
-    Layers.middle = [{
-        'file':POPULATION[DATA['breeding']['right_critter_index']].get_sprite(),
-        'position':(175, 65),
-        'scale':4
-    }]
+    Layers.middle = [
+        {
+            'file':POPULATION[DATA['breeding']['left_critter_index']].get_sprite(),
+            'position':(15, 65),
+            'scale':4
+        },
+        {
+            'file':POPULATION[DATA['breeding']['right_critter_index']].get_sprite(),
+            'position':(175, 65),
+            'scale':4
+        }
+    ]
+
+    timeout_in_effect, icon = check_cooldown(POPULATION[DATA['breeding']['left_critter_index']].cooldown)
+    if timeout_in_effect:
+        Layers.middle.append({
+            'file':icon,
+            'position':(15, 65),
+            'scale':1
+        })
+    timeout_in_effect, icon = check_cooldown(POPULATION[DATA['breeding']['right_critter_index']].cooldown)
+    if timeout_in_effect:
+        Layers.middle.append({
+            'file':icon,
+            'position':(15, 65),
+            'scale':1
+        })
 
     Layers.text = [
         {

@@ -107,11 +107,8 @@ class Critter():
 			if 10 < self.position[1] + change < 210:
 				self.position[1] = self.position[1] + change
 
-	def set_cooldown(self, minutes=0, seconds=0):
-		current_time = time.gmtime()
-		new_minutes = current_time[4] + minutes
-		new_seconds = current_time[5] + seconds
-		self.cooldown = f'{current_time[0]}-{current_time[1]}-{current_time[2]} {current_time[3]}:{new_minutes}:{new_seconds}'
+	def set_cooldown(self, seconds=0):
+		self.cooldown = {'duration':seconds, 'end':time.time() + seconds}
 
 def build_ancestry(parent_a, parent_b):
 	ancestry = [[f'{parent_a.get_name()}_{parent_a.get_colour()}', f'{parent_b.get_name()}_{parent_b.get_colour()}']]
