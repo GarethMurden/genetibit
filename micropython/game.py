@@ -6,9 +6,8 @@ from picographics import PicoGraphics, DISPLAY_PICO_DISPLAY_2, PEN_RGB332
 from pimoroni import RGBLED
 import pngdec
 import random
-import time
 import _thread
-
+import time
 import critters
 
 button_a = Pin(12, Pin.IN, Pin.PULL_UP)
@@ -96,28 +95,6 @@ class Layer_class():
     def update_display(self, filename, position, scale=1):
         png.open_file(f"assets/{filename}.png")
         png.decode(position[0], position[1], scale=scale)
-
-def check_cooldown(cooldown):
-    current_time = time.time()
-    if cooldown['end'] > current_time:
-        in_effect = True
-        timeout_files = {
-            1: '001.png',
-            25:'025.png',
-            50:'050.png',
-            75:'075.png',
-            90:'090.png'
-        }
-        remaining = cooldown['end'] - current_time
-        percentage = int(remaining / cooldown['duration'] * 100)
-        for key in timeout_files:
-            if percentage > key:
-                icon = f'/assets/timeout/{timeout_files[key]}'
-    else:
-        in_effect = False
-        icon = '/assets/timeout/001.png'
-    return in_effect, icon
-
 
 def data_clear_screen():
     '''clear cached data only needed while screen open'''
@@ -287,6 +264,8 @@ def screen_breeding():
 
             if button_y.value() == 0:
                 led.set_rgb(0, 50, 0)
+                POPULATION[DATA['breeding']['left_critter_index']].set_cooldown( seconds=60)
+                POPULATION[DATA['breeding']['right_critter_index']].set_cooldown(seconds=60)
                 CURRENT_SCREEN = 'breeding_animation' # change screen on next loop iteration
 
     Layers.background = {
@@ -306,14 +285,14 @@ def screen_breeding():
         }
     ]
 
-    timeout_in_effect, icon = check_cooldown(POPULATION[DATA['breeding']['left_critter_index']].cooldown)
+    timeout_in_effect, icon = POPULATION[DATA['breeding']['left_critter_index']].check_cooldown()
     if timeout_in_effect:
         Layers.middle.append({
             'file':icon,
             'position':(15, 65),
             'scale':1
         })
-    timeout_in_effect, icon = check_cooldown(POPULATION[DATA['breeding']['right_critter_index']].cooldown)
+    timeout_in_effect, icon = POPULATION[DATA['breeding']['right_critter_index']].check_cooldown()
     if timeout_in_effect:
         Layers.middle.append({
             'file':icon,
