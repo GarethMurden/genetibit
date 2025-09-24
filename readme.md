@@ -37,6 +37,7 @@ Connect two devices to breed your critters with your friends'
 - [PicoLipo](https://thepihut.com/products/pico-lipo?variant=40824959467715) RP2040-powered microcontroller
 - [3.7V, 2000mAh LiPo battery](https://thepihut.com/products/2000mah-3-7v-lipo-battery?variant=42143258050755)
 - [Pico display & buttons](https://thepihut.com/products/pico-display-pack-2-8?variant=43884934791363)
+- [Real time clock](https://thepihut.com/products/sparkfun-real-time-clock-module?variant=39559108001987)
 - Optional [magnetic connector](https://thepihut.com/products/diy-magnetic-connector-straight-angle-five-contact-pins?variant=42058938253507) for device-to-device communication
 
 ## Credits
@@ -49,11 +50,7 @@ Connect two devices to breed your critters with your friends'
 ## To do
 
 - Features
-	- Timer/cooldown logic
-		- Improve cooldown icon
-		- Breeding cooldown for individual critters
-		- Restock cooldown for market
-
+	- Restock cooldown for market
 	- Upgrade field
 		- Population limits
 	- Select critter from field to view info
