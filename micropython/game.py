@@ -5,9 +5,9 @@ import os
 from picographics import PicoGraphics, DISPLAY_PICO_DISPLAY_2, PEN_RGB332
 from pimoroni import RGBLED
 import pngdec
-import random
+from random import choice, randint
 import _thread
-import time
+from time import sleep
 import critters
 
 button_a = Pin(12, Pin.IN, Pin.PULL_UP)
@@ -173,7 +173,7 @@ def menu():
                 led.set_rgb(0, 50, 0)
                 menu_cursor_position = menu_move_cursor(menu_cursor_position + 1)
         
-        time.sleep(0.25)
+        sleep(0.25)
         led.set_rgb(0, 0, 0)
     
 def menu_move_cursor(position):
@@ -244,8 +244,12 @@ def screen_breeding():
                 if DATA['breeding']['left_critter_index'] >= len(POPULATION):
                     DATA['breeding']['left_critter_index'] = 0
             if button_y.value() == 0:
-                led.set_rgb(0, 50, 0)
-                DATA['breeding']['cursor_index'] = 1
+                cooldown, _ = POPULATION[DATA['breeding']['left_critter_index']].check_cooldown()
+                if not cooldown:
+                    led.set_rgb(0, 50, 0)
+                    DATA['breeding']['cursor_index'] = 1
+                else:
+                    led.set_rgb(50, 0, 0)
 
         else:
             Layers.cursor = {
@@ -268,10 +272,14 @@ def screen_breeding():
                     DATA['breeding']['right_critter_index'] = 0
 
             if button_y.value() == 0:
-                led.set_rgb(0, 50, 0)
-                POPULATION[DATA['breeding']['left_critter_index']].set_cooldown( seconds=COOLDOWNS['breeding'])
-                POPULATION[DATA['breeding']['right_critter_index']].set_cooldown(seconds=COOLDOWNS['breeding'])
-                CURRENT_SCREEN = 'breeding_animation' # change screen on next loop iteration
+                cooldown, _ = POPULATION[DATA['breeding']['right_critter_index']].check_cooldown()
+                if not cooldown:
+                    led.set_rgb(0, 50, 0)
+                    POPULATION[DATA['breeding']['left_critter_index']].set_cooldown( seconds=COOLDOWNS['breeding'])
+                    POPULATION[DATA['breeding']['right_critter_index']].set_cooldown(seconds=COOLDOWNS['breeding'])
+                    CURRENT_SCREEN = 'breeding_animation' # change screen on next loop iteration
+                else:
+                    led.set_rgb(50, 0, 0)
 
     Layers.background = {
         'file':'breeding',
@@ -290,19 +298,19 @@ def screen_breeding():
         }
     ]
 
-    timeout_in_effect, icon = POPULATION[DATA['breeding']['left_critter_index']].check_cooldown()
-    if timeout_in_effect:
+    cooldown, icon = POPULATION[DATA['breeding']['left_critter_index']].check_cooldown()
+    if cooldown:
         Layers.middle.append({
             'file':icon,
-            'position':(15, 65),
-            'scale':4
+            'position':(110, 130),
+            'scale':2
         })
-    timeout_in_effect, icon = POPULATION[DATA['breeding']['right_critter_index']].check_cooldown()
-    if timeout_in_effect:
+    cooldown, icon = POPULATION[DATA['breeding']['right_critter_index']].check_cooldown()
+    if cooldown:
         Layers.middle.append({
             'file':icon,
-            'position':(175, 65),
-            'scale':4
+            'position':(260, 130),
+            'scale':2
         })
 
     Layers.text = [
@@ -338,7 +346,7 @@ def screen_breeding_animation():
     father = POPULATION[DATA['breeding']['right_critter_index']]
     DATA['breeding']['children'] = []
     for x in range(4):
-        time.sleep(0.5)
+        sleep(0.5)
         m_gamete = mother.get_gamete()
         f_gamete = father.get_gamete()
         child_genotype = {}
@@ -365,21 +373,21 @@ def screen_breeding_animation():
         'scale':4
     }
     Layers.show()
-    time.sleep(1)
+    sleep(1)
     Layers.bottom = {
         'file':'animation_hatch/hatch04',
         'position':(60, 100),
         'scale':4
     }
     Layers.show()
-    time.sleep(1)
+    sleep(1)
     Layers.bottom = {
         'file':'animation_hatch/hatch05',
         'position':(60, 100),
         'scale':4
     }
     Layers.show()
-    time.sleep(0.25)
+    sleep(0.25)
     Layers.bottom = {
         'file':'animation_hatch/hatch06',
         'position':(60, 100),
@@ -392,7 +400,7 @@ def screen_breeding_animation():
         'scale':4
     }
     Layers.show()
-    time.sleep(1)
+    sleep(1)
     Layers.bottom = None
     CURRENT_SCREEN = 'breeding_result'
 
@@ -560,7 +568,7 @@ def screen_breeding_result():
     ]
 
     Layers.show()
-    time.sleep(3)
+    sleep(3)
     DATA['breeding']['cursor_index'] = 0
     screen_breeding_sale(children)
 
@@ -569,7 +577,7 @@ def screen_field():
     Layers.middle = []
     for critter in POPULATION:
         if not MENU_OPEN:
-            if random.choice([True, True, False]):
+            if choice([True, True, False]):
                 critter.move()
         Layers.middle.append({
             'file':critter.get_sprite(),
@@ -645,8 +653,8 @@ def main():
                 critter_data['genes'],
                 critter_data['ancestors'],
                 position=(
-                    random.randint(10, 280),
-                    random.randint(10, 210)
+                    randint(10, 280),
+                    randint(10, 210)
                 ),
                 uid=critter_data['uid']
             )

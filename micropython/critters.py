@@ -117,12 +117,12 @@ class Critter():
             if self.cooldown['end'] > current_time:
                 in_effect = True
                 timeout_files = {
-                    1: '001',
-                    20:'002',
-                    40:'003',
-                    60:'004',
-                    80:'005',
-                    95:'006'
+                    1: '006',
+                    20:'005',
+                    40:'004',
+                    60:'003',
+                    80:'002',
+                    95:'001'
                 }
                 remaining = self.cooldown['end'] - current_time
                 percentage = int(remaining / self.cooldown['duration'] * 100)
