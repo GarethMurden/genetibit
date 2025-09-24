@@ -50,7 +50,10 @@ Connect two devices to breed your critters with your friends'
 ## To do
 
 - Features
-	- Restock cooldown for market
+	- Market
+		- Show items & prices
+		- Buy (& use immediately)
+		- Restock cooldown
 	- Upgrade field
 		- Population limits
 	- Select critter from field to view info
