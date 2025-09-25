@@ -95,6 +95,10 @@ https://www.martinfitzpatrick.dev/using-micropython-raspberry-pico/
 
 Where `<source>` is a path on the PC and `<destination>` is on the Pico's filesystem.
 
+Make sure the source `.py` file is pre-compiled into a `.mpy` before copying to save RAM:
+
+`python -m mpy_cross <source>`
+
 ### Run
 
 The `game.py` file runs as soon as it's imported so it can be triggered with the following steps:
