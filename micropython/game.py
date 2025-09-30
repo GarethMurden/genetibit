@@ -149,7 +149,7 @@ def menu():
     menu_options = [
         'field',
         'breeding',
-        'market',
+        'travel',
         'settings'
     ]
 
@@ -198,6 +198,8 @@ def menu():
             Layers.show()
             led.set_rgb(0, 0, 0)
             update_screen = False
+    Layers.top = None
+    Layers.menu_cursor = None
     
 def menu_move_cursor(position):
     cursor_positions = [
@@ -645,24 +647,27 @@ def screen_travel():
         'file':'travel',
         'position':(0, 0)
     }
+
+    item_coordinates = [
+        {'sprite':( 43, 85), 'price':( 53, 158)},
+        {'sprite':(143, 85), 'price':(153, 158)},
+        {'sprite':(240, 85), 'price':(250, 158)}
+    ]
     Layers.middle = []
-    Layers.middle.append({
-        'file':DATA['travel']['items'][0]['sprite'],
-        'position':(43, 85),
-        'scale':2
-    })
-    Layers.middle.append({
-        'file':DATA['travel']['items'][1]['sprite'],
-        'position':(143, 85),
-        'scale':2
-    })
-    Layers.middle.append({
-        'file':DATA['travel']['items'][2]['sprite'],
-        'position':(240, 85),
-        'scale':2
-    })
+    Layers.text = []
+    for index, item in enumerate(DATA['travel']['items']):
+        Layers.middle.append({
+            'file':item['sprite'],
+            'position':item_coordinates[index]['sprite'],
+            'scale':2
+        })
+        Layers.text.append({
+            'text':str(item['price']),
+            'position':item_coordinates[index]['price']
+        })
+
     update_screen = True
-    while True:
+    while CURRENT_SCREEN == 'travel':
         if button_x.value() == 0:
             menu()
 
@@ -672,7 +677,6 @@ def screen_travel():
 
 
     # TODO:
-    #   - Item prices
     #   - Sale logic
     #   - Sale animation
     #   - Stock refresh / repurchase timeout
