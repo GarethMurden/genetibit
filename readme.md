@@ -50,10 +50,11 @@ Connect two devices to breed your critters with your friends'
 ## To do
 
 - Features
-	- Market
+	- Travel
 		- Show items & prices
 		- Buy (& use immediately)
 		- Restock cooldown
+			- Out of stock icon
 	- Upgrade field
 		- Population limits
 	- Select critter from field to view info
@@ -63,8 +64,9 @@ Connect two devices to breed your critters with your friends'
 	- Device-to-device communication
 
 - Fixes
-	- shouldn't be possible to breed a critter to itself
-	- gold total sticks after menu close
+	- Shouldn't be possible to breed a critter to itself
+	- Cursors don't move to right on breeding screen after first selection
+	- LED stays on after button release on breeding sale screen
 	- selecting the current screen from the menu leaves menu open
 	- Opening menu within breeding result flow should not be allowed
 	- futher improve button responsiveness

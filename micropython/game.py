@@ -7,7 +7,7 @@ from pimoroni import RGBLED
 import pngdec
 from random import choice, randint
 import _thread
-from time import sleep
+from time import sleep, time
 import critters
 
 button_a = Pin(12, Pin.IN, Pin.PULL_UP)
@@ -32,7 +32,7 @@ COOLDOWNS = {
 }
 
 MENU_OPEN = False
-CURRENT_SCREEN = 'breeding'#'field'
+CURRENT_SCREEN = 'travel' #field
 DATA = {
     'breeding':{
         'cursor_index':0,
@@ -43,8 +43,25 @@ DATA = {
     'field':{
         'level':0
     },
-    'market':{
-        'gold':0
+    'gold':0,
+    'travel':{
+        'items':[
+            {
+                'sprite':'travel/connect',
+                'price':0,
+                'cooldown':time()
+            },
+            {
+                'sprite':'travel/bus',
+                'price':50,
+                'cooldown':time()
+            },
+            {
+                'sprite':'travel/earth',
+                'price':150,
+                'cooldown':time()
+            }
+        ]
     },
     'settings':{
         'cursor_index':0,
@@ -111,7 +128,7 @@ def data_load():
     save_file = 'data.json'
     if not file_exits(save_file):
         DATA['critters'] += critters.generate_starters()
-        DATA['market']['total'] = 0
+        DATA['gold'] = 0
         data_save()
     with open(save_file, 'r', encoding='utf-8') as f:
         DATA = json.loads(f.read())
@@ -141,7 +158,7 @@ def menu():
     print('[ DEBUG ]: open menu')
     Layers.top = {'file':'menu', 'position':(256, 0)}
     Layers.text = [{
-        'text':str(DATA['market']['total']),
+        'text':str(DATA['gold']),
         'position':(285, 10)
     }]
     MENU_OPEN = True
@@ -224,8 +241,8 @@ def screens():
             screen_breeding_animation()
         if CURRENT_SCREEN == 'breeding_result':
             screen_breeding_result()
-        if CURRENT_SCREEN == 'market':
-            screen_market()
+        if CURRENT_SCREEN == 'travel':
+            screen_travel()
         if CURRENT_SCREEN == 'settings':
             screen_settings()
         Layers.show()
@@ -251,12 +268,19 @@ def screen_breeding():
                 update_screen = True
                 led.set_rgb(0, 50, 0)
                 DATA['breeding']['left_critter_index'] -= 1
+                if DATA['breeding']['left_critter_index'] == DATA['breeding']['right_critter_index']: # can't have the same on L & R
+                    DATA['breeding']['left_critter_index'] -= 1
+                    print(f"[DEBUG] : skipping index {DATA['breeding']['left_critter_index']}")
                 if DATA['breeding']['left_critter_index'] < 0:
                     DATA['breeding']['left_critter_index'] = len(POPULATION) -1
+
             if button_b.value() == 0:
                 update_screen = True
                 led.set_rgb(0, 50, 0)
                 DATA['breeding']['left_critter_index'] += 1
+                if DATA['breeding']['left_critter_index'] == DATA['breeding']['right_critter_index']: # can't have the same on L & R
+                    DATA['breeding']['left_critter_index'] += 1
+                    print(f"[DEBUG] : skipping index {DATA['breeding']['left_critter_index']}")
                 if DATA['breeding']['left_critter_index'] >= len(POPULATION):
                     DATA['breeding']['left_critter_index'] = 0
             if button_y.value() == 0:
@@ -278,7 +302,8 @@ def screen_breeding():
                 led.set_rgb(0, 50, 0)
                 DATA['breeding']['right_critter_index'] -= 1
                 if DATA['breeding']['right_critter_index'] == DATA['breeding']['left_critter_index']: # can't have the same on L & R
-                    DATA['breeding']['right_critter_index'] -= 1
+                        DATA['breeding']['right_critter_index'] -= 1
+                        print(f"[DEBUG] : skipping index {DATA['breeding']['right_critter_index']}")
                 if DATA['breeding']['right_critter_index'] < 0:
                     DATA['breeding']['right_critter_index'] = len(POPULATION) -1
             if button_b.value() == 0:
@@ -286,7 +311,8 @@ def screen_breeding():
                 led.set_rgb(0, 50, 0)
                 DATA['breeding']['right_critter_index'] += 1
                 if DATA['breeding']['right_critter_index'] == DATA['breeding']['left_critter_index']: # can't have the same on L & R
-                    DATA['breeding']['right_critter_index'] += 1
+                        DATA['breeding']['right_critter_index'] += 1
+                        print(f"[DEBUG] : skipping index {DATA['breeding']['right_critter_index']}")
                 if DATA['breeding']['right_critter_index'] >= len(POPULATION):
                     DATA['breeding']['right_critter_index'] = 0
 
@@ -476,8 +502,8 @@ def screen_breeding_sale(children):
         DATA['breeding']['sell_selections'] = [False, False, False, False]
 
 
-    if 'total' not in DATA['market']:
-        DATA['market']['total'] = 0
+    if 'gold' not in DATA:
+        DATA['gold'] = 0
     previous_cursor_index = None
     previous_sell_selections = None
     while True:
@@ -506,7 +532,7 @@ def screen_breeding_sale(children):
                 else: # ok button highlighted
                     for index, sold in enumerate(DATA['breeding']['sell_selections']):
                         if sold:
-                            DATA['market']['total'] += children[index].get_value()['total']
+                            DATA['gold'] += children[index].get_value()['total']
                         else:
                             POPULATION.append(children[index])
                             DATA['critters'].append({
@@ -614,19 +640,43 @@ def screen_field():
             })
         Layers.show()
 
-def screen_market():
+def screen_travel():
     Layers.background = {
-        'file':'market',
+        'file':'travel',
         'position':(0, 0)
     }
+    Layers.middle = []
+    Layers.middle.append({
+        'file':DATA['travel']['items'][0]['sprite'],
+        'position':(43, 85),
+        'scale':2
+    })
+    Layers.middle.append({
+        'file':DATA['travel']['items'][1]['sprite'],
+        'position':(143, 85),
+        'scale':2
+    })
+    Layers.middle.append({
+        'file':DATA['travel']['items'][2]['sprite'],
+        'position':(240, 85),
+        'scale':2
+    })
+    update_screen = True
+    while True:
+        if button_x.value() == 0:
+            menu()
+
+        if update_screen:
+            Layers.show()
+            update_screen = False
+
+
     # TODO:
-    #   - Market items:
-    #       - Field upgrade
-    #       - Bring in new breeding options
-    #       - Compete in show (plane ticket?)
+    #   - Item prices
     #   - Sale logic
     #   - Sale animation
     #   - Stock refresh / repurchase timeout
+    #   - Sold out sign
 
 def screen_settings():
     global DATA
@@ -634,12 +684,23 @@ def screen_settings():
         ( 40, 65),
         (140, 65)
     ]
-    if not MENU_OPEN:
+    Layers.background = {
+        'file':'settings',
+        'position':(0, 0)
+    }
+    update_screen = True
+    while True:
+        if button_x.value() == 0:
+            menu()
+
         if button_a.value() == 0:
+            update_screen = True
             DATA['settings']['cursor_index'] = 0
         if button_b.value() == 0:
+            update_screen = True
             DATA['settings']['cursor_index'] = 1
         if button_y.value() == 0:
+            update_screen = True
             if DATA['settings']['cursor_index'] == 1:
                 DATA['settings']['brightness'] = min([
                     DATA['settings']['brightness'] + 0.2,
@@ -647,6 +708,7 @@ def screen_settings():
                 ])
                 display.set_backlight(DATA['settings']['brightness'])
             else:
+                update_screen = True
                 DATA['settings']['brightness'] = max([
                     DATA['settings']['brightness'] - 0.2,
                     0.2
@@ -654,20 +716,20 @@ def screen_settings():
                 display.set_backlight(DATA['settings']['brightness'])
             data_save()
 
-    Layers.background = {
-        'file':'settings',
-        'position':(0, 0)
-    }
-    Layers.bottom = {
-        'file':f"settings_brightness{DATA['settings']['brightness']}",
-        'position':(0, 0)
-    }
-    Layers.cursor = {
-        'file':'cursor',
-        'position':cursor_positions[DATA['settings']['cursor_index']]
-    }
+        if update_screen:
+            Layers.bottom = {
+                'file':f"settings_brightness{DATA['settings']['brightness']}",
+                'position':(0, 0)
+            }
+            Layers.cursor = {
+                'file':'cursor',
+                'position':cursor_positions[DATA['settings']['cursor_index']]
+            }
+            Layers.show()
+            update_screen = False
 
 def main():
+    led.set_rgb(75, 25, 0)
     global POPULATION
     data_load()
     display.set_backlight(DATA['settings']['brightness'])
@@ -684,6 +746,7 @@ def main():
                 uid=critter_data['uid']
             )
             POPULATION.append(critter)
+    led.set_rgb(0, 0, 0)
     screens()
 
 Layers = Layer_class()
