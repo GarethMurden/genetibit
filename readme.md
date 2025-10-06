@@ -37,6 +37,7 @@ Connect two devices to breed your critters with your friends'
 - [PicoLipo](https://thepihut.com/products/pico-lipo?variant=40824959467715) RP2040-powered microcontroller
 - [3.7V, 2000mAh LiPo battery](https://thepihut.com/products/2000mah-3-7v-lipo-battery?variant=42143258050755)
 - [Pico display & buttons](https://thepihut.com/products/pico-display-pack-2-8?variant=43884934791363)
+- [Real time clock](https://thepihut.com/products/sparkfun-real-time-clock-module?variant=39559108001987)
 - Optional [magnetic connector](https://thepihut.com/products/diy-magnetic-connector-straight-angle-five-contact-pins?variant=42058938253507) for device-to-device communication
 
 ## Credits
@@ -49,19 +50,30 @@ Connect two devices to breed your critters with your friends'
 ## To do
 
 - Features
-
-	- Display ID on breeding screen instead of generation no.
+	- Travel
+		- gold animation
+		- connect animition
+		- bus animation
+		- earth animation
 	- Upgrade field
 		- Population limits
 	- Select critter from field to view info
 		- Sell critters from field
-	- Breeding cooldown for individual critters
 	- Visiting critters
 	- Competitions
 	- Device-to-device communication
 
 - Fixes
-	- gold total sticks after menu close
+	- Lack of separate thread makes it difficult to open menu from field screen
+	- Performance:
+		- update only portions of screen that have changed
+		- streamline screen_breeding_sale ribbons
+			- Single ribbon based on aggregate scores?
+		- reduce reliance on image rescaling
+	- Shouldn't be possible to breed a critter to itself
+	- Cursors don't move to right on breeding screen after first selection
+	- LED stays on after button release on breeding sale screen
+	- Price sticks after menu close
 	- selecting the current screen from the menu leaves menu open
 	- Opening menu within breeding result flow should not be allowed
 	- futher improve button responsiveness
@@ -91,6 +103,10 @@ https://www.martinfitzpatrick.dev/using-micropython-raspberry-pico/
 `cp <source> /pyboard/<destination>`
 
 Where `<source>` is a path on the PC and `<destination>` is on the Pico's filesystem.
+
+Make sure the source `.py` file is pre-compiled into a `.mpy` before copying to save RAM:
+
+`python -m mpy_cross <source>`
 
 ### Run
 

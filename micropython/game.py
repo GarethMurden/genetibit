@@ -5,10 +5,9 @@ import os
 from picographics import PicoGraphics, DISPLAY_PICO_DISPLAY_2, PEN_RGB332
 from pimoroni import RGBLED
 import pngdec
-import random
-import time
+from random import choice, randint
 import _thread
-
+from time import sleep, time
 import critters
 
 button_a = Pin(12, Pin.IN, Pin.PULL_UP)
@@ -18,7 +17,7 @@ button_y = Pin(15, Pin.IN, Pin.PULL_UP)
 
 led = RGBLED(26, 27, 28)
 
-display = PicoGraphics(display=DISPLAY_PICO_DISPLAY_2, pen_type=PEN_RGB332)
+display = PicoGraphics(display=DISPLAY_PICO_DISPLAY_2, pen_type=PEN_RGB332) # size = 320 x 240
 
 png = pngdec.PNG(display)
 
@@ -27,8 +26,13 @@ IMAGES = display.create_pen(200, 200, 200)
 display.set_pen(IMAGES)
 display.clear()
 
+COOLDOWNS = {
+    'breeding': 120, # cooldown before critter can be bred again
+    'stock':   3600  # cooldown before market restocks sold items
+}
+
 MENU_OPEN = False
-CURRENT_SCREEN = 'breeding'#'field'
+CURRENT_SCREEN = 'travel' #field
 DATA = {
     'breeding':{
         'cursor_index':0,
@@ -39,8 +43,28 @@ DATA = {
     'field':{
         'level':0
     },
-    'market':{
-        'gold':0
+    'gold':0,
+    'travel':{
+        'items':[
+            {
+                'sprite':'travel/connect',
+                'price':0,
+                'cooldown':None,
+                'cooldown_duration':5
+            },
+            {
+                'sprite':'travel/bus',
+                'price':50,
+                'cooldown':None,
+                'cooldown_duration':90
+            },
+            {
+                'sprite':'travel/earth',
+                'price':150,
+                'cooldown':None,
+                'cooldown_duration':300 # 300 sec = 5 min
+            }
+        ]
     },
     'settings':{
         'cursor_index':0,
@@ -83,7 +107,6 @@ class Layer_class():
             self.update_display(self.menu_cursor['file'], self.menu_cursor['position'], self.menu_cursor.get('scale', 1))
         if self.text is not None:
             display.set_pen(TEXT)
-            # display.clear()
             for entry in self.text:
                 display.text(
                     str(entry['text']),
@@ -98,6 +121,15 @@ class Layer_class():
         png.open_file(f"assets/{filename}.png")
         png.decode(position[0], position[1], scale=scale)
 
+def data_cooldown_active(cooldown_end):
+    if cooldown_end is None:
+        return False
+    current_time = time()
+    if cooldown_end < current_time:
+        return False
+    else:
+        return True
+
 def data_clear_screen():
     '''clear cached data only needed while screen open'''
     global DATA
@@ -108,7 +140,7 @@ def data_load():
     save_file = 'data.json'
     if not file_exits(save_file):
         DATA['critters'] += critters.generate_starters()
-        DATA['market']['total'] = 0
+        DATA['gold'] = 0
         data_save()
     with open(save_file, 'r', encoding='utf-8') as f:
         DATA = json.loads(f.read())
@@ -129,49 +161,57 @@ def menu():
     menu_options = [
         'field',
         'breeding',
-        'market',
+        'travel',
         'settings'
     ]
+
     menu_cursor_position = 0
-    while True:
-        if not MENU_OPEN:
-            if button_x.value() == 0:
-                led.set_rgb(0, 50, 0)
-                print('[ DEBUG ]: open menu')
-                Layers.top = {'file':'menu', 'position':(256, 0)}
-                Layers.text = [{
-                    'text':str(DATA['market']['total']),
-                    'position':(285, 10)
-                }]
-                MENU_OPEN = True
-                menu_cursor_position = 0
-                menu_move_cursor(menu_cursor_position)
+    led.set_rgb(0, 50, 0)
+    print('[ DEBUG ]: open menu')
+    Layers.top = {'file':'menu', 'position':(256, 0)}
+    Layers.text = [{
+        'text':str(DATA['gold']),
+        'position':(285, 10)
+    }]
+    MENU_OPEN = True
+    menu_move_cursor(menu_cursor_position)
+    Layers.show()
+    led.set_rgb(0, 0, 0)
 
-        elif MENU_OPEN:
-            if button_x.value() == 0:
-                led.set_rgb(0, 50, 0)
-                print('[ DEBUG ]: close menu')
-                Layers.top = None
-                Layers.menu_cursor = None
-                MENU_OPEN = False
+    update_screen = False
+    while MENU_OPEN:
+        if button_x.value() == 0:
+            update_screen = True
+            led.set_rgb(0, 50, 0)
+            print('[ DEBUG ]: close menu')
+            Layers.top = None
+            Layers.menu_cursor = None
+            MENU_OPEN = False
 
-            if button_y.value() == 0:
-                led.set_rgb(0, 50, 0)
-                new_screen = menu_options[menu_cursor_position]
-                print(f'[ DEBUG ]: moving to "{new_screen}" screen')
-                CURRENT_SCREEN = new_screen
-                MENU_OPEN = False
+        if button_y.value() == 0:
+            update_screen = True
+            led.set_rgb(0, 50, 0)
+            new_screen = menu_options[menu_cursor_position]
+            print(f'[ DEBUG ]: moving to "{new_screen}" screen')
+            CURRENT_SCREEN = new_screen
+            MENU_OPEN = False
 
-            if button_a.value() == 0:
-                led.set_rgb(0, 50, 0)
-                menu_cursor_position = menu_move_cursor(menu_cursor_position - 1)
-            
-            if button_b.value() == 0:
-                led.set_rgb(0, 50, 0)
-                menu_cursor_position = menu_move_cursor(menu_cursor_position + 1)
+        if button_a.value() == 0:
+            update_screen = True
+            led.set_rgb(0, 50, 0)
+            menu_cursor_position = menu_move_cursor(menu_cursor_position - 1)
         
-        time.sleep(0.25)
-        led.set_rgb(0, 0, 0)
+        if button_b.value() == 0:
+            update_screen = True
+            led.set_rgb(0, 50, 0)
+            menu_cursor_position = menu_move_cursor(menu_cursor_position + 1)
+
+        if update_screen:
+            Layers.show()
+            led.set_rgb(0, 0, 0)
+            update_screen = False
+    Layers.top = None
+    Layers.menu_cursor = None
     
 def menu_move_cursor(position):
     cursor_positions = [
@@ -215,34 +255,56 @@ def screens():
             screen_breeding_animation()
         if CURRENT_SCREEN == 'breeding_result':
             screen_breeding_result()
-        if CURRENT_SCREEN == 'market':
-            screen_market()
+        if CURRENT_SCREEN == 'travel':
+            screen_travel()
         if CURRENT_SCREEN == 'settings':
             screen_settings()
         Layers.show()
 
 def screen_breeding():
     global DATA, CURRENT_SCREEN
+    Layers.background = {
+        'file':'breeding',
+        'position':(0, 0)
+    }
+    update_screen = True
+    while CURRENT_SCREEN == 'breeding':
 
-    if not MENU_OPEN:
+        if button_x.value() == 0:
+            menu()
+
         if DATA['breeding']['cursor_index'] == 0:
             Layers.cursor = {
                 'file':'updown',
                 'position':(75, 45)
             }
             if button_a.value() == 0:
+                update_screen = True
                 led.set_rgb(0, 50, 0)
                 DATA['breeding']['left_critter_index'] -= 1
+                if DATA['breeding']['left_critter_index'] == DATA['breeding']['right_critter_index']: # can't have the same on L & R
+                    DATA['breeding']['left_critter_index'] -= 1
+                    print(f"[DEBUG] : skipping index {DATA['breeding']['left_critter_index']}")
                 if DATA['breeding']['left_critter_index'] < 0:
                     DATA['breeding']['left_critter_index'] = len(POPULATION) -1
+
             if button_b.value() == 0:
+                update_screen = True
                 led.set_rgb(0, 50, 0)
                 DATA['breeding']['left_critter_index'] += 1
+                if DATA['breeding']['left_critter_index'] == DATA['breeding']['right_critter_index']: # can't have the same on L & R
+                    DATA['breeding']['left_critter_index'] += 1
+                    print(f"[DEBUG] : skipping index {DATA['breeding']['left_critter_index']}")
                 if DATA['breeding']['left_critter_index'] >= len(POPULATION):
                     DATA['breeding']['left_critter_index'] = 0
             if button_y.value() == 0:
-                led.set_rgb(0, 50, 0)
-                DATA['breeding']['cursor_index'] = 1
+                update_screen = True
+                cooldown, _ = POPULATION[DATA['breeding']['left_critter_index']].check_cooldown()
+                if not cooldown:
+                    led.set_rgb(0, 50, 0)
+                    DATA['breeding']['cursor_index'] = 1
+                else:
+                    led.set_rgb(50, 0, 0)
 
         else:
             Layers.cursor = {
@@ -250,53 +312,82 @@ def screen_breeding():
                 'position':(235, 45)
             }
             if button_a.value() == 0:
+                update_screen = True
                 led.set_rgb(0, 50, 0)
                 DATA['breeding']['right_critter_index'] -= 1
                 if DATA['breeding']['right_critter_index'] == DATA['breeding']['left_critter_index']: # can't have the same on L & R
-                    DATA['breeding']['right_critter_index'] -= 1
+                        DATA['breeding']['right_critter_index'] -= 1
+                        print(f"[DEBUG] : skipping index {DATA['breeding']['right_critter_index']}")
                 if DATA['breeding']['right_critter_index'] < 0:
                     DATA['breeding']['right_critter_index'] = len(POPULATION) -1
             if button_b.value() == 0:
+                update_screen = True
                 led.set_rgb(0, 50, 0)
                 DATA['breeding']['right_critter_index'] += 1
                 if DATA['breeding']['right_critter_index'] == DATA['breeding']['left_critter_index']: # can't have the same on L & R
-                    DATA['breeding']['right_critter_index'] += 1
+                        DATA['breeding']['right_critter_index'] += 1
+                        print(f"[DEBUG] : skipping index {DATA['breeding']['right_critter_index']}")
                 if DATA['breeding']['right_critter_index'] >= len(POPULATION):
                     DATA['breeding']['right_critter_index'] = 0
 
             if button_y.value() == 0:
-                led.set_rgb(0, 50, 0)
-                CURRENT_SCREEN = 'breeding_animation' # change screen on next loop iteration
+                update_screen = True
+                cooldown, _ = POPULATION[DATA['breeding']['right_critter_index']].check_cooldown()
+                if not cooldown:
+                    led.set_rgb(0, 50, 0)
+                    POPULATION[DATA['breeding']['left_critter_index']].set_cooldown( seconds=COOLDOWNS['breeding'])
+                    POPULATION[DATA['breeding']['right_critter_index']].set_cooldown(seconds=COOLDOWNS['breeding'])
+                    CURRENT_SCREEN = 'breeding_animation' # change screen on next loop iteration
+                else:
+                    led.set_rgb(50, 0, 0)
 
-    Layers.background = {
-        'file':'breeding',
-        'position':(0, 0)
-    }
-    Layers.bottom = {
-        'file':POPULATION[DATA['breeding']['left_critter_index']].get_sprite(),
-        'position':(15, 65),
-        'scale':4
-    }
-    Layers.middle = [{
-        'file':POPULATION[DATA['breeding']['right_critter_index']].get_sprite(),
-        'position':(175, 65),
-        'scale':4
-    }]
+        
+        if update_screen:
+            Layers.middle = [
+                {
+                    'file':POPULATION[DATA['breeding']['left_critter_index']].get_sprite(),
+                    'position':(15, 65),
+                    'scale':4
+                },
+                {
+                    'file':POPULATION[DATA['breeding']['right_critter_index']].get_sprite(),
+                    'position':(175, 65),
+                    'scale':4
+                }
+            ]
 
-    Layers.text = [
-        {
-            'text':POPULATION[DATA['breeding']['left_critter_index']].uid,
-            'position':(50, 189),
-            'scale': 2
-        },
-        {
-            'text':POPULATION[DATA['breeding']['right_critter_index']].uid,
-            'position':(210, 189),
-            'scale': 2
-        }
-    ]
+            cooldown, icon = POPULATION[DATA['breeding']['left_critter_index']].check_cooldown()
+            if cooldown:
+                Layers.middle.append({
+                    'file':icon,
+                    'position':(110, 130),
+                    'scale':2
+                })
+            cooldown, icon = POPULATION[DATA['breeding']['right_critter_index']].check_cooldown()
+            if cooldown:
+                Layers.middle.append({
+                    'file':icon,
+                    'position':(260, 130),
+                    'scale':2
+                })
 
-    led.set_rgb(0, 0, 0)
+            Layers.text = [
+                {
+                    'text':POPULATION[DATA['breeding']['left_critter_index']].uid,
+                    'position':(50, 189),
+                    'scale': 2
+                },
+                {
+                    'text':POPULATION[DATA['breeding']['right_critter_index']].uid,
+                    'position':(210, 189),
+                    'scale': 2
+                }
+            ]
+
+            Layers.show()
+            update_screen = False
+            led.set_rgb(0, 0, 0)
+
 
 def screen_breeding_animation():
     global CURRENT_SCREEN
@@ -316,7 +407,7 @@ def screen_breeding_animation():
     father = POPULATION[DATA['breeding']['right_critter_index']]
     DATA['breeding']['children'] = []
     for x in range(4):
-        time.sleep(0.5)
+        sleep(0.5)
         m_gamete = mother.get_gamete()
         f_gamete = father.get_gamete()
         child_genotype = {}
@@ -343,21 +434,21 @@ def screen_breeding_animation():
         'scale':4
     }
     Layers.show()
-    time.sleep(1)
+    sleep(1)
     Layers.bottom = {
         'file':'animation_hatch/hatch04',
         'position':(60, 100),
         'scale':4
     }
     Layers.show()
-    time.sleep(1)
+    sleep(1)
     Layers.bottom = {
         'file':'animation_hatch/hatch05',
         'position':(60, 100),
         'scale':4
     }
     Layers.show()
-    time.sleep(0.25)
+    sleep(0.25)
     Layers.bottom = {
         'file':'animation_hatch/hatch06',
         'position':(60, 100),
@@ -370,7 +461,7 @@ def screen_breeding_animation():
         'scale':4
     }
     Layers.show()
-    time.sleep(1)
+    sleep(1)
     Layers.bottom = None
     CURRENT_SCREEN = 'breeding_result'
 
@@ -425,8 +516,8 @@ def screen_breeding_sale(children):
         DATA['breeding']['sell_selections'] = [False, False, False, False]
 
 
-    if 'total' not in DATA['market']:
-        DATA['market']['total'] = 0
+    if 'gold' not in DATA:
+        DATA['gold'] = 0
     previous_cursor_index = None
     previous_sell_selections = None
     while True:
@@ -455,7 +546,7 @@ def screen_breeding_sale(children):
                 else: # ok button highlighted
                     for index, sold in enumerate(DATA['breeding']['sell_selections']):
                         if sold:
-                            DATA['market']['total'] += children[index].get_value()['total']
+                            DATA['gold'] += children[index].get_value()['total']
                         else:
                             POPULATION.append(children[index])
                             DATA['critters'].append({
@@ -538,32 +629,189 @@ def screen_breeding_result():
     ]
 
     Layers.show()
-    time.sleep(3)
+    sleep(3)
     DATA['breeding']['cursor_index'] = 0
     screen_breeding_sale(children)
 
+def screen_bus_animation():
+    global CURRENT_SCREEN
+    Layers.cursor = None
+    Layers.text = None
+    for x in range(8):
+        left = -560 + (x * 80)
+        Layers.top = {
+            'file':'transition_bus',
+            'position':(left, 0)
+        }
+        Layers.show()
+    CURRENT_SCREEN = 'visitor'
+
+def screen_connect():
+    global CURRENT_SCREEN
+    # TODO: Connect to second device
+    Layers.clear_all()
+    Layers.background = {
+        'file':'blank',
+        'position':(0, 0)
+    }
+    Layers.text = [{
+        'text':'CONNECT',
+        'position':(10, 10)
+    }]
+    Layers.show()
+    while CURRENT_SCREEN == 'connect':
+        if  button_x.value() == 0:
+            menu()
+
+def screen_contest_map():
+    Layers.clear_all()
+    Layers.background = {
+        'file':'world_map',
+        'position':(0, 0)
+    }
+    Layers.show()
+    while CURRENT_SCREEN == 'contest_map':
+        if button_x.value() == 0:
+            menu()
+
+def screen_connect_animation():
+    # TODO: connection transition animation
+    pass
+
 def screen_field():
-    global POPULATION
-    Layers.middle = []
-    for critter in POPULATION:
-        if not MENU_OPEN:
-            if random.choice([True, True, False]):
-                critter.move()
-        Layers.middle.append({
-            'file':critter.get_sprite(),
-            'position':critter.get_position(),
-            'scale':2
-        })
+    global POPULATION, CURRENT_SCREEN
     Layers.background = {
         'file':f'field_{DATA["field"]["level"]}',
         'position':(0, 0)
     }
+    while CURRENT_SCREEN == 'field':
+        if button_x.value() == 0:
+            menu()
 
-def screen_market():
+        Layers.middle = []
+        for critter in POPULATION:
+            if button_x.value() == 0:
+                menu()
+            if choice([True, True, False]):
+                critter.move()
+            Layers.middle.append({
+                'file':critter.get_sprite(),
+                'position':critter.get_position(),
+                'scale':2
+            })
+        Layers.show()
+
+def screen_gold_animation(change):
+    # TODO:
+    # - show gold change in red (-) or green (+)
+    pass
+
+def screen_plane_animation():
+    global CURRENT_SCREEN
+    Layers.cursor = None
+    Layers.text = None
+    for x in range(8):
+        left = -560 + (x * 80)
+        Layers.top = {
+            'file':'transition_plane',
+            'position':(left, 0)
+        }
+        Layers.show()
+    CURRENT_SCREEN = 'contest_map'
+    
+def screen_travel():
     Layers.background = {
-        'file':'market',
+        'file':'travel',
         'position':(0, 0)
     }
+
+    item_coordinates = [
+        {'sprite':( 48, 75), 'price':( 53, 159)},
+        {'sprite':(143, 85), 'price':(153, 159)},
+        {'sprite':(240, 85), 'price':(250, 159)}
+    ]
+    Layers.middle = []
+    Layers.text = []
+    for index, item in enumerate(DATA['travel']['items']):
+        Layers.middle.append({
+            'file':item['sprite'],
+            'position':item_coordinates[index]['sprite'],
+            'scale':2
+        })
+        Layers.text.append({
+            'text':str(item['price']),
+            'position':item_coordinates[index]['price']
+        })
+        if data_cooldown_active(item['cooldown']):
+            Layers.middle.append({
+                'file':'/travel/sold_out',
+                'position':(
+                    item_coordinates[index]['sprite'][0] - 15,
+                    item_coordinates[index]['sprite'][1] + 10
+                )
+            })
+
+    item_bought = False
+    cursor_positions = [
+        ( 55, 155),
+        (153, 155),
+        (248, 155)
+    ]
+    cursor_index = 0
+    update_screen = True
+    while CURRENT_SCREEN == 'travel':
+        if button_x.value() == 0:
+            menu()
+
+        if button_a.value() == 0:
+            led.set_rgb(0, 50, 0)
+            cursor_index -= 1
+            if cursor_index < 0:
+                cursor_index = len(cursor_positions) -1
+            update_screen = True
+
+        if button_b.value() == 0:
+            led.set_rgb(0, 50, 0)
+            cursor_index += 1
+            if cursor_index >= len(cursor_positions):
+                cursor_index = 0
+            update_screen = True
+
+        if button_y.value() == 0:
+            if not data_cooldown_active(DATA['travel']['items'][cursor_index]['cooldown']):
+                if DATA['gold'] > DATA['travel']['items'][cursor_index]['price']:
+                    led.set_rgb(0, 50, 0)
+                    DATA['gold'] -= DATA['travel']['items'][cursor_index]['price']
+                    DATA['travel']['items'][cursor_index]['cooldown'] = time() + DATA['travel']['items'][cursor_index]['cooldown_duration']
+                    item_bought = DATA['travel']['items'][cursor_index]['sprite']
+                else:
+                    led.set_rgb(50, 0, 0) # not enough gold
+            else:
+                led.set_rgb(50, 0, 0) # sold out
+            update_screen = True
+
+        if update_screen:
+            Layers.cursor = {
+                'file':'cursor',
+                'position':cursor_positions[cursor_index]
+            }
+            Layers.show()
+            led.set_rgb(0, 0, 0)
+            update_screen = False
+
+        if item_bought:
+            screen_gold_animation(0 - DATA['travel']['items'][cursor_index]['price'])
+            break
+
+    if 'earth' in item_bought:
+        screen_plane_animation()
+        screen_contest_map()
+    if 'bus' in item_bought:
+        screen_bus_animation()
+        screen_visitor()
+    if 'connect' in item_bought:
+        screen_connect_animation()
+        screen_connect()
 
 def screen_settings():
     global DATA
@@ -571,12 +819,23 @@ def screen_settings():
         ( 40, 65),
         (140, 65)
     ]
-    if not MENU_OPEN:
+    Layers.background = {
+        'file':'settings',
+        'position':(0, 0)
+    }
+    update_screen = True
+    while True:
+        if button_x.value() == 0:
+            menu()
+
         if button_a.value() == 0:
+            update_screen = True
             DATA['settings']['cursor_index'] = 0
         if button_b.value() == 0:
+            update_screen = True
             DATA['settings']['cursor_index'] = 1
         if button_y.value() == 0:
+            update_screen = True
             if DATA['settings']['cursor_index'] == 1:
                 DATA['settings']['brightness'] = min([
                     DATA['settings']['brightness'] + 0.2,
@@ -584,6 +843,7 @@ def screen_settings():
                 ])
                 display.set_backlight(DATA['settings']['brightness'])
             else:
+                update_screen = True
                 DATA['settings']['brightness'] = max([
                     DATA['settings']['brightness'] - 0.2,
                     0.2
@@ -591,20 +851,37 @@ def screen_settings():
                 display.set_backlight(DATA['settings']['brightness'])
             data_save()
 
+        if update_screen:
+            Layers.bottom = {
+                'file':f"settings_brightness{DATA['settings']['brightness']}",
+                'position':(0, 0)
+            }
+            Layers.cursor = {
+                'file':'cursor',
+                'position':cursor_positions[DATA['settings']['cursor_index']]
+            }
+            Layers.show()
+            update_screen = False
+
+def screen_visitor():
+    # TODO: Visit breeder to introduce random genes
+    global CURRENT_SCREEN
+    Layers.clear_all()
     Layers.background = {
-        'file':'settings',
+        'file':'blank',
         'position':(0, 0)
     }
-    Layers.bottom = {
-        'file':f"settings_brightness{DATA['settings']['brightness']}",
-        'position':(0, 0)
-    }
-    Layers.cursor = {
-        'file':'cursor',
-        'position':cursor_positions[DATA['settings']['cursor_index']]
-    }
+    Layers.text = [{
+        'text':'VISITOR',
+        'position':(10, 10)
+    }]
+    Layers.show()
+    while CURRENT_SCREEN == 'visitor':
+        if  button_x.value() == 0:
+            menu()
 
 def main():
+    led.set_rgb(75, 25, 0)
     global POPULATION
     data_load()
     display.set_backlight(DATA['settings']['brightness'])
@@ -615,14 +892,14 @@ def main():
                 critter_data['genes'],
                 critter_data['ancestors'],
                 position=(
-                    random.randint(10, 280),
-                    random.randint(10, 210)
+                    randint(10, 280),
+                    randint(10, 210)
                 ),
                 uid=critter_data['uid']
             )
             POPULATION.append(critter)
-    screen_switch_thread = _thread.start_new_thread(screens, ())
-    menu()
+    led.set_rgb(0, 0, 0)
+    screens()
 
 Layers = Layer_class()
 main()
