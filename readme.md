@@ -26,7 +26,7 @@ Upgrade your field to fit more creatures
 
 Enter your critters in shows to earn ribbons
 
-`Coming soon`
+![](https://github.com/GarethMurden/genetibit/blob/master/screenshots/world_map.png?raw=true)
 
 Connect two devices to breed your critters with your friends'
 
@@ -50,11 +50,7 @@ Connect two devices to breed your critters with your friends'
 ## To do
 
 - Features
-	- Travel
-		- gold animation
-		- connect animition
-		- bus animation
-		- earth animation
+	- Display current gold on shopping screens
 	- Upgrade field
 		- Population limits
 	- Select critter from field to view info
