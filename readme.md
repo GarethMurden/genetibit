@@ -51,10 +51,10 @@ Connect two devices to breed your critters with your friends'
 
 - Features
 	- Travel
-		- Show items & prices
-		- Buy (& use immediately)
-		- Restock cooldown
-			- Out of stock icon
+		- gold animation
+		- connect animition
+		- bus animation
+		- earth animation
 	- Upgrade field
 		- Population limits
 	- Select critter from field to view info
@@ -68,6 +68,7 @@ Connect two devices to breed your critters with your friends'
 	- Performance:
 		- update only portions of screen that have changed
 		- streamline screen_breeding_sale ribbons
+			- Single ribbon based on aggregate scores?
 		- reduce reliance on image rescaling
 	- Shouldn't be possible to breed a critter to itself
 	- Cursors don't move to right on breeding screen after first selection

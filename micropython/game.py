@@ -49,17 +49,20 @@ DATA = {
             {
                 'sprite':'travel/connect',
                 'price':0,
-                'cooldown':time()
+                'cooldown':None,
+                'cooldown_duration':5
             },
             {
                 'sprite':'travel/bus',
                 'price':50,
-                'cooldown':time()
+                'cooldown':None,
+                'cooldown_duration':90
             },
             {
                 'sprite':'travel/earth',
                 'price':150,
-                'cooldown':time()
+                'cooldown':None,
+                'cooldown_duration':300 # 300 sec = 5 min
             }
         ]
     },
@@ -117,6 +120,15 @@ class Layer_class():
     def update_display(self, filename, position, scale=1):
         png.open_file(f"assets/{filename}.png")
         png.decode(position[0], position[1], scale=scale)
+
+def data_cooldown_active(cooldown_end):
+    if cooldown_end is None:
+        return False
+    current_time = time()
+    if cooldown_end < current_time:
+        return False
+    else:
+        return True
 
 def data_clear_screen():
     '''clear cached data only needed while screen open'''
@@ -621,6 +633,14 @@ def screen_breeding_result():
     DATA['breeding']['cursor_index'] = 0
     screen_breeding_sale(children)
 
+def screen_bus_animation():
+    # TODO: plane flying across display to transition between screens
+    pass
+
+def screen_connect_animation():
+    # TODO: connection transition animation
+    pass
+
 def screen_field():
     global POPULATION, CURRENT_SCREEN
     Layers.background = {
@@ -633,6 +653,8 @@ def screen_field():
 
         Layers.middle = []
         for critter in POPULATION:
+            if button_x.value() == 0:
+                menu()
             if choice([True, True, False]):
                 critter.move()
             Layers.middle.append({
@@ -642,6 +664,15 @@ def screen_field():
             })
         Layers.show()
 
+def screen_gold_animation(change):
+    # TODO:
+    # - show gold change in red (-) or green (+)
+    pass
+
+def screen_plane_animation():
+    # TODO: plane flying across display to transition between screens
+    pass
+
 def screen_travel():
     Layers.background = {
         'file':'travel',
@@ -649,9 +680,9 @@ def screen_travel():
     }
 
     item_coordinates = [
-        {'sprite':( 43, 85), 'price':( 53, 158)},
-        {'sprite':(143, 85), 'price':(153, 158)},
-        {'sprite':(240, 85), 'price':(250, 158)}
+        {'sprite':( 48, 75), 'price':( 53, 159)},
+        {'sprite':(143, 85), 'price':(153, 159)},
+        {'sprite':(240, 85), 'price':(250, 159)}
     ]
     Layers.middle = []
     Layers.text = []
@@ -665,22 +696,71 @@ def screen_travel():
             'text':str(item['price']),
             'position':item_coordinates[index]['price']
         })
+        if data_cooldown_active(item['cooldown']):
+            Layers.middle.append({
+                'file':'/travel/sold_out',
+                'position':(
+                    item_coordinates[index]['sprite'][0] - 15,
+                    item_coordinates[index]['sprite'][1] + 10
+                )
+            })
 
+    item_bought = False
+    cursor_positions = [
+        ( 55, 155),
+        (153, 155),
+        (248, 155)
+    ]
+    cursor_index = 0
     update_screen = True
     while CURRENT_SCREEN == 'travel':
         if button_x.value() == 0:
             menu()
 
+        if button_a.value() == 0:
+            led.set_rgb(0, 50, 0)
+            cursor_index -= 1
+            if cursor_index < 0:
+                cursor_index = len(cursor_positions) -1
+            update_screen = True
+
+        if button_b.value() == 0:
+            led.set_rgb(0, 50, 0)
+            cursor_index += 1
+            if cursor_index >= len(cursor_positions):
+                cursor_index = 0
+            update_screen = True
+
+        if button_x.value() == 0:
+            if not data_cooldown_active(DATA['travel']['items'][cursor_index]['cooldown']):
+                if DATA['gold'] > DATA['travel']['items'][cursor_index]['price']:
+                    led.set_rgb(0, 50, 0)
+                    DATA['travel']['items'][cursor_index]['cooldown'] = time() + DATA['travel']['items'][cursor_index]['cooldown_duration']
+                else:
+                    led.set_rgb(50, 0, 0) # not enough gold
+            else:
+                led.set_rgb(50, 0, 0) # sold out
+            update_screen = True
+
         if update_screen:
+            Layers.cursor = {
+                'file':'cursor',
+                'position':cursor_positions[cursor_index]
+            }
             Layers.show()
+            led.set_rgb(0, 0, 0)
             update_screen = False
 
+        if item_bought:
+            screen_gold_animation(0 - DATA['travel']['items'][cursor_index]['price'])
+            break
 
-    # TODO:
-    #   - Sale logic
-    #   - Sale animation
-    #   - Stock refresh / repurchase timeout
-    #   - Sold out sign
+    if item_bought == 'earth':
+        screen_plane_animation()
+    if item_bought == 'bus':
+        screen_bus_animation()
+    if item_bought == 'connect':
+        screen_connect_animation()
 
 def screen_settings():
     global DATA
