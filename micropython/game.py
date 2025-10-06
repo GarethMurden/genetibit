@@ -17,7 +17,7 @@ button_y = Pin(15, Pin.IN, Pin.PULL_UP)
 
 led = RGBLED(26, 27, 28)
 
-display = PicoGraphics(display=DISPLAY_PICO_DISPLAY_2, pen_type=PEN_RGB332)
+display = PicoGraphics(display=DISPLAY_PICO_DISPLAY_2, pen_type=PEN_RGB332) # size = 320 x 240
 
 png = pngdec.PNG(display)
 
@@ -634,8 +634,45 @@ def screen_breeding_result():
     screen_breeding_sale(children)
 
 def screen_bus_animation():
-    # TODO: plane flying across display to transition between screens
-    pass
+    global CURRENT_SCREEN
+    Layers.cursor = None
+    Layers.text = None
+    for x in range(8):
+        left = -560 + (x * 80)
+        Layers.top = {
+            'file':'transition_bus',
+            'position':(left, 0)
+        }
+        Layers.show()
+    CURRENT_SCREEN = 'visitor'
+
+def screen_connect():
+    global CURRENT_SCREEN
+    # TODO: Connect to second device
+    Layers.clear_all()
+    Layers.background = {
+        'file':'blank',
+        'position':(0, 0)
+    }
+    Layers.text = [{
+        'text':'CONNECT',
+        'position':(10, 10)
+    }]
+    Layers.show()
+    while CURRENT_SCREEN == 'connect':
+        if  button_x.value() == 0:
+            menu()
+
+def screen_contest_map():
+    Layers.clear_all()
+    Layers.background = {
+        'file':'world_map',
+        'position':(0, 0)
+    }
+    Layers.show()
+    while CURRENT_SCREEN == 'contest_map':
+        if button_x.value() == 0:
+            menu()
 
 def screen_connect_animation():
     # TODO: connection transition animation
@@ -670,9 +707,18 @@ def screen_gold_animation(change):
     pass
 
 def screen_plane_animation():
-    # TODO: plane flying across display to transition between screens
-    pass
-
+    global CURRENT_SCREEN
+    Layers.cursor = None
+    Layers.text = None
+    for x in range(8):
+        left = -560 + (x * 80)
+        Layers.top = {
+            'file':'transition_plane',
+            'position':(left, 0)
+        }
+        Layers.show()
+    CURRENT_SCREEN = 'contest_map'
+    
 def screen_travel():
     Layers.background = {
         'file':'travel',
@@ -731,11 +777,13 @@ def screen_travel():
                 cursor_index = 0
             update_screen = True
 
-        if button_x.value() == 0:
+        if button_y.value() == 0:
             if not data_cooldown_active(DATA['travel']['items'][cursor_index]['cooldown']):
                 if DATA['gold'] > DATA['travel']['items'][cursor_index]['price']:
                     led.set_rgb(0, 50, 0)
+                    DATA['gold'] -= DATA['travel']['items'][cursor_index]['price']
                     DATA['travel']['items'][cursor_index]['cooldown'] = time() + DATA['travel']['items'][cursor_index]['cooldown_duration']
+                    item_bought = DATA['travel']['items'][cursor_index]['sprite']
                 else:
                     led.set_rgb(50, 0, 0) # not enough gold
             else:
@@ -755,12 +803,15 @@ def screen_travel():
             screen_gold_animation(0 - DATA['travel']['items'][cursor_index]['price'])
             break
 
-    if item_bought == 'earth':
+    if 'earth' in item_bought:
         screen_plane_animation()
-    if item_bought == 'bus':
+        screen_contest_map()
+    if 'bus' in item_bought:
         screen_bus_animation()
-    if item_bought == 'connect':
+        screen_visitor()
+    if 'connect' in item_bought:
         screen_connect_animation()
+        screen_connect()
 
 def screen_settings():
     global DATA
@@ -811,6 +862,23 @@ def screen_settings():
             }
             Layers.show()
             update_screen = False
+
+def screen_visitor():
+    # TODO: Visit breeder to introduce random genes
+    global CURRENT_SCREEN
+    Layers.clear_all()
+    Layers.background = {
+        'file':'blank',
+        'position':(0, 0)
+    }
+    Layers.text = [{
+        'text':'VISITOR',
+        'position':(10, 10)
+    }]
+    Layers.show()
+    while CURRENT_SCREEN == 'visitor':
+        if  button_x.value() == 0:
+            menu()
 
 def main():
     led.set_rgb(75, 25, 0)
