@@ -22,6 +22,7 @@ display = PicoGraphics(display=DISPLAY_PICO_DISPLAY_2, pen_type=PEN_RGB332) # si
 png = pngdec.PNG(display)
 
 TEXT = display.create_pen(0, 0, 0)
+TEXT_RED = display.create_pen(200, 0, 0)
 IMAGES = display.create_pen(200, 200, 200)
 display.set_pen(IMAGES)
 display.clear()
@@ -108,12 +109,22 @@ class Layer_class():
         if self.text is not None:
             display.set_pen(TEXT)
             for entry in self.text:
-                display.text(
-                    str(entry['text']),
-                    entry['position'][0],
-                    entry['position'][1],
-                    scale=entry.get('scale', 1)
-                )
+                if entry.get('colour', None) is not 'red':
+                    display.text(
+                        str(entry['text']),
+                        entry['position'][0],
+                        entry['position'][1],
+                        scale=entry.get('scale', 1)
+                    )
+            display.set_pen(TEXT_RED)
+            for entry in self.text:
+                if entry.get('colour', None) is 'red':
+                    display.text(
+                        str(entry['text']),
+                        entry['position'][0],
+                        entry['position'][1],
+                        scale=entry.get('scale', 1)
+                    )
             display.set_pen(IMAGES)
         display.update()
 
@@ -272,6 +283,7 @@ def screen_breeding():
 
         if button_x.value() == 0:
             menu()
+            update_screen = True
 
         if DATA['breeding']['cursor_index'] == 0:
             Layers.cursor = {
@@ -658,10 +670,16 @@ def screen_connect():
         'text':'CONNECT',
         'position':(10, 10)
     }]
-    Layers.show()
+
+    update_screen = True
     while CURRENT_SCREEN == 'connect':
         if  button_x.value() == 0:
             menu()
+            update_screen = True
+
+        if update_screen:
+            Layers.show()
+            update_screen = False
 
 def screen_contest_map():
     Layers.clear_all()
@@ -669,10 +687,16 @@ def screen_contest_map():
         'file':'world_map',
         'position':(0, 0)
     }
-    Layers.show()
+
+    update_screen = True
     while CURRENT_SCREEN == 'contest_map':
         if button_x.value() == 0:
             menu()
+            update_screen = True
+
+        if update_screen:
+            Layers.show()
+            update_screen = False
 
 def screen_connect_animation():
     # TODO: connection transition animation
@@ -702,9 +726,19 @@ def screen_field():
         Layers.show()
 
 def screen_gold_animation(change):
-    # TODO:
-    # - show gold change in red (-) or green (+)
-    pass
+    if change != 0:
+        if change < 0:
+            colour = 'red'
+            text = str(change)
+        else:
+            colour = 'black'
+            text = f'+{change}'
+        Layers.text.append({
+            'text':text,
+            'position':(280, 25),
+            'colour':colour
+        })
+        Layers.show()
 
 def screen_plane_animation():
     global CURRENT_SCREEN
@@ -731,7 +765,10 @@ def screen_travel():
         {'sprite':(240, 85), 'price':(250, 159)}
     ]
     Layers.middle = []
-    Layers.text = []
+    Layers.text = [{
+        'text':str(DATA['gold']),
+        'position':(285, 10)
+    }]
     for index, item in enumerate(DATA['travel']['items']):
         Layers.middle.append({
             'file':item['sprite'],
@@ -762,6 +799,7 @@ def screen_travel():
     while CURRENT_SCREEN == 'travel':
         if button_x.value() == 0:
             menu()
+            update_screen = True
 
         if button_a.value() == 0:
             led.set_rgb(0, 50, 0)
@@ -782,6 +820,10 @@ def screen_travel():
                 if DATA['gold'] > DATA['travel']['items'][cursor_index]['price']:
                     led.set_rgb(0, 50, 0)
                     DATA['gold'] -= DATA['travel']['items'][cursor_index]['price']
+                    Layers.text[0] = {
+                        'text':str(DATA['gold']),
+                        'position':(285, 10)
+                    }
                     DATA['travel']['items'][cursor_index]['cooldown'] = time() + DATA['travel']['items'][cursor_index]['cooldown_duration']
                     item_bought = DATA['travel']['items'][cursor_index]['sprite']
                 else:
@@ -827,6 +869,7 @@ def screen_settings():
     while True:
         if button_x.value() == 0:
             menu()
+            update_screen = True
 
         if button_a.value() == 0:
             update_screen = True
@@ -875,10 +918,14 @@ def screen_visitor():
         'text':'VISITOR',
         'position':(10, 10)
     }]
-    Layers.show()
+    update_screen = True
     while CURRENT_SCREEN == 'visitor':
         if  button_x.value() == 0:
             menu()
+            update_screen = True
+        if update_screen:
+            Layers.show()
+            update_screen = False
 
 def main():
     led.set_rgb(75, 25, 0)
