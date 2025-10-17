@@ -14,7 +14,7 @@ Selectively breed creatures to find interesting traits
 
 Introduce new genes from visiting critters
 
-![](https://github.com/GarethMurden/genetibit/blob/master/screenshots/breeding_selection.png?raw=true)
+![](https://github.com/GarethMurden/genetibit/blob/master/screenshots/visitor.png?raw=true)
 
 Sell creatures with rare trates at the market
 
@@ -50,11 +50,12 @@ Connect two devices to breed your critters with your friends'
 ## To do
 
 - Features
+	- Visiting critters
+		- Trigger breeding sequence on selection
 	- Upgrade field
 		- Population limits
 	- Select critter from field to view info
 		- Sell critters from field
-	- Visiting critters
 	- Competitions
 	- Device-to-device communication
 
