@@ -485,8 +485,10 @@ def screen_breeding_sale(children):
         'position':(0,0)
     }
     Layers.middle = []
-    Layers.text = []
-
+    Layers.text = [{
+        'text':str(DATA['gold']),
+        'position':(285, 10)
+    }]
     
     for v_counter, critter in enumerate(children):
         value = critter.get_value()
@@ -907,23 +909,56 @@ def screen_settings():
             update_screen = False
 
 def screen_visitor():
-    # TODO: Visit breeder to introduce random genes
     global CURRENT_SCREEN
     Layers.clear_all()
     Layers.background = {
-        'file':'blank',
+        'file':'visit',
         'position':(0, 0)
     }
-    Layers.text = [{
-        'text':'VISITOR',
-        'position':(10, 10)
-    }]
+
+    options = [
+        critters.Critter(critters.generate_random_genes()),
+        critters.Critter(critters.generate_random_genes()),
+        critters.Critter(critters.generate_random_genes())
+    ]
+    Layers.middle = []
+    option_positions = [
+        ( 42, 161),
+        (142, 132),
+        (230, 149)
+    ]
+    for counter, option in enumerate(options):
+        Layers.middle.append({
+            'file':option.get_sprite(),
+            'position':option_positions[counter]
+        })
+
+    Layers.text = []
+    panel_positions = [
+        (  0, 50),
+        ( 95, 15),
+        (194, 30)
+    ]
+    panel_index = 0
     update_screen = True
     while CURRENT_SCREEN == 'visitor':
-        if  button_x.value() == 0:
-            menu()
+        if  button_a.value() == 0:
+            panel_index -= 1
+            if panel_index < 0:
+                panel_index = len(panel_positions) -1
             update_screen = True
+        if  button_b.value() == 0:
+            panel_index += 1
+            if panel_index >= len(panel_positions):
+                panel_index = 0
+            update_screen = True
+
         if update_screen:
+            Layers.top = {
+                'file':'info_panel',
+                'position':panel_positions[panel_index]
+            }
+            # TODO: populate info panel
             Layers.show()
             update_screen = False
 

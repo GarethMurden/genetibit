@@ -22,7 +22,6 @@ class Critter():
         else:
             self.uid = uid
         
-
     def get_colour(self):
         colour = sorted(self.genes['colour'])
         if colour[0] == colour[1]:
@@ -186,3 +185,12 @@ def generate_starters():
         'uid':generate_id()
     }
     return [first, second]
+
+def generate_random_genes():
+    colours = ['red', 'yellow', 'blue']
+    return {
+        'colour':[random.choice(colours), random.choice(colours)],
+        'head':  [random.choice(HEAD_OPTIONS), random.choice(HEAD_OPTIONS)],
+        'body':  [random.choice(BODY_OPTIONS), random.choice(BODY_OPTIONS)],
+        'legs':  [random.choice(LEG_OPTIONS),  random.choice(LEG_OPTIONS)]
+    }

@@ -50,7 +50,6 @@ Connect two devices to breed your critters with your friends'
 ## To do
 
 - Features
-	- Display current gold on shopping screens
 	- Upgrade field
 		- Population limits
 	- Select critter from field to view info
