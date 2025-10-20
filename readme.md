@@ -50,8 +50,6 @@ Connect two devices to breed your critters with your friends'
 ## To do
 
 - Features
-	- Visiting critters
-		- Trigger breeding sequence on selection
 	- Upgrade field
 		- Population limits
 	- Select critter from field to view info
@@ -60,6 +58,7 @@ Connect two devices to breed your critters with your friends'
 	- Device-to-device communication
 
 - Fixes
+	- Return to field from travel raises TypeError
 	- Lack of separate thread makes it difficult to open menu from field screen
 	- Performance:
 		- update only portions of screen that have changed
@@ -68,7 +67,6 @@ Connect two devices to breed your critters with your friends'
 		- reduce reliance on image rescaling
 	- Shouldn't be possible to breed a critter to itself
 	- Cursors don't move to right on breeding screen after first selection
-	- LED stays on after button release on breeding sale screen
 	- Price sticks after menu close
 	- selecting the current screen from the menu leaves menu open
 	- Opening menu within breeding result flow should not be allowed
