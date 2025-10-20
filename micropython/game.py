@@ -73,6 +73,7 @@ DATA = {
     }
 }
 POPULATION = []
+BREEDING_PAIR = {}
 
 class Layer_class():
     background  = {'file':'field', 'position':(0,0)}
@@ -273,7 +274,7 @@ def screens():
         Layers.show()
 
 def screen_breeding():
-    global DATA, CURRENT_SCREEN
+    global DATA, CURRENT_SCREEN, BREEDING_PAIR
     Layers.background = {
         'file':'breeding',
         'position':(0, 0)
@@ -350,10 +351,11 @@ def screen_breeding():
                     POPULATION[DATA['breeding']['left_critter_index']].set_cooldown( seconds=COOLDOWNS['breeding'])
                     POPULATION[DATA['breeding']['right_critter_index']].set_cooldown(seconds=COOLDOWNS['breeding'])
                     CURRENT_SCREEN = 'breeding_animation' # change screen on next loop iteration
+                    BREEDING_PAIR['mother'] = POPULATION[DATA['breeding']['left_critter_index']]
+                    BREEDING_PAIR['father'] = POPULATION[DATA['breeding']['right_critter_index']]
                 else:
                     led.set_rgb(50, 0, 0)
 
-        
         if update_screen:
             Layers.middle = [
                 {
@@ -401,6 +403,92 @@ def screen_breeding():
             led.set_rgb(0, 0, 0)
 
 
+def screen_breeding_visitor(visitor):
+    global DATA, CURRENT_SCREEN, BREEDING_PAIR
+    Layers.clear_all()
+    DATA['breeding']['right_critter_index'] = 0
+    led.set_rgb(0, 0, 0)
+    Layers.background = {
+        'file':'breeding',
+        'position':(0, 0)
+    }
+
+    # de-bounce
+    while button_y.value() == 0:
+        sleep(0.25)
+
+    update_screen = True
+    while CURRENT_SCREEN == 'breeding':
+
+        Layers.cursor = {
+            'file':'updown',
+            'position':(235, 45)
+        }
+        if button_a.value() == 0:
+            update_screen = True
+            led.set_rgb(0, 50, 0)
+            DATA['breeding']['right_critter_index'] -= 1
+            if DATA['breeding']['right_critter_index'] < 0:
+                DATA['breeding']['right_critter_index'] = len(POPULATION) -1
+        if button_b.value() == 0:
+            update_screen = True
+            led.set_rgb(0, 50, 0)
+            DATA['breeding']['right_critter_index'] += 1
+            if DATA['breeding']['right_critter_index'] >= len(POPULATION):
+                DATA['breeding']['right_critter_index'] = 0
+
+        if button_y.value() == 0:
+            update_screen = True
+            cooldown, _ = POPULATION[DATA['breeding']['right_critter_index']].check_cooldown()
+            if not cooldown:
+                led.set_rgb(0, 50, 0)
+                POPULATION[DATA['breeding']['right_critter_index']].set_cooldown( seconds=COOLDOWNS['breeding'])
+                CURRENT_SCREEN = 'breeding_animation' # change screen on next loop iteration
+
+                BREEDING_PAIR['mother'] = visitor
+                BREEDING_PAIR['father'] = POPULATION[DATA['breeding']['right_critter_index']]
+            else:
+                led.set_rgb(50, 0, 0)
+        
+        if update_screen:
+            Layers.middle = [
+                {
+                    'file':visitor.get_sprite(),
+                    'position':(15, 65),
+                    'scale':4
+                },
+                {
+                    'file':POPULATION[DATA['breeding']['right_critter_index']].get_sprite(),
+                    'position':(175, 65),
+                    'scale':4
+                }
+            ]
+
+            cooldown, icon = POPULATION[DATA['breeding']['right_critter_index']].check_cooldown()
+            if cooldown:
+                Layers.middle.append({
+                    'file':icon,
+                    'position':(260, 130),
+                    'scale':2
+                })
+
+            Layers.text = [
+                {
+                    'text':visitor.uid,
+                    'position':(50, 189),
+                    'scale': 2
+                },
+                {
+                    'text':POPULATION[DATA['breeding']['right_critter_index']].uid,
+                    'position':(210, 189),
+                    'scale': 2
+                }
+            ]
+
+            Layers.show()
+            update_screen = False
+            led.set_rgb(0, 0, 0)
+
 def screen_breeding_animation():
     global CURRENT_SCREEN
     Layers.clear_all()
@@ -415,8 +503,8 @@ def screen_breeding_animation():
     }
     Layers.show()
 
-    mother = POPULATION[DATA['breeding']['left_critter_index']]
-    father = POPULATION[DATA['breeding']['right_critter_index']]
+    mother = BREEDING_PAIR['mother']
+    father = BREEDING_PAIR['father']
     DATA['breeding']['children'] = []
     for x in range(4):
         sleep(0.5)
@@ -529,7 +617,6 @@ def screen_breeding_sale(children):
     if 'sell_selections' not in DATA['breeding']:
         DATA['breeding']['sell_selections'] = [False, False, False, False]
 
-
     if 'gold' not in DATA:
         DATA['gold'] = 0
     previous_cursor_index = None
@@ -574,7 +661,7 @@ def screen_breeding_sale(children):
                     CURRENT_SCREEN = 'field'
                     break
 
-            # only update screen if somethnig's changed
+            # only update screen if something's changed
             if previous_cursor_index != DATA['breeding']['cursor_index']:
                 update_screen = True
                 previous_cursor_index = DATA['breeding']['cursor_index']
@@ -594,12 +681,13 @@ def screen_breeding_sale(children):
                         })
             if update_screen:
                 Layers.show()
+        led.set_rgb(0, 0, 0)
 
 def screen_breeding_result():
-    global DATA, CURRENT_SCREEN, POPULATION
+    global DATA, CURRENT_SCREEN, POPULATION, BREEDING_PAIR
 
-    mother = POPULATION[DATA['breeding']['left_critter_index']]
-    father = POPULATION[DATA['breeding']['right_critter_index']]
+    mother = BREEDING_PAIR['mother']
+    father = BREEDING_PAIR['father']
     children = []
 
     for child in DATA['breeding']['children']:
@@ -645,7 +733,9 @@ def screen_breeding_result():
     Layers.show()
     sleep(3)
     DATA['breeding']['cursor_index'] = 0
+    BREEDING_PAIR = {}
     screen_breeding_sale(children)
+
 
 def screen_bus_animation():
     global CURRENT_SCREEN
@@ -942,16 +1032,23 @@ def screen_visitor():
     panel_index = 0
     update_screen = True
     while CURRENT_SCREEN == 'visitor':
-        if  button_a.value() == 0:
+        if button_a.value() == 0:
+            led.set_rgb(0, 50, 0)
             panel_index -= 1
             if panel_index < 0:
                 panel_index = len(panel_positions) -1
             update_screen = True
-        if  button_b.value() == 0:
+        if button_b.value() == 0:
+            led.set_rgb(0, 50, 0)
             panel_index += 1
             if panel_index >= len(panel_positions):
                 panel_index = 0
             update_screen = True
+
+        if button_y.value() == 0:
+            led.set_rgb(0, 50, 0)
+            CURRENT_SCREEN = 'breeding'
+            screen_breeding_visitor(options[panel_index])
 
         if update_screen:
             Layers.top = {
@@ -961,6 +1058,7 @@ def screen_visitor():
             # TODO: populate info panel
             Layers.show()
             update_screen = False
+        led.set_rgb(0, 0, 0)
 
 def main():
     led.set_rgb(75, 25, 0)
