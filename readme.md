@@ -62,8 +62,6 @@ Connect two devices to breed your critters with your friends'
 	- Lack of separate thread makes it difficult to open menu from field screen
 	- Performance:
 		- update only portions of screen that have changed
-		- streamline screen_breeding_sale ribbons
-			- Single ribbon based on aggregate scores?
 		- reduce reliance on image rescaling
 	- Shouldn't be possible to breed a critter to itself
 	- Cursors don't move to right on breeding screen after first selection

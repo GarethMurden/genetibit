@@ -588,18 +588,16 @@ def screen_breeding_sale(children):
             'scale':    2
         })
         Layers.text.append({
-            'text':value['total'],
+            'text':value['phenotype']['value'],
             'position':(215, vertical_position + 20),
             'scale': 2
         })
 
-        ribbons = ['colour', 'legs', 'body', 'head']
-        for h_counter, ribbon in enumerate(ribbons):
-            if value[ribbon]['rank'] != 'D':
-                Layers.middle.append({
-                    'file':f"ribbon/ribbon_{value[ribbon]['rank'].lower()}",
-                    'position':(100 + h_counter * 18, vertical_position + 15)
-                })
+        if value['phenotype']['rank'] != 'D':
+            Layers.middle.append({
+                'file':f"ribbon/ribbon_{value['phenotype']['rank'].lower()}",
+                'position':(100, vertical_position + 15)
+            })
 
     cursor_positions = [
         (245,  30),
@@ -647,7 +645,7 @@ def screen_breeding_sale(children):
                 else: # ok button highlighted
                     for index, sold in enumerate(DATA['breeding']['sell_selections']):
                         if sold:
-                            DATA['gold'] += children[index].get_value()['total']
+                            DATA['gold'] += children[index].get_value()['phenotype']['value']
                         else:
                             POPULATION.append(children[index])
                             DATA['critters'].append({

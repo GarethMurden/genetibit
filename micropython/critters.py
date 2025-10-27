@@ -70,21 +70,30 @@ class Critter():
             'S'
         ]
         phenotype = self.get_phenotype()
-        head_value = HEAD_OPTIONS.index(phenotype['head']) +1
-        body_value = BODY_OPTIONS.index(phenotype['body']) +1
-        legs_value = LEG_OPTIONS.index( phenotype['legs']) +1
+        ph_head = HEAD_OPTIONS.index(phenotype['head']) +1
+        ph_body = BODY_OPTIONS.index(phenotype['body']) +1
+        ph_legs = LEG_OPTIONS.index( phenotype['legs']) +1
+        ph_total = sum([ph_head, ph_body, ph_legs])
 
-        genes = self.get_genotype()
-        if genes['colour'][0] == genes['colour'][1]:
-            colour_value = 5
-        else:
-            colour_value = 3
+        genotype = self.get_genotype()
+        print(f'{genotype=}')
+        ge_head = HEAD_OPTIONS.index(sorted(genotype['head'])[1]) +1
+        ge_body = BODY_OPTIONS.index(sorted(genotype['body'])[1]) +1
+        ge_legs = LEG_OPTIONS.index( sorted(genotype['legs'])[1]) +1
+
+        ph_rank = int(round(ph_total / 3, 0))
+        heterozygosity = 0
+        if ge_head != ph_head:
+            heterozygosity += 1
+        if ge_body != ph_body:
+            heterozygosity += 1
+        if ge_legs != ph_legs:
+            heterozygosity += 1
+        heterozygosity = int(round(heterozygosity / 3 ,0)) * 100
+
         return {
-            'head':{'rank':ranks[head_value -1], 'value':head_value},
-            'body':{'rank':ranks[body_value -1], 'value':body_value},
-            'legs':{'rank':ranks[legs_value -1], 'value':legs_value},
-            'colour':{'rank':ranks[colour_value -1], 'value':colour_value},
-            'total':sum([head_value, body_value, legs_value, colour_value])
+            'phenotype':{'rank':ranks[ph_rank -1], 'value':ph_total},
+            'heterozygosity':heterozygosity
         }
 
     def get_position(self):
