@@ -77,7 +77,6 @@ class Critter():
         ph_rank = int(round(ph_total / 3, 0))
 
         genotype = self.get_genotype()
-        print(f'{genotype=}')
         heterozygosity = 0.0
         for attribute in [key for key in genotype if key != 'colour']:
             if genotype[attribute][0] != genotype[attribute][1]:
