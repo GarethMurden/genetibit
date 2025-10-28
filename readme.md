@@ -50,6 +50,10 @@ Connect two devices to breed your critters with your friends'
 ## To do
 
 - Features
+	- Breeding sale
+		- Use 1 ribbon & text for rank
+		- Include heterozygosity %
+	- Breeding page to show current population vs limit
 	- Upgrade field
 		- Population limits
 	- Select critter from field to view info
@@ -58,9 +62,6 @@ Connect two devices to breed your critters with your friends'
 	- Device-to-device communication
 
 - Fixes
-	- Breeding sale performance
-		- Use 1 ribbon & text for rank
-		- Include heterozygosity %
 	- Shouldn't be possible to breed a critter to itself
 	- Cursors don't move to right on breeding screen after first selection
 	- Price sticks after menu close
