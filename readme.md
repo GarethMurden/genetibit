@@ -58,18 +58,14 @@ Connect two devices to breed your critters with your friends'
 	- Device-to-device communication
 
 - Fixes
-	- Return to field from travel raises TypeError
-	- Lack of separate thread makes it difficult to open menu from field screen
 	- Performance:
 		- breeding_sale
-			- ribon on background & only update text?
-		- reduce reliance on image rescaling
+			- ribbon on background & only update text?
 	- Shouldn't be possible to breed a critter to itself
 	- Cursors don't move to right on breeding screen after first selection
 	- Price sticks after menu close
 	- selecting the current screen from the menu leaves menu open
 	- Opening menu within breeding result flow should not be allowed
-	- futher improve button responsiveness
 
 ## Resources 
 
