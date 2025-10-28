@@ -163,6 +163,7 @@ def data_clear_screen():
     
 def data_load():
     global DATA
+    print('[ DATA    ]: Load')
     save_file = 'data.json'
     if not file_exits(save_file):
         DATA['critters'] += critters.generate_starters()
@@ -172,6 +173,7 @@ def data_load():
         DATA = json.loads(f.read())
 
 def data_save():
+    print('[ DATA    ]: Save')
     with open('data.json', 'w', encoding='utf-8') as f:
         f.write(json.dumps(DATA))
 
@@ -193,7 +195,7 @@ def menu():
 
     menu_cursor_position = 0
     led.set_rgb(0, 10, 0)
-    print('[ MENU ]   : open menu')
+    print('[ MENU    ]: open menu')
     Layers.top = {'file':'menu', 'position':(256, 0)}
     Layers.text = [{
         'text':str(DATA['gold']),
@@ -210,7 +212,7 @@ def menu():
         if button_x.value() == 0:
             update_screen = True
             led.set_rgb(0, 10, 0)
-            print('[  MENU   ]: close menu')
+            print('[ MENU    ]: close menu')
             Layers.top = None
             Layers.menu_cursor = None
             MENU_OPEN = False
@@ -219,7 +221,7 @@ def menu():
             update_screen = True
             led.set_rgb(0, 10, 0)
             new_screen = menu_options[menu_cursor_position]
-            print(f'[  MENU   ]: moving to "{new_screen}" screen')
+            print(f'[ MENU    ]: moving to "{new_screen}" screen')
             CURRENT_SCREEN = new_screen
             MENU_OPEN = False
 
@@ -240,7 +242,7 @@ def menu():
             update_screen = False
     Layers.top = None
     Layers.menu_cursor = None
-    print('[  MENU   ]: menu closed')
+    print('[ MENU    ]: menu closed')
     
 def menu_move_cursor(position):
     cursor_positions = [
@@ -293,6 +295,7 @@ def screens():
 
 def screen_breeding():
     global DATA, CURRENT_SCREEN, BREEDING_PAIR
+    Layers.clear_all()
     Layers.background = {
         'file':'breeding',
         'position':(0, 0)
@@ -716,6 +719,7 @@ def screen_breeding_sale(children):
 
 def screen_breeding_result():
     global DATA, CURRENT_SCREEN, POPULATION, BREEDING_PAIR
+    Layers.clear_all()
 
     mother = BREEDING_PAIR['mother']
     father = BREEDING_PAIR['father']
@@ -784,6 +788,7 @@ def screen_bus_animation():
 
 def screen_connect():
     global CURRENT_SCREEN
+    Layers.clear_all()
     # TODO: Connect to second device
     Layers.clear_all()
     Layers.background = {
@@ -830,6 +835,7 @@ def screen_connect_animation():
 
 def screen_field():
     global POPULATION, CURRENT_SCREEN
+    Layers.clear_all()
     Layers.background = {
         'file':f'field_{DATA["field"]["level"]}',
         'position':(0, 0)
@@ -997,7 +1003,8 @@ def screen_travel():
             screen_connect()
 
 def screen_settings():
-    global DATA
+    global DATA, CURRENT_SCREEN
+    Layers.clear_all()
     cursor_positions = [
         ( 40, 65),
         (140, 65)
@@ -1006,21 +1013,24 @@ def screen_settings():
         'file':'settings',
         'position':(0, 0)
     }
+    Layers.show(layers=['background'])
+    cursor_index = 0
     update_screen = True
-    while True:
-        if button_x.value() == 0:
-            menu()
-            update_screen = True
-
+    print(f'[ SETTING ]: {CURRENT_SCREEN=}, {update_screen=}')
+    while CURRENT_SCREEN == 'settings':
         if button_a.value() == 0:
             update_screen = True
-            DATA['settings']['cursor_index'] = 0
+            cursor_index -= 1
+            if cursor_index < 0:
+                cursor_index = 1
         if button_b.value() == 0:
             update_screen = True
-            DATA['settings']['cursor_index'] = 1
+            cursor_index =+ 1
+            if cursor_index > 1:
+                cursor_index = 0
         if button_y.value() == 0:
             update_screen = True
-            if DATA['settings']['cursor_index'] == 1:
+            if cursor_index == 1:
                 DATA['settings']['brightness'] = min([
                     DATA['settings']['brightness'] + 0.2,
                     1.0
@@ -1033,7 +1043,9 @@ def screen_settings():
                     0.2
                 ])
                 display.set_backlight(DATA['settings']['brightness'])
-            data_save()
+
+        if button_x.value() == 0:
+            menu()
 
         if update_screen:
             Layers.bottom = {
@@ -1042,11 +1054,12 @@ def screen_settings():
             }
             Layers.cursor = {
                 'file':'cursor',
-                'position':cursor_positions[DATA['settings']['cursor_index']]
+                'position':cursor_positions[cursor_index]
             }
-            Layers.show()
+            Layers.show(layers=['background', 'bottom', 'cursor'])
             print('[ DISPLAY ]: Layers.show() in screen_settings()')
             update_screen = False
+    data_save()
 
 def screen_visitor():
     global CURRENT_SCREEN
