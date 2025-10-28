@@ -145,7 +145,7 @@ class Layer_class():
         png.open_file(f"assets/{filename}.png")
         png.decode(position[0], position[1], scale=scale)
         self.display_busy = False
-
+        led.set_rgb(0, 0, 0)
 
 def data_cooldown_active(cooldown_end):
     if cooldown_end is None:
@@ -192,7 +192,7 @@ def menu():
     ]
 
     menu_cursor_position = 0
-    led.set_rgb(0, 50, 0)
+    led.set_rgb(0, 10, 0)
     print('[ MENU ]   : open menu')
     Layers.top = {'file':'menu', 'position':(256, 0)}
     Layers.text = [{
@@ -209,28 +209,28 @@ def menu():
     while MENU_OPEN:
         if button_x.value() == 0:
             update_screen = True
-            led.set_rgb(0, 50, 0)
-            print('[ MENU ]   : close menu')
+            led.set_rgb(0, 10, 0)
+            print('[  MENU   ]: close menu')
             Layers.top = None
             Layers.menu_cursor = None
             MENU_OPEN = False
 
         if button_y.value() == 0:
             update_screen = True
-            led.set_rgb(0, 50, 0)
+            led.set_rgb(0, 10, 0)
             new_screen = menu_options[menu_cursor_position]
-            print(f'[ MENU ]   : moving to "{new_screen}" screen')
+            print(f'[  MENU   ]: moving to "{new_screen}" screen')
             CURRENT_SCREEN = new_screen
             MENU_OPEN = False
 
         if button_a.value() == 0:
             update_screen = True
-            led.set_rgb(0, 50, 0)
+            led.set_rgb(0, 10, 0)
             menu_cursor_position = menu_move_cursor(menu_cursor_position - 1)
         
         if button_b.value() == 0:
             update_screen = True
-            led.set_rgb(0, 50, 0)
+            led.set_rgb(0, 10, 0)
             menu_cursor_position = menu_move_cursor(menu_cursor_position + 1)
 
         if update_screen:
@@ -240,7 +240,7 @@ def menu():
             update_screen = False
     Layers.top = None
     Layers.menu_cursor = None
-    print('[ MENU ]   : menu closed')
+    print('[  MENU   ]: menu closed')
     
 def menu_move_cursor(position):
     cursor_positions = [
@@ -312,7 +312,7 @@ def screen_breeding():
             }
             if button_a.value() == 0:
                 update_screen = True
-                led.set_rgb(0, 50, 0)
+                led.set_rgb(0, 10, 0)
                 DATA['breeding']['left_critter_index'] -= 1
                 if DATA['breeding']['left_critter_index'] == DATA['breeding']['right_critter_index']: # can't have the same on L & R
                     DATA['breeding']['left_critter_index'] -= 1
@@ -322,7 +322,7 @@ def screen_breeding():
 
             if button_b.value() == 0:
                 update_screen = True
-                led.set_rgb(0, 50, 0)
+                led.set_rgb(0, 10, 0)
                 DATA['breeding']['left_critter_index'] += 1
                 if DATA['breeding']['left_critter_index'] == DATA['breeding']['right_critter_index']: # can't have the same on L & R
                     DATA['breeding']['left_critter_index'] += 1
@@ -333,7 +333,7 @@ def screen_breeding():
                 update_screen = True
                 cooldown, _ = POPULATION[DATA['breeding']['left_critter_index']].check_cooldown()
                 if not cooldown:
-                    led.set_rgb(0, 50, 0)
+                    led.set_rgb(0, 10, 0)
                     DATA['breeding']['cursor_index'] = 1
                 else:
                     led.set_rgb(50, 0, 0)
@@ -345,7 +345,7 @@ def screen_breeding():
             }
             if button_a.value() == 0:
                 update_screen = True
-                led.set_rgb(0, 50, 0)
+                led.set_rgb(0, 10, 0)
                 DATA['breeding']['right_critter_index'] -= 1
                 if DATA['breeding']['right_critter_index'] == DATA['breeding']['left_critter_index']: # can't have the same on L & R
                         DATA['breeding']['right_critter_index'] -= 1
@@ -354,7 +354,7 @@ def screen_breeding():
                     DATA['breeding']['right_critter_index'] = len(POPULATION) -1
             if button_b.value() == 0:
                 update_screen = True
-                led.set_rgb(0, 50, 0)
+                led.set_rgb(0, 10, 0)
                 DATA['breeding']['right_critter_index'] += 1
                 if DATA['breeding']['right_critter_index'] == DATA['breeding']['left_critter_index']: # can't have the same on L & R
                         DATA['breeding']['right_critter_index'] += 1
@@ -366,7 +366,7 @@ def screen_breeding():
                 update_screen = True
                 cooldown, _ = POPULATION[DATA['breeding']['right_critter_index']].check_cooldown()
                 if not cooldown:
-                    led.set_rgb(0, 50, 0)
+                    led.set_rgb(0, 10, 0)
                     POPULATION[DATA['breeding']['left_critter_index']].set_cooldown( seconds=COOLDOWNS['breeding'])
                     POPULATION[DATA['breeding']['right_critter_index']].set_cooldown(seconds=COOLDOWNS['breeding'])
                     CURRENT_SCREEN = 'breeding_animation' # change screen on next loop iteration
@@ -446,13 +446,13 @@ def screen_breeding_visitor(visitor):
         }
         if button_a.value() == 0:
             update_screen = True
-            led.set_rgb(0, 50, 0)
+            led.set_rgb(0, 10, 0)
             DATA['breeding']['right_critter_index'] -= 1
             if DATA['breeding']['right_critter_index'] < 0:
                 DATA['breeding']['right_critter_index'] = len(POPULATION) -1
         if button_b.value() == 0:
             update_screen = True
-            led.set_rgb(0, 50, 0)
+            led.set_rgb(0, 10, 0)
             DATA['breeding']['right_critter_index'] += 1
             if DATA['breeding']['right_critter_index'] >= len(POPULATION):
                 DATA['breeding']['right_critter_index'] = 0
@@ -461,7 +461,7 @@ def screen_breeding_visitor(visitor):
             update_screen = True
             cooldown, _ = POPULATION[DATA['breeding']['right_critter_index']].check_cooldown()
             if not cooldown:
-                led.set_rgb(0, 50, 0)
+                led.set_rgb(0, 10, 0)
                 POPULATION[DATA['breeding']['right_critter_index']].set_cooldown( seconds=COOLDOWNS['breeding'])
                 CURRENT_SCREEN = 'breeding_animation' # change screen on next loop iteration
 
@@ -655,19 +655,19 @@ def screen_breeding_sale(children):
         if not MENU_OPEN:
             update_screen = False
             if button_a.value() == 0:
-                led.set_rgb(0, 50, 0)
+                led.set_rgb(0, 10, 0)
                 DATA['breeding']['cursor_index'] -= 1
                 if DATA['breeding']['cursor_index'] < 0:
                     DATA['breeding']['cursor_index'] = len(cursor_positions) -1
             
             if button_b.value() == 0:
-                led.set_rgb(0, 50, 0)
+                led.set_rgb(0, 10, 0)
                 DATA['breeding']['cursor_index'] += 1
                 if DATA['breeding']['cursor_index'] == len(cursor_positions):
                     DATA['breeding']['cursor_index'] = 0
 
             if button_y.value() == 0:
-                led.set_rgb(0, 50, 0)
+                led.set_rgb(0, 10, 0)
                 if DATA['breeding']['cursor_index'] != len(cursor_positions) -1: # sell checkbox highlighted
                     if DATA['breeding']['sell_selections'][DATA['breeding']['cursor_index']]:
                         DATA['breeding']['sell_selections'][DATA['breeding']['cursor_index']] = False
@@ -710,7 +710,7 @@ def screen_breeding_sale(children):
                             'position':checkmark_positions[counter],
                         })
             if update_screen:
-                Layers.show()
+                Layers.show(layers=['cursor'])
                 print('[ DISPLAY ]: Layers.show() in screen_breeding_sale()')
         led.set_rgb(0, 0, 0)
 
@@ -941,14 +941,14 @@ def screen_travel():
             update_screen = True
 
         if button_a.value() == 0:
-            led.set_rgb(0, 50, 0)
+            led.set_rgb(0, 10, 0)
             cursor_index -= 1
             if cursor_index < 0:
                 cursor_index = len(cursor_positions) -1
             update_screen = True
 
         if button_b.value() == 0:
-            led.set_rgb(0, 50, 0)
+            led.set_rgb(0, 10, 0)
             cursor_index += 1
             if cursor_index >= len(cursor_positions):
                 cursor_index = 0
@@ -957,7 +957,7 @@ def screen_travel():
         if button_y.value() == 0:
             if not data_cooldown_active(DATA['travel']['items'][cursor_index]['cooldown']):
                 if DATA['gold'] > DATA['travel']['items'][cursor_index]['price']:
-                    led.set_rgb(0, 50, 0)
+                    led.set_rgb(0, 10, 0)
                     DATA['gold'] -= DATA['travel']['items'][cursor_index]['price']
                     Layers.text[0] = {
                         'text':str(DATA['gold']),
@@ -1082,20 +1082,20 @@ def screen_visitor():
     update_screen = True
     while CURRENT_SCREEN == 'visitor':
         if button_a.value() == 0:
-            led.set_rgb(0, 50, 0)
+            led.set_rgb(0, 10, 0)
             panel_index -= 1
             if panel_index < 0:
                 panel_index = len(panel_positions) -1
             update_screen = True
         if button_b.value() == 0:
-            led.set_rgb(0, 50, 0)
+            led.set_rgb(0, 10, 0)
             panel_index += 1
             if panel_index >= len(panel_positions):
                 panel_index = 0
             update_screen = True
 
         if button_y.value() == 0:
-            led.set_rgb(0, 50, 0)
+            led.set_rgb(0, 10, 0)
             CURRENT_SCREEN = 'breeding'
             screen_breeding_visitor(options[panel_index])
 
