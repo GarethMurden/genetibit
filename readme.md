@@ -58,9 +58,9 @@ Connect two devices to breed your critters with your friends'
 	- Device-to-device communication
 
 - Fixes
-	- Performance:
-		- breeding_sale
-			- ribbon on background & only update text?
+	- Breeding sale performance
+		- Use 1 ribbon & text for rank
+		- Include heterozygosity %
 	- Shouldn't be possible to breed a critter to itself
 	- Cursors don't move to right on breeding screen after first selection
 	- Price sticks after menu close
