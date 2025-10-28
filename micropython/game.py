@@ -219,7 +219,7 @@ def menu():
             update_screen = True
             led.set_rgb(0, 50, 0)
             new_screen = menu_options[menu_cursor_position]
-            print(f'[ MENU ]: moving to "{new_screen}" screen')
+            print(f'[ MENU ]   : moving to "{new_screen}" screen')
             CURRENT_SCREEN = new_screen
             MENU_OPEN = False
 
@@ -240,7 +240,7 @@ def menu():
             update_screen = False
     Layers.top = None
     Layers.menu_cursor = None
-    print('[ MENU ]: menu closed')
+    print('[ MENU ]   : menu closed')
     
 def menu_move_cursor(position):
     cursor_positions = [
@@ -616,21 +616,20 @@ def screen_breeding_sale(children):
             'scale':    2
         })
         Layers.text.append({
+            'text':value['phenotype']['rank'],
+            'position':(110, vertical_position + 18),
+            'scale': 3
+        })
+        Layers.text.append({
+            'text':f"{value['heterozygousity']}%",
+            'position':(145, vertical_position + 20),
+            'scale': 2
+        })
+        Layers.text.append({
             'text':value['phenotype']['value'],
             'position':(215, vertical_position + 20),
             'scale': 2
         })
-
-        # TODO:
-        #   - Put ribbon on background image
-        #   - Position rank in text over ribbon
-        #   - Include heterozygous %
-
-        if value['phenotype']['rank'] != 'D':
-            Layers.middle.append({
-                'file':f"ribbon/ribbon_{value['phenotype']['rank'].lower()}",
-                'position':(100, vertical_position + 15)
-            })
 
     cursor_positions = [
         (245,  30),

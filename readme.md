@@ -62,6 +62,7 @@ Connect two devices to breed your critters with your friends'
 	- Device-to-device communication
 
 - Fixes
+	- Travel text appears before background changes
 	- Shouldn't be possible to breed a critter to itself
 	- Cursors don't move to right on breeding screen after first selection
 	- Price sticks after menu close
