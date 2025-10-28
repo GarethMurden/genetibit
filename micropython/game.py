@@ -621,6 +621,11 @@ def screen_breeding_sale(children):
             'scale': 2
         })
 
+        # TODO:
+        #   - Put ribbon on background image
+        #   - Position rank in text over ribbon
+        #   - Include heterozygous %
+
         if value['phenotype']['rank'] != 'D':
             Layers.middle.append({
                 'file':f"ribbon/ribbon_{value['phenotype']['rank'].lower()}",
@@ -1120,7 +1125,7 @@ def screen_visitor():
                     'scale':2
                 },
                 {
-                    'text':f"{option_data['heterozygosity']}%",
+                    'text':f"{option_data['heterozygousity']}%",
                     'position':(
                         panel_positions[panel_index][0] + 54,
                         panel_positions[panel_index][1] + 46
