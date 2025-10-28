@@ -1021,7 +1021,6 @@ def screen_visitor():
             'position':option_positions[counter]
         })
 
-    Layers.text = []
     panel_positions = [
         (  0, 50),
         ( 95, 15),
@@ -1053,7 +1052,20 @@ def screen_visitor():
                 'file':'info_panel',
                 'position':panel_positions[panel_index]
             }
-            # TODO: populate info panel
+
+            # TODO: position text onto info panel
+            option_data = options[panel_index].get_value()
+            Layers.text = [
+                {
+                    'text':option_data['phenotype']['rank'],
+                    'position':(10, 10) # TODO: replace this placeholder position
+                },
+                {
+                    'text':f"{option_data['heterozygosity']}%",
+                    'position':(10, 25) # TODO: replace this placeholder position
+                },
+            ]
+
             Layers.show()
             update_screen = False
         led.set_rgb(0, 0, 0)

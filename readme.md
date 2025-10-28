@@ -61,7 +61,8 @@ Connect two devices to breed your critters with your friends'
 	- Return to field from travel raises TypeError
 	- Lack of separate thread makes it difficult to open menu from field screen
 	- Performance:
-		- update only portions of screen that have changed
+		- breeding_sale
+			- ribon on background & only update text?
 		- reduce reliance on image rescaling
 	- Shouldn't be possible to breed a critter to itself
 	- Cursors don't move to right on breeding screen after first selection

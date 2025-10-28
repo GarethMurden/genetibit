@@ -74,22 +74,16 @@ class Critter():
         ph_body = BODY_OPTIONS.index(phenotype['body']) +1
         ph_legs = LEG_OPTIONS.index( phenotype['legs']) +1
         ph_total = sum([ph_head, ph_body, ph_legs])
+        ph_rank = int(round(ph_total / 3, 0))
 
         genotype = self.get_genotype()
         print(f'{genotype=}')
-        ge_head = HEAD_OPTIONS.index(sorted(genotype['head'])[1]) +1
-        ge_body = BODY_OPTIONS.index(sorted(genotype['body'])[1]) +1
-        ge_legs = LEG_OPTIONS.index( sorted(genotype['legs'])[1]) +1
-
-        ph_rank = int(round(ph_total / 3, 0))
-        heterozygosity = 0
-        if ge_head != ph_head:
-            heterozygosity += 1
-        if ge_body != ph_body:
-            heterozygosity += 1
-        if ge_legs != ph_legs:
-            heterozygosity += 1
-        heterozygosity = int(round(heterozygosity / 3 ,0)) * 100
+        heterozygosity = 0.0
+        for attribute in [key for key in genotype if key != 'colour']:
+            if genotype[attribute][0] != genotype[attribute][1]:
+                heterozygosity +=1.0
+        heterozygosity = round(heterozygosity / 3.0, 1)
+        heterozygosity = int(heterozygosity * 100.0)
 
         return {
             'phenotype':{'rank':ranks[ph_rank -1], 'value':ph_total},
@@ -196,10 +190,15 @@ def generate_starters():
     return [first, second]
 
 def generate_random_genes():
+    '''random phenotype & some chance of heterozygosity'''
     colours = ['red', 'yellow', 'blue']
+    colour = random.choice(colours)
+    head =   random.choice(HEAD_OPTIONS)
+    body =   random.choice(BODY_OPTIONS)
+    legs =   random.choice(LEG_OPTIONS)
     return {
-        'colour':[random.choice(colours), random.choice(colours)],
-        'head':  [random.choice(HEAD_OPTIONS), random.choice(HEAD_OPTIONS)],
-        'body':  [random.choice(BODY_OPTIONS), random.choice(BODY_OPTIONS)],
-        'legs':  [random.choice(LEG_OPTIONS),  random.choice(LEG_OPTIONS)]
+        'colour':[colour, random.choice([colour, random.choice(colours)])],
+        'head':  [head,   random.choice([head,   random.choice(HEAD_OPTIONS)])],
+        'body':  [body,   random.choice([body,   random.choice(BODY_OPTIONS)])],
+        'legs':  [legs,   random.choice([legs,   random.choice(LEG_OPTIONS)])]
     }
