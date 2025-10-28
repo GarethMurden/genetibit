@@ -77,16 +77,16 @@ class Critter():
         ph_rank = int(round(ph_total / 3, 0))
 
         genotype = self.get_genotype()
-        heterozygosity = 0.0
+        heterozygousity = 0.0
         for attribute in [key for key in genotype if key != 'colour']:
             if genotype[attribute][0] != genotype[attribute][1]:
-                heterozygosity +=1.0
-        heterozygosity = round(heterozygosity / 3.0, 1)
-        heterozygosity = int(heterozygosity * 100.0)
+                heterozygousity +=1.0
+        heterozygousity = round(heterozygousity / 3.0, 1)
+        heterozygousity = int(heterozygousity * 100.0)
 
         return {
             'phenotype':{'rank':ranks[ph_rank -1], 'value':ph_total},
-            'heterozygosity':heterozygosity
+            'heterozygousity':heterozygousity
         }
 
     def get_position(self):
@@ -189,7 +189,7 @@ def generate_starters():
     return [first, second]
 
 def generate_random_genes():
-    '''random phenotype & some chance of heterozygosity'''
+    '''random phenotype & some chance of heterozygousity'''
     colours = ['red', 'yellow', 'blue']
     colour = random.choice(colours)
     head =   random.choice(HEAD_OPTIONS)
