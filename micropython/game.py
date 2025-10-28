@@ -76,6 +76,7 @@ POPULATION = []
 BREEDING_PAIR = {}
 
 class Layer_class():
+    display_busy= False
     background  = {'file':'field', 'position':(0,0)}
     bottom      = None
     middle      = None # multiple overlapping images allowed
@@ -96,23 +97,23 @@ class Layer_class():
     def show(self, layers=['background', 'bottom', 'middle', 'top', 'cursor', 'menu_cursor', 'text']):
         
         if self.background is not None and 'background' in layers:
-            print('[ DEBUG ]: Update background')
+            print('[ DISPLAY ]: Update background')
             self.update_display(self.background['file'], self.background['position'], self.background.get('scale', 1))
         if self.bottom is not None and 'bottom' in layers:
-            print('[ DEBUG ]: Update bottom')
+            print('[ DISPLAY ]: Update bottom')
             self.update_display(self.bottom['file'], self.bottom['position'], self.bottom.get('scale', 1))
         if self.middle is not None and 'middle' in layers:
-            print('[ DEBUG ]: Update middle')
+            print('[ DISPLAY ]: Update middle')
             for image in self.middle:
                 self.update_display(image['file'], image['position'], image.get('scale', 1))
         if self.top is not None and 'top' in layers:
-            print('[ DEBUG ]: Update top')
+            print('[ DISPLAY ]: Update top')
             self.update_display(self.top['file'], self.top['position'], self.top.get('scale', 1))
         if self.cursor is not None and 'cursor' in layers:
-            print('[ DEBUG ]: Update cursor')
+            print('[ DISPLAY ]: Update cursor')
             self.update_display(self.cursor['file'], self.cursor['position'], self.cursor.get('scale', 1))
         if self.menu_cursor is not None and 'menu_cursor' in layers:
-            print('[ DEBUG ]: Update menu_cursor')
+            print('[ DISPLAY ]: Update menu_cursor')
             self.update_display(self.menu_cursor['file'], self.menu_cursor['position'], self.menu_cursor.get('scale', 1))
         if self.text is not None and 'text' in layers:
             display.set_pen(TEXT)
@@ -137,8 +138,14 @@ class Layer_class():
         display.update()
 
     def update_display(self, filename, position, scale=1):
+        while self.display_busy:
+            print('[ DISPLAY ]: Busy')
+            sleep(0.5)
+        self.display_busy = True
         png.open_file(f"assets/{filename}.png")
         png.decode(position[0], position[1], scale=scale)
+        self.display_busy = False
+
 
 def data_cooldown_active(cooldown_end):
     if cooldown_end is None:
@@ -186,7 +193,7 @@ def menu():
 
     menu_cursor_position = 0
     led.set_rgb(0, 50, 0)
-    print('[ DEBUG ]: open menu')
+    print('[ MENU ]   : open menu')
     Layers.top = {'file':'menu', 'position':(256, 0)}
     Layers.text = [{
         'text':str(DATA['gold']),
@@ -195,7 +202,7 @@ def menu():
     MENU_OPEN = True
     menu_move_cursor(menu_cursor_position)
     Layers.show()
-    print('[ DEBUG ]: Layers.show() in menu()')
+    print('[ DISPLAY ]: Layers.show() in menu()')
     led.set_rgb(0, 0, 0)
 
     update_screen = False
@@ -203,7 +210,7 @@ def menu():
         if button_x.value() == 0:
             update_screen = True
             led.set_rgb(0, 50, 0)
-            print('[ DEBUG ]: close menu')
+            print('[ MENU ]   : close menu')
             Layers.top = None
             Layers.menu_cursor = None
             MENU_OPEN = False
@@ -212,7 +219,7 @@ def menu():
             update_screen = True
             led.set_rgb(0, 50, 0)
             new_screen = menu_options[menu_cursor_position]
-            print(f'[ DEBUG ]: moving to "{new_screen}" screen')
+            print(f'[ MENU ]: moving to "{new_screen}" screen')
             CURRENT_SCREEN = new_screen
             MENU_OPEN = False
 
@@ -228,11 +235,12 @@ def menu():
 
         if update_screen:
             Layers.show(layers=['top', 'text', 'menu_cursor'])
-            print('[ DEBUG ]: Layers.show() in menu()')
+            print('[ DISPLAY ]: Layers.show() in menu()')
             led.set_rgb(0, 0, 0)
             update_screen = False
     Layers.top = None
     Layers.menu_cursor = None
+    print('[ MENU ]: menu closed')
     
 def menu_move_cursor(position):
     cursor_positions = [
@@ -268,6 +276,8 @@ def screens():
             previous_screen_name = CURRENT_SCREEN
             Layers.clear_all()
             data_clear_screen()
+            Layers.show()
+            print('[ DISPLAY ]: Layers.show() in screens()')
         if CURRENT_SCREEN == 'field':
             screen_field()
         if CURRENT_SCREEN == 'breeding':
@@ -280,8 +290,6 @@ def screens():
             screen_travel()
         if CURRENT_SCREEN == 'settings':
             screen_settings()
-        # Layers.show()
-        # print('[ DEBUG ]: Layers.show() in screens()')
 
 def screen_breeding():
     global DATA, CURRENT_SCREEN, BREEDING_PAIR
@@ -289,6 +297,7 @@ def screen_breeding():
         'file':'breeding',
         'position':(0, 0)
     }
+    print('[ DISPLAY ]: Layers.show() in screen_breeding()')
     update_screen = True
     while CURRENT_SCREEN == 'breeding':
 
@@ -409,7 +418,7 @@ def screen_breeding():
             ]
 
             Layers.show()
-            print('[ DEBUG ]: Layers.show() in screen_breeding()')
+            print('[ DISPLAY ]: Layers.show() in screen_breeding()')
             update_screen = False
             led.set_rgb(0, 0, 0)
 
@@ -497,7 +506,7 @@ def screen_breeding_visitor(visitor):
             ]
 
             Layers.show()
-            print('[ DEBUG ]: Layers.show() in screen_breeding_visitor()')
+            print('[ DISPLAY ]: Layers.show() in screen_breeding_visitor()')
             update_screen = False
             led.set_rgb(0, 0, 0)
 
@@ -514,7 +523,7 @@ def screen_breeding_animation():
         'scale':4
     }
     Layers.show()
-    print('[ DEBUG ]: Layers.show() in screen_breeding_animation()')
+    print('[ DISPLAY ]: Layers.show() in screen_breeding_animation()')
 
     mother = BREEDING_PAIR['mother']
     father = BREEDING_PAIR['father']
@@ -541,14 +550,14 @@ def screen_breeding_animation():
         'scale':4
     }
     Layers.show(layers=['bottom'])
-    print('[ DEBUG ]: Layers.show() in screen_breeding_animation()')
+    print('[ DISPLAY ]: Layers.show() in screen_breeding_animation()')
     Layers.bottom = {
         'file':'animation_hatch/hatch03',
         'position':(60, 100),
         'scale':4
     }
     Layers.show(layers=['bottom'])
-    print('[ DEBUG ]: Layers.show() in screen_breeding_animation()')
+    print('[ DISPLAY ]: Layers.show() in screen_breeding_animation()')
     sleep(1)
     Layers.bottom = {
         'file':'animation_hatch/hatch04',
@@ -556,7 +565,7 @@ def screen_breeding_animation():
         'scale':4
     }
     Layers.show(layers=['bottom'])
-    print('[ DEBUG ]: Layers.show() in screen_breeding_animation()')
+    print('[ DISPLAY ]: Layers.show() in screen_breeding_animation()')
     sleep(1)
     Layers.bottom = {
         'file':'animation_hatch/hatch05',
@@ -564,7 +573,7 @@ def screen_breeding_animation():
         'scale':4
     }
     Layers.show(layers=['bottom'])
-    print('[ DEBUG ]: Layers.show() in screen_breeding_animation()')
+    print('[ DISPLAY ]: Layers.show() in screen_breeding_animation()')
     sleep(0.25)
     Layers.bottom = {
         'file':'animation_hatch/hatch06',
@@ -572,14 +581,14 @@ def screen_breeding_animation():
         'scale':4
     }
     Layers.show(layers=['bottom'])
-    print('[ DEBUG ]: Layers.show() in screen_breeding_animation()')
+    print('[ DISPLAY ]: Layers.show() in screen_breeding_animation()')
     Layers.bottom = {
         'file':'animation_hatch/hatch07',
         'position':(60, 100),
         'scale':4
     }
     Layers.show(layers=['bottom'])
-    print('[ DEBUG ]: Layers.show() in screen_breeding_animation()')
+    print('[ DISPLAY ]: Layers.show() in screen_breeding_animation()')
     sleep(1)
     Layers.bottom = None
     CURRENT_SCREEN = 'breeding_result'
@@ -698,7 +707,7 @@ def screen_breeding_sale(children):
                         })
             if update_screen:
                 Layers.show()
-                print('[ DEBUG ]: Layers.show() in screen_breeding_sale()')
+                print('[ DISPLAY ]: Layers.show() in screen_breeding_sale()')
         led.set_rgb(0, 0, 0)
 
 def screen_breeding_result():
@@ -749,7 +758,7 @@ def screen_breeding_result():
     ]
 
     Layers.show()
-    print('[ DEBUG ]: Layers.show() in screen_breeding_result()')
+    print('[ DISPLAY ]: Layers.show() in screen_breeding_result()')
     sleep(3)
     DATA['breeding']['cursor_index'] = 0
     BREEDING_PAIR = {}
@@ -766,7 +775,7 @@ def screen_bus_animation():
             'position':(left, 0)
         }
         Layers.show()
-        print('[ DEBUG ]: Layers.show() in screen_bus_animation()')
+        print('[ DISPLAY ]: Layers.show() in screen_bus_animation()')
     CURRENT_SCREEN = 'visitor'
 
 def screen_connect():
@@ -790,7 +799,7 @@ def screen_connect():
 
         if update_screen:
             Layers.show()
-            print('[ DEBUG ]: Layers.show() in screen_connect()')
+            print('[ DISPLAY ]: Layers.show() in screen_connect()')
             update_screen = False
 
 def screen_contest_map():
@@ -808,7 +817,7 @@ def screen_contest_map():
 
         if update_screen:
             Layers.show()
-            print('[ DEBUG ]: Layers.show() in screen_contest_map()')
+            print('[ DISPLAY ]: Layers.show() in screen_contest_map()')
             update_screen = False
 
 def screen_connect_animation():
@@ -822,7 +831,7 @@ def screen_field():
         'position':(0, 0)
     }
     Layers.show()
-    print('[ DEBUG ]: Layers.show() in screen_field()')
+    print('[ DISPLAY ]: Layers.show() in screen_field()')
     menu_thread = _thread.start_new_thread(screen_field_menu, ())
     while 'field' in CURRENT_SCREEN:
         Layers.middle = []
@@ -838,7 +847,7 @@ def screen_field():
             })
         if CURRENT_SCREEN == 'field': # only update screen if menu not open
             Layers.show()
-            print('[ DEBUG ]: Layers.show() in screen_field()')
+            print('[ DISPLAY ]: Layers.show() in screen_field()')
             sleep(5)
 
 def screen_field_menu():
@@ -863,7 +872,7 @@ def screen_gold_animation(change):
             'colour':colour
         })
         Layers.show()
-        print('[ DEBUG ]: Layers.show() in screen_gold_animation()')
+        print('[ DISPLAY ]: Layers.show() in screen_gold_animation()')
 
 def screen_plane_animation():
     global CURRENT_SCREEN
@@ -876,7 +885,7 @@ def screen_plane_animation():
             'position':(left, 0)
         }
         Layers.show()
-        print('[ DEBUG ]: Layers.show() in screen_plane_animation()')
+        print('[ DISPLAY ]: Layers.show() in screen_plane_animation()')
     CURRENT_SCREEN = 'contest_map'
     
 def screen_travel():
@@ -964,7 +973,7 @@ def screen_travel():
                 'position':cursor_positions[cursor_index]
             }
             Layers.show()
-            print('[ DEBUG ]: Layers.show() in screen_travel()')
+            print('[ DISPLAY ]: Layers.show() in screen_travel()')
             led.set_rgb(0, 0, 0)
             update_screen = False
 
@@ -1032,7 +1041,7 @@ def screen_settings():
                 'position':cursor_positions[DATA['settings']['cursor_index']]
             }
             Layers.show()
-            print('[ DEBUG ]: Layers.show() in screen_settings()')
+            print('[ DISPLAY ]: Layers.show() in screen_settings()')
             update_screen = False
 
 def screen_visitor():
@@ -1121,7 +1130,7 @@ def screen_visitor():
             ]
 
             Layers.show()
-            print('[ DEBUG ]: Layers.show() in screen_visitor()')
+            print('[ DISPLAY ]: Layers.show() in screen_visitor()')
             update_screen = False
         led.set_rgb(0, 0, 0)
 
