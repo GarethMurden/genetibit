@@ -51,6 +51,8 @@ Connect two devices to breed your critters with your friends'
 
 - Features
 	- Breeding page to show current population vs limit
+		- Update background image
+		- Prepare circles
 	- Upgrade field
 		- Population limits
 	- Select critter from field to view info
