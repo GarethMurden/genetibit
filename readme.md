@@ -50,7 +50,6 @@ Connect two devices to breed your critters with your friends'
 ## To do
 
 - Features
-	- Enable/disable OK button on breeding sell screen
 	- Upgrade field
 		- Population limits
 	- Select critter from field to view info
@@ -59,7 +58,9 @@ Connect two devices to breed your critters with your friends'
 	- Device-to-device communication
 
 - Fixes
-	- Improve breeding_sale_toggle.png to prevent cursor artefacts
+	- Improve breeding_sale_toggle.png
+		- Prevent cursor artefacts on checkboxes
+		- Include OK button & not_allowed.png
 	- Travel text appears before background changes
 	- Shouldn't be possible to breed a critter to itself
 	- Cursors don't move to right on breeding screen after first selection

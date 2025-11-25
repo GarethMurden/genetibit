@@ -742,25 +742,17 @@ def screen_breeding_sale(children):
                     'file':'breeding_sell_toggles',
                     'position':(249, 2)
                 }]
+                if len([x for x in DATA['breeding']['sell_selections'] if x]) > available_space:
+                    Layers.bottom.append({
+                        'file':'not_allowed',
+                        'position':(226,216)
+                    })
                 for counter, selected in enumerate(DATA['breeding']['sell_selections']):
                     if selected:
                         Layers.bottom.append({
                             'file':'tick',
                             'position':checkmark_positions[counter],
-                        })
-                if len([x for x in DATA['breeding']['sell_selections'] if x]) > available_space:
-                    Layers.top = {
-                        'file':'not_allowed',
-                        'position':(226,216)
-                    }
-                else:
-                    # TODO:
-                    # - Fix removal of not_allowed by re-drawing button
-                    Layers.top = {
-                        'file':'empty',
-                        'position':(0,0)
-                    }
-                
+                        })               
 
             if update_screen:
                 print('[ DISPLAY ]: Layers.show() in screen_breeding_sale()')
