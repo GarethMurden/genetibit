@@ -709,7 +709,7 @@ def screen_breeding_sale(children):
                         DATA['breeding']['sell_selections'][DATA['breeding']['cursor_index']] = True
                 
                 else: # ok button highlighted
-                    if len([x for x in DATA['breeding']['sell_selections'] if x]) <= available_space:
+                    if len([selected for selected in DATA['breeding']['sell_selections'] if not selected]) <= available_space:
                         for index, sold in enumerate(DATA['breeding']['sell_selections']):
                             if sold:
                                 DATA['gold'] += children[index].get_value()['phenotype']['value']
@@ -742,7 +742,7 @@ def screen_breeding_sale(children):
                     'file':'breeding_sell_toggles',
                     'position':(249, 2)
                 }]
-                if len([x for x in DATA['breeding']['sell_selections'] if x]) > available_space:
+                if len([selected for selected in DATA['breeding']['sell_selections'] if not selected]) > available_space:
                     Layers.bottom.append({
                         'file':'not_allowed',
                         'position':(226,216)
