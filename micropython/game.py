@@ -747,7 +747,9 @@ def screen_breeding_sale(children):
                             'position':checkmark_positions[counter],
                         })
                 if len([x for x in DATA['breeding']['sell_selections'] if x]) > available_space:
-                    # TODO: Disallow un-selecting more than space allows
+                    # TODO: 
+                    #   - Show warning alongside population indicator
+                    #   - Cross-out OK button
                     pass
                 
 
