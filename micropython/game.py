@@ -620,23 +620,25 @@ def screen_breeding_sale(children):
     }]
 
     Layers.middle = []
+    if DATA['field']['level'] == 0:
+        Layers.middle.append({
+            'file':'breeding_sell_locked_01',
+            'position':(100, 213)
+        })
+    elif DATA['field']['level'] == 1:
+        Layers.middle.append({
+            'file':'breeding_sell_locked_02',
+            'position':(130, 213)
+        })
 
-    # TODO:
-    #   - Check field level & show applicable locks
-    Layers.text.append({ # placeholder
-        'text':f"lvl {DATA['field']['level']}",
-        'position':(25, 220)
-    })
-    #   - Check POPULATION & fill correct no. of circles
-    Layers.text.append({ # placeholder
-        'text':f"pop {len(POPULATION)} / {DATA['field']['limits'][DATA['field']['level']]}",
-        'position':(100, 220)
-    })
+    for counter, critter in enumerate(POPULATION):
+        Layers.middle.append({
+            'file':f'breeding_pop_{critter.get_colour()}',
+            'position':(39 + (16 * counter), 216)
+        })
+
     available_space = DATA['field']['limits'][DATA['field']['level']] - len(POPULATION)
-    #   - Check available space against selected children to sell
-    #   - Pre-select children based on space
 
-    
     for v_counter, critter in enumerate(children):
         value = critter.get_value()
 
