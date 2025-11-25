@@ -50,9 +50,7 @@ Connect two devices to breed your critters with your friends'
 ## To do
 
 - Features
-	- Breeding page to show current population vs limit
-		- Update background image
-		- Prepare circles
+	- Enable/disable OK button on breeding sell screen
 	- Upgrade field
 		- Population limits
 	- Select critter from field to view info

@@ -749,15 +749,22 @@ def screen_breeding_sale(children):
                             'position':checkmark_positions[counter],
                         })
                 if len([x for x in DATA['breeding']['sell_selections'] if x]) > available_space:
-                    # TODO: 
-                    #   - Show warning alongside population indicator
-                    #   - Cross-out OK button
-                    pass
+                    Layers.top = {
+                        'file':'not_allowed',
+                        'position':(226,216)
+                    }
+                else:
+                    # TODO:
+                    # - Fix removal of not_allowed by re-drawing button
+                    Layers.top = {
+                        'file':'empty',
+                        'position':(0,0)
+                    }
                 
 
             if update_screen:
                 print('[ DISPLAY ]: Layers.show() in screen_breeding_sale()')
-                Layers.show(layers=['bottom', 'cursor'])
+                Layers.show(layers=['bottom', 'cursor', 'top'])
         led.set_rgb(0, 0, 0)
 
 def screen_breeding_result():
