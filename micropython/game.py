@@ -210,7 +210,7 @@ def menu():
     MENU_OPEN = True
     menu_move_cursor(menu_cursor_position)
     print('[ DISPLAY ]: Layers.show() in menu()')
-    Layers.show()
+    Layers.show(layers=['top', 'text', 'menu_cursor'])
     led.set_rgb(0, 0, 0)
 
     update_screen = False
