@@ -611,7 +611,7 @@ def screen_breeding_sale(children):
     }
     Layers.bottom = [{
         'file':'breeding_sell_toggles',
-        'position':(249, 2)
+        'position':(218, 0)
     }]
     
     Layers.text = [{
@@ -740,7 +740,7 @@ def screen_breeding_sale(children):
                 previous_sell_selections = DATA['breeding']['sell_selections'].copy()
                 Layers.bottom = [{
                     'file':'breeding_sell_toggles',
-                    'position':(249, 2)
+                    'position':(218, 0)
                 }]
                 if len([selected for selected in DATA['breeding']['sell_selections'] if not selected]) > available_space:
                     Layers.bottom.append({
