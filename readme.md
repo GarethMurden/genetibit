@@ -51,16 +51,12 @@ Connect two devices to breed your critters with your friends'
 
 - Features
 	- Upgrade field
-		- Population limits
 	- Select critter from field to view info
 		- Sell critters from field
 	- Competitions
 	- Device-to-device communication
 
 - Fixes
-	- Improve breeding_sale_toggle.png
-		- Prevent cursor artefacts on checkboxes
-		- Include OK button & not_allowed.png
 	- Travel text appears before background changes
 	- Shouldn't be possible to breed a critter to itself
 	- Cursors don't move to right on breeding screen after first selection
