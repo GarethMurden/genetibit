@@ -42,7 +42,12 @@ DATA = {
     },
     'critters':[],
     'field':{
-        'level':0
+        'level':0,
+        'limits':[
+            4,
+            6,
+            8
+        ]
     },
     'gold':0,
     'travel':{
@@ -320,7 +325,7 @@ def screen_breeding():
                 DATA['breeding']['left_critter_index'] -= 1
                 if DATA['breeding']['left_critter_index'] == DATA['breeding']['right_critter_index']: # can't have the same on L & R
                     DATA['breeding']['left_critter_index'] -= 1
-                    print(f"[DEBUG] : skipping index {DATA['breeding']['left_critter_index']}")
+                    print(f"[ DEBUG   ] : skipping index {DATA['breeding']['left_critter_index']}")
                 if DATA['breeding']['left_critter_index'] < 0:
                     DATA['breeding']['left_critter_index'] = len(POPULATION) -1
 
@@ -330,7 +335,7 @@ def screen_breeding():
                 DATA['breeding']['left_critter_index'] += 1
                 if DATA['breeding']['left_critter_index'] == DATA['breeding']['right_critter_index']: # can't have the same on L & R
                     DATA['breeding']['left_critter_index'] += 1
-                    print(f"[DEBUG] : skipping index {DATA['breeding']['left_critter_index']}")
+                    print(f"[ DEBUG   ] : skipping index {DATA['breeding']['left_critter_index']}")
                 if DATA['breeding']['left_critter_index'] >= len(POPULATION):
                     DATA['breeding']['left_critter_index'] = 0
             if button_y.value() == 0:
@@ -606,14 +611,34 @@ def screen_breeding_sale(children):
     }
     Layers.bottom = [{
         'file':'breeding_sell_toggles',
-        'position':(249, 2)
+        'position':(218, 0)
     }]
-    Layers.middle = []
+    
     Layers.text = [{
         'text':str(DATA['gold']),
         'position':(285, 10)
     }]
-    
+
+    Layers.middle = []
+    if DATA['field']['level'] == 0:
+        Layers.middle.append({
+            'file':'breeding_sell_locked_01',
+            'position':(100, 213)
+        })
+    elif DATA['field']['level'] == 1:
+        Layers.middle.append({
+            'file':'breeding_sell_locked_02',
+            'position':(130, 213)
+        })
+
+    for counter, critter in enumerate(POPULATION):
+        Layers.middle.append({
+            'file':f'breeding_pop_{critter.get_colour()}',
+            'position':(39 + (16 * counter), 216)
+        })
+
+    available_space = DATA['field']['limits'][DATA['field']['level']] - len(POPULATION)
+
     for v_counter, critter in enumerate(children):
         value = critter.get_value()
 
@@ -684,21 +709,22 @@ def screen_breeding_sale(children):
                         DATA['breeding']['sell_selections'][DATA['breeding']['cursor_index']] = True
                 
                 else: # ok button highlighted
-                    for index, sold in enumerate(DATA['breeding']['sell_selections']):
-                        if sold:
-                            DATA['gold'] += children[index].get_value()['phenotype']['value']
-                        else:
-                            POPULATION.append(children[index])
-                            DATA['critters'].append({
-                                'ancestors':children[index].ancestors,
-                                'genes':children[index].get_genotype(),
-                                'uid':children[index].uid
-                            })
-                    del DATA['breeding']['sell_selections']
-                    DATA['breeding']['cursor_index'] = 0
-                    data_save()
-                    CURRENT_SCREEN = 'field'
-                    break
+                    if len([selected for selected in DATA['breeding']['sell_selections'] if not selected]) <= available_space:
+                        for index, sold in enumerate(DATA['breeding']['sell_selections']):
+                            if sold:
+                                DATA['gold'] += children[index].get_value()['phenotype']['value']
+                            else:
+                                POPULATION.append(children[index])
+                                DATA['critters'].append({
+                                    'ancestors':children[index].ancestors,
+                                    'genes':children[index].get_genotype(),
+                                    'uid':children[index].uid
+                                })
+                        del DATA['breeding']['sell_selections']
+                        DATA['breeding']['cursor_index'] = 0
+                        data_save()
+                        CURRENT_SCREEN = 'field'
+                        break
 
             # only update screen if something's changed
             if previous_cursor_index != DATA['breeding']['cursor_index']:
@@ -714,17 +740,23 @@ def screen_breeding_sale(children):
                 previous_sell_selections = DATA['breeding']['sell_selections'].copy()
                 Layers.bottom = [{
                     'file':'breeding_sell_toggles',
-                    'position':(249, 2)
+                    'position':(218, 0)
                 }]
+                if len([selected for selected in DATA['breeding']['sell_selections'] if not selected]) > available_space:
+                    Layers.bottom.append({
+                        'file':'not_allowed',
+                        'position':(226,216)
+                    })
                 for counter, selected in enumerate(DATA['breeding']['sell_selections']):
                     if selected:
                         Layers.bottom.append({
                             'file':'tick',
                             'position':checkmark_positions[counter],
-                        })
+                        })               
+
             if update_screen:
                 print('[ DISPLAY ]: Layers.show() in screen_breeding_sale()')
-                Layers.show(layers=['bottom', 'cursor'])
+                Layers.show(layers=['bottom', 'cursor', 'top'])
         led.set_rgb(0, 0, 0)
 
 def screen_breeding_result():
