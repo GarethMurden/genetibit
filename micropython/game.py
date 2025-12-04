@@ -908,10 +908,24 @@ def screen_field():
     # critter movement thread
     movement_thread = _thread.start_new_thread(screen_field_movement, ())
 
-    # menu button loop
+    # button loop
+    cursor_index = 0
     while CURRENT_SCREEN == 'field':
         if button_x.value() == 0:
             menu()
+
+        if button_a.value() == 0:
+            cursor_index += 1
+        if button_b.value() == 0:
+            cursor_index -= 1
+
+        # TODO:
+        #   - Move cursor amongst critters
+        #   - Cursor should be invisible befor/after fist/last critter
+        #   - Need to make sure the cursor moves with the selected critter
+        #       - Save a "selected" property against the critter.uid
+        #   - Draw the cursor with critter in screen_field_movement()
+
 
 def screen_field_movement():
     positions = {}
@@ -941,13 +955,12 @@ def screen_field_movement():
                 print(f"[ DEBUG   ]: {critter.uid} moved from {positions[critter.uid]['previous']} to {new_position} {new_coords}")
                 
                 # TODO:
-                # - cover critter previous position
+                #   - Check this doesn't fail on the edges...
 
-                # DEBUG
                 asset = f'lvl{DATA["field"]["level"]}/{positions[critter.uid]["previous"][1]}{positions[critter.uid]["previous"][0]}'
                 print(f'[ DEBUG   ]: {asset} positioned at {old_coords}')
                 Layers.middle.append({
-                    'file':f'field_parts/lvl{DATA["field"]["level"]}/{positions[critter.uid]["previous"][1]}{positions[critter.uid]["previous"][0]}',
+                    'file':f'field_parts/{asset}',
                     'position':old_coords,
                     'scale':1
                 })

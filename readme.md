@@ -50,7 +50,6 @@ Connect two devices to breed your critters with your friends'
 ## To do
 
 - Features
-	- Tile-based field screen updates
 	- Select critter from field to view info
 		- Sell critters from field
 	- Competitions
