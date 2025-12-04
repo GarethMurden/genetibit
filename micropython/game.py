@@ -877,6 +877,8 @@ def screen_connect_animation():
 
 def screen_field():
     global POPULATION, CURRENT_SCREEN
+
+    # load single full background image
     Layers.clear_all()
     Layers.background = {
         'file':f'field_{DATA["field"]["level"]}',
@@ -884,31 +886,76 @@ def screen_field():
     }
     print('[ DISPLAY ]: Layers.show() in screen_field()')
     Layers.show()
-    menu_thread = _thread.start_new_thread(screen_field_menu, ())
-    while 'field' in CURRENT_SCREEN:
+
+    # draw critters in their starting positions
+    Layers.middle = []
+    for critter in POPULATION:
+        critter.move(jump=True) # random starting position
+        position = critter.get_position()
+        coords = (
+            position[0] * 32,
+            position[1] * 32
+        )
+        Layers.middle.append({
+            'file':critter.get_sprite(),
+            'position':coords,
+            'scale':2
+        })
+
+    print('[ DISPLAY ]: Layers.show() in screen_field()')
+    Layers.show(layers=['middle'])
+
+    # critter movement thread
+    movement_thread = _thread.start_new_thread(screen_field_movement, ())
+
+    # menu button loop
+    while CURRENT_SCREEN == 'field':
+        if button_x.value() == 0:
+            menu()
+
+def screen_field_movement():
+    positions = {}
+    while CURRENT_SCREEN == 'field':
+        update_screen = False
         Layers.middle = []
         for critter in POPULATION:
-            if button_x.value() == 0:
-                menu()
-            if choice([True, True, False]):
-                critter.move()
-            Layers.middle.append({
-                'file':critter.get_sprite(),
-                'position':critter.get_position(),
-                'scale':2
-            })
-        if CURRENT_SCREEN == 'field': # only update screen if menu not open
-            print('[ DISPLAY ]: Layers.show() in screen_field()')
-            Layers.show()
-            sleep(5)
+            if critter.uid not in positions:
+                positions[critter.uid] = {
+                    'previous':critter.get_position(),
+                    'current':critter.get_position()
+                }
 
-def screen_field_menu():
-    global CURRENT_SCREEN
-    while 'field' in CURRENT_SCREEN:
-        if button_x.value() == 0:
-            CURRENT_SCREEN = 'field_menu'
-            menu()
-            break
+            if choice([True, True, False]):
+                update_screen = True
+                positions[critter.uid]['previous'] = critter.get_position()
+                old_coords = (
+                    positions[critter.uid]['previous'][0] * 32,
+                    positions[critter.uid]['previous'][1] * 32
+                )
+                new_position = critter.move()
+                positions[critter.uid]['current'] = new_position
+                new_coords = (
+                    new_position[0] * 32,
+                    new_position[1] * 32
+                )
+                print(f"[ DEBUG   ]: {critter.uid} moved from {positions[critter.uid]['previous']} to {new_position} {new_coords}")
+                # cover critter previous position
+                Layers.middle.append({
+                    'file':f'field_parts/lvl{DATA["field"]["level"]}/{positions[critter.uid]["previous"][0]}{positions[critter.uid]["previous"][1]}',
+                    'position':old_coords,
+                    'scale':2
+                })
+
+                # draw critter in new position
+                Layers.middle.append({
+                    'file':critter.get_sprite(),
+                    'position':new_coords,
+                    'scale':2
+                })
+        if update_screen:
+            print('[ DISPLAY ]: Layers.show() in screen_field_movement()')
+            Layers.show(layers=['middle'])
+        sleep(5)
 
 def screen_gold_animation(change):
     if change != 0:

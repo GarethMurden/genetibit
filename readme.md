@@ -50,7 +50,7 @@ Connect two devices to breed your critters with your friends'
 ## To do
 
 - Features
-	- Upgrade field
+	- Tile-based field screen updates
 	- Select critter from field to view info
 		- Sell critters from field
 	- Competitions
@@ -61,7 +61,7 @@ Connect two devices to breed your critters with your friends'
 	- Shouldn't be possible to breed a critter to itself
 	- Cursors don't move to right on breeding screen after first selection
 	- Price sticks after menu close
-	- selecting the current screen from the menu leaves menu open
+	- Closing menu doesn't necessary refresh screen
 	- Opening menu within breeding result flow should not be allowed
 
 ## Resources 
