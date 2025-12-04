@@ -12,7 +12,7 @@ class Critter():
         if position is None:
             position = (
                 random.randint(0, 10),
-                random.randint(0, 8)
+                random.randint(0, 7)
             )
         self.position = [position[0], position[1]]
         self.cooldown = None
@@ -98,7 +98,7 @@ class Critter():
         return f'creatures/{name}_{colour}'
 
     def move(self, jump=False):
-        rows = range(0, 9)
+        rows = range(0, 7)
         cols = range(0, 10)
         if jump:
             self.position[0] = random.choice(rows)

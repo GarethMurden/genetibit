@@ -899,7 +899,7 @@ def screen_field():
         Layers.middle.append({
             'file':critter.get_sprite(),
             'position':coords,
-            'scale':2
+            'scale':1
         })
 
     print('[ DISPLAY ]: Layers.show() in screen_field()')
@@ -939,18 +939,24 @@ def screen_field_movement():
                     new_position[1] * 32
                 )
                 print(f"[ DEBUG   ]: {critter.uid} moved from {positions[critter.uid]['previous']} to {new_position} {new_coords}")
-                # cover critter previous position
+                
+                # TODO:
+                # - cover critter previous position
+
+                # DEBUG
+                asset = f'lvl{DATA["field"]["level"]}/{positions[critter.uid]["previous"][1]}{positions[critter.uid]["previous"][0]}'
+                print(f'[ DEBUG   ]: {asset} positioned at {old_coords}')
                 Layers.middle.append({
-                    'file':f'field_parts/lvl{DATA["field"]["level"]}/{positions[critter.uid]["previous"][0]}{positions[critter.uid]["previous"][1]}',
+                    'file':f'field_parts/lvl{DATA["field"]["level"]}/{positions[critter.uid]["previous"][1]}{positions[critter.uid]["previous"][0]}',
                     'position':old_coords,
-                    'scale':2
+                    'scale':1
                 })
 
                 # draw critter in new position
                 Layers.middle.append({
                     'file':critter.get_sprite(),
                     'position':new_coords,
-                    'scale':2
+                    'scale':1
                 })
         if update_screen:
             print('[ DISPLAY ]: Layers.show() in screen_field_movement()')
