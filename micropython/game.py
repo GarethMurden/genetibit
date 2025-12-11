@@ -922,96 +922,121 @@ def screen_field():
             else:
                 DATA['field']['cursor_index'] += 1
             print(f'[ FIELD   ]: cursor_index = {DATA["field"]["cursor_index"]}')
-            update_screen = True
+            sleep(0.5)
         if button_b.value() == 0:
             DATA['field']['cursor_index'] -= 1
             if DATA['field']['cursor_index'] < 0:
                 DATA['field']['cursor_index'] = len(POPULATION)
             print(f'[ FIELD   ]: cursor_index = {DATA["field"]["cursor_index"]}')
-            update_screen = True
-
-        if update_screen:
-            # immediately draw cursor around selected critter
-            try:
-                highlighted_critter = POPULATION[DATA['field']['cursor_index']]
-                print(f"[ FIELD   ]: {highlighted_critter.uid} highlighted by selector")
-                position = (
-                    highlighted_critter.get_position()[0] * 32,
-                    highlighted_critter.get_position()[1] * 32
-                )
-                Layers.middle.append({
-                    'file':'selector',
-                    'position':position,
-                    'scale':1
-                })
-                Layers.show(layers=['middle'])
-                update_screen = False
-            except IndexError:
-                # no critters highlighted
-                pass
-
+            sleep(0.5)
 
         # TODO:
-        #   - Move cursor amongst critters
-        #   - Cursor should be invisible befor/after fist/last critter
-        #   - Need to make sure the cursor moves with the selected critter
-        #       - Save a "selected" property against the critter.uid
-        #   - Draw the cursor with critter in screen_field_movement()
-
+        #   - show critter detail on press of button_y
 
 def screen_field_movement():
     positions = {}
+    counter = 0
+    previous_selection = DATA["field"]["cursor_index"]
     while CURRENT_SCREEN == 'field':
+        counter += 1
         update_screen = False
         Layers.middle = []
-        for counter, critter in enumerate(POPULATION):
-            if critter.uid not in positions:
-                positions[critter.uid] = {
-                    'previous':critter.get_position(),
-                    'current':critter.get_position()
-                }
 
-            if choice([True, True, False]):
+        if DATA["field"]["cursor_index"] != previous_selection:
+            try:
+                # re-draw critters as soon as cursor moved
+                cursor_coords = POPULATION[DATA["field"]["cursor_index"]].get_position()
+                Layers.middle.append({
+                    'file':'selector',
+                    'position':(
+                        cursor_coords[0] * 32,
+                        cursor_coords[1] * 32
+                    ),
+                    'scale':1
+                })
                 update_screen = True
-                positions[critter.uid]['previous'] = critter.get_position()
-                old_coords = (
-                    positions[critter.uid]['previous'][0] * 32,
-                    positions[critter.uid]['previous'][1] * 32
-                )
-                new_position = critter.move()
-                positions[critter.uid]['current'] = new_position
-                new_coords = (
-                    new_position[0] * 32,
-                    new_position[1] * 32
-                )
-
-                print(f"[ FIELD   ]: {critter.uid} moved from {positions[critter.uid]['previous']} to {new_position} / {new_coords}")
-                asset = f'lvl{DATA["field"]["level"]}/{positions[critter.uid]["previous"][1]}{positions[critter.uid]["previous"][0]}'
+            except IndexError:
+                # no critter selected (cursor index == len(POPULAITON))
+                pass
+            try:
+                # remove cursor from previously selected critter, if any
+                critter = POPULATION[previous_selection]
+                coords = critter.get_position()
+                asset = f'lvl{DATA["field"]["level"]}/{coords[1]}{coords[0]}'
                 Layers.middle.append({
                     'file':f'field_parts/{asset}',
-                    'position':old_coords,
+                    'position':(
+                        coords[0] * 32,
+                        coords[1] * 32
+                    ),
                     'scale':1
                 })
 
-                # draw critter in new position
                 Layers.middle.append({
                     'file':critter.get_sprite(),
-                    'position':new_coords,
+                    'position':(
+                        coords[0] * 32,
+                        coords[1] * 32
+                    ),
                     'scale':1
                 })
+            except IndexError:
+                pass
+            update_screen = True
+            previous_selection = DATA["field"]["cursor_index"]
 
-                # highlight critter if it's selected
-                if DATA['field']['cursor_index'] == counter:
+        if counter % 10 == 0:
+            # re-draw critters every 10 loop iterations
+            for critter_index, critter in enumerate(POPULATION):
+
+                if critter.uid not in positions:
+                    positions[critter.uid] = {
+                        'previous':critter.get_position(),
+                        'current':critter.get_position()
+                    }
+
+                if choice([True, True, False]):
+                    update_screen = True
+                    positions[critter.uid]['previous'] = critter.get_position()
+                    old_coords = (
+                        positions[critter.uid]['previous'][0] * 32,
+                        positions[critter.uid]['previous'][1] * 32
+                    )
+                    new_position = critter.move()
+                    positions[critter.uid]['current'] = new_position
+                    new_coords = (
+                        new_position[0] * 32,
+                        new_position[1] * 32
+                    )
+
+                    print(f"[ FIELD   ]: {critter.uid} moved from {positions[critter.uid]['previous']} to {new_position} / {new_coords}")
+                    asset = f'lvl{DATA["field"]["level"]}/{positions[critter.uid]["previous"][1]}{positions[critter.uid]["previous"][0]}'
                     Layers.middle.append({
-                        'file':'selector',
+                        'file':f'field_parts/{asset}',
+                        'position':old_coords,
+                        'scale':1
+                    })
+
+                    # draw critter in new position
+                    Layers.middle.append({
+                        'file':critter.get_sprite(),
                         'position':new_coords,
                         'scale':1
                     })
 
+                    # highlight critter if it's selected
+                    if DATA['field']['cursor_index'] == critter_index:
+                        Layers.middle.append({
+                            'file':'selector',
+                            'position':new_coords,
+                            'scale':1
+                        })
+
         if update_screen:
             print('[ DISPLAY ]: Layers.show() in screen_field_movement()')
             Layers.show(layers=['middle'])
-        sleep(5)
+
+        sleep(0.5)
 
 def screen_gold_animation(change):
     if change != 0:
