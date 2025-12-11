@@ -51,9 +51,11 @@ Connect two devices to breed your critters with your friends'
 
 - Features
 	- Select critter from field to view info
+		- Factfile screen
 		- Sell critters from field
 	- Competitions
 	- Device-to-device communication
+	- Replace body variants with more obvious horn variants
 
 - Fixes
 	- Travel text appears before background changes
