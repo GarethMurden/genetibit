@@ -42,6 +42,7 @@ DATA = {
     },
     'critters':[],
     'field':{
+        'cursor_index':0,
         'level':0,
         'limits':[
             4,
@@ -876,7 +877,7 @@ def screen_connect_animation():
     pass
 
 def screen_field():
-    global POPULATION, CURRENT_SCREEN
+    global POPULATION, CURRENT_SCREEN, DATA
 
     # load single full background image
     Layers.clear_all()
@@ -909,15 +910,46 @@ def screen_field():
     movement_thread = _thread.start_new_thread(screen_field_movement, ())
 
     # button loop
-    cursor_index = 0
+    DATA['field']['cursor_index'] = len(POPULATION)
+    update_screen = False
     while CURRENT_SCREEN == 'field':
         if button_x.value() == 0:
             menu()
 
         if button_a.value() == 0:
-            cursor_index += 1
+            if DATA['field']['cursor_index'] == len(POPULATION):
+                DATA['field']['cursor_index'] = 0
+            else:
+                DATA['field']['cursor_index'] += 1
+            print(f'[ FIELD   ]: cursor_index = {DATA["field"]["cursor_index"]}')
+            update_screen = True
         if button_b.value() == 0:
-            cursor_index -= 1
+            DATA['field']['cursor_index'] -= 1
+            if DATA['field']['cursor_index'] < 0:
+                DATA['field']['cursor_index'] = len(POPULATION)
+            print(f'[ FIELD   ]: cursor_index = {DATA["field"]["cursor_index"]}')
+            update_screen = True
+
+        if update_screen:
+            # immediately draw cursor around selected critter
+            try:
+                highlighted_critter = POPULATION[DATA['field']['cursor_index']]
+                print(f"[ FIELD   ]: {highlighted_critter.uid} highlighted by selector")
+                position = (
+                    highlighted_critter.get_position()[0] * 32,
+                    highlighted_critter.get_position()[1] * 32
+                )
+                Layers.middle.append({
+                    'file':'selector',
+                    'position':position,
+                    'scale':1
+                })
+                Layers.show(layers=['middle'])
+                update_screen = False
+            except IndexError:
+                # no critters highlighted
+                pass
+
 
         # TODO:
         #   - Move cursor amongst critters
@@ -932,7 +964,7 @@ def screen_field_movement():
     while CURRENT_SCREEN == 'field':
         update_screen = False
         Layers.middle = []
-        for critter in POPULATION:
+        for counter, critter in enumerate(POPULATION):
             if critter.uid not in positions:
                 positions[critter.uid] = {
                     'previous':critter.get_position(),
@@ -952,13 +984,9 @@ def screen_field_movement():
                     new_position[0] * 32,
                     new_position[1] * 32
                 )
-                print(f"[ DEBUG   ]: {critter.uid} moved from {positions[critter.uid]['previous']} to {new_position} {new_coords}")
-                
-                # TODO:
-                #   - Check this doesn't fail on the edges...
 
+                print(f"[ FIELD   ]: {critter.uid} moved from {positions[critter.uid]['previous']} to {new_position} / {new_coords}")
                 asset = f'lvl{DATA["field"]["level"]}/{positions[critter.uid]["previous"][1]}{positions[critter.uid]["previous"][0]}'
-                print(f'[ DEBUG   ]: {asset} positioned at {old_coords}')
                 Layers.middle.append({
                     'file':f'field_parts/{asset}',
                     'position':old_coords,
@@ -971,6 +999,15 @@ def screen_field_movement():
                     'position':new_coords,
                     'scale':1
                 })
+
+                # highlight critter if it's selected
+                if DATA['field']['cursor_index'] == counter:
+                    Layers.middle.append({
+                        'file':'selector',
+                        'position':new_coords,
+                        'scale':1
+                    })
+
         if update_screen:
             print('[ DISPLAY ]: Layers.show() in screen_field_movement()')
             Layers.show(layers=['middle'])

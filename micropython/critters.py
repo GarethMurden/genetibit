@@ -11,7 +11,7 @@ class Critter():
         self.genes = genes
         if position is None:
             position = (
-                random.randint(0, 10),
+                random.randint(0, 9),
                 random.randint(0, 7)
             )
         self.position = [position[0], position[1]]
@@ -99,7 +99,7 @@ class Critter():
 
     def move(self, jump=False):
         rows = range(0, 7)
-        cols = range(0, 10)
+        cols = range(0, 9)
         if jump:
             self.position[0] = random.choice(rows)
             self.position[1] = random.choice(cols)
