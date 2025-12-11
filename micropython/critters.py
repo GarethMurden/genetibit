@@ -11,8 +11,8 @@ class Critter():
         self.genes = genes
         if position is None:
             position = (
-                random.randint(10, 280),
-                random.randint(10, 210)
+                random.randint(0, 9),
+                random.randint(0, 7)
             )
         self.position = [position[0], position[1]]
         self.cooldown = None
@@ -97,15 +97,23 @@ class Critter():
         colour = self.get_colour()
         return f'creatures/{name}_{colour}'
 
-    def move(self):
-        if random.choice(['h', 'h', 'v']) == 'h':
-            change = random.randint(-5, 5) * 2
-            if 10 < self.position[0] + change < 280:
-                self.position[0] = self.position[0] + change
+    def move(self, jump=False):
+        rows = range(0, 7)
+        cols = range(0, 9)
+        if jump:
+            self.position[0] = random.choice(rows)
+            self.position[1] = random.choice(cols)
         else:
-            change = random.randint(-5, 5) * 2
-            if 10 < self.position[1] + change < 210:
-                self.position[1] = self.position[1] + change
+            change = random.choice([-1, +1]) # direction
+            if random.choice(['h', 'h', 'v']) == 'h':
+                # horizontal move
+                if min(cols) < self.position[0] + change < max(cols):
+                    self.position[0] = self.position[0] + change
+            else:
+                # vertical move
+                if min(rows) < self.position[1] + change < max(rows):
+                    self.position[1] = self.position[1] + change
+        return self.get_position()
 
     def set_cooldown(self, seconds=0):
         self.cooldown = {'duration':seconds, 'end':time.time() + seconds}
