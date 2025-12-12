@@ -876,6 +876,27 @@ def screen_connect_animation():
     # TODO: connection transition animation
     pass
 
+def screen_factfile():
+    global CURRENT_SCREEN
+    Layers.clear_all()
+    Layers.background = {
+        'file':f'blank',
+        'position':(0, 0)
+    }
+    critter = POPULATION[DATA["field"]["cursor_index"]]
+    Layers.middle = [{
+        'file':critter.get_sprite(),
+        'position':(10, 10),
+        'scale': 4
+    }]
+    Layers.text = [{
+        'text':critter.get_name(),
+        'position':(10, 10)
+    }]
+
+    # TODO:
+    # - Factfile layout
+
 def screen_field():
     global POPULATION, CURRENT_SCREEN, DATA
 
@@ -929,9 +950,8 @@ def screen_field():
                 DATA['field']['cursor_index'] = len(POPULATION)
             print(f'[ FIELD   ]: cursor_index = {DATA["field"]["cursor_index"]}')
             sleep(0.5)
-
-        # TODO:
-        #   - show critter detail on press of button_y
+        if button_y.value() == 0:
+            CURRENT_SCREEN = 'factfile'
 
 def screen_field_movement():
     positions = {}

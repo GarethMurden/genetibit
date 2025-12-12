@@ -50,8 +50,7 @@ class Critter():
         }
 
     def get_name(self):
-        genes = self.get_phenotype()
-        return ''.join([genes['head'], genes['body'], genes['legs']])
+        return self.uid
 
     def get_phenotype(self):
         return {
