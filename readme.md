@@ -50,9 +50,11 @@ Connect two devices to breed your critters with your friends'
 ## To do
 
 - Features
-	- Select critter from field to view info
-		- Factfile screen
-		- Sell critters from field
+	- Factfile screen
+		- Close button
+		- Scroll through critters without returning to field
+		- Jump to breeding screen
+		- Sell critter
 	- Competitions
 	- Device-to-device communication
 	- Replace body variants with more obvious horn variants

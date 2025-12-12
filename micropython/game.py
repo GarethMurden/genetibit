@@ -890,19 +890,62 @@ def screen_factfile():
         'position':(0, 0)
     }
     critter = POPULATION[DATA["field"]["cursor_index"]]
-    Layers.middle = [{
+    Layers.bottom = [{
         'file':critter.get_sprite(),
         'position':(10, 80),
         'scale': 4
     }]
-    Layers.text = [{
-        'text':critter.get_name(),
-        'position':(25, 32),
-        'scale':2
-    }]
+    value = critter.get_value()
+    Layers.text = [
+        {
+            'text':critter.get_name(),
+            'position':(25, 32),
+            'scale':2
+        },
+        {
+            'text':f"{value['heterozygousity']}%",
+            'position':(211, 148),
+            'scale':2
+        }
+    ]
+    print('[ DISPLAY ]: Layers.show() in screen_factfile()')
     Layers.show()
+    
+    cursor_index = 0
+    cursor_positions = [
+        ( 10, 209), # close
+        ( 55, 209), # next
+        (140, 209), # breed
+        (260, 209), # sell
+    ]
+    update_screen = True
     while CURRENT_SCREEN == 'factfile':
-        pass
+        if button_x.value() == 0:
+            menu()
+        if button_a.value() == 0:
+            cursor_index -= 1
+            if cursor_index < 0:
+                cursor_index = len(cursor_positions) - 1
+            update_screen = True
+        if button_b.value() == 0:
+            cursor_index += 1
+            if cursor_index == len(cursor_positions):
+                cursor_index = 0
+            update_screen = True
+
+
+        if update_screen:
+            Layers.background = {
+                'file':f'factfile_buttons',
+                'position':(0, 190)
+            }
+            Layers.cursor = {
+                'file':'cursor',
+                'position':cursor_positions[cursor_index]
+            }
+            print('[ DISPLAY ]: Layers.show() in screen_factfile()')
+            Layers.show(layers=['background', 'cursor'])
+            update_screen = False
 
 
 def screen_field():
