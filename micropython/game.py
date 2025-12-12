@@ -149,7 +149,11 @@ class Layer_class():
             print('[ DISPLAY ]: Busy')
             sleep(0.5)
         self.display_busy = True
-        png.open_file(f"assets/{filename}.png")
+        try:
+            png.open_file(f"assets/{filename}.png")
+        except OSError:
+            print(f'[ DISPLAY ]: MISSING ASSET - "{filename}"')
+            raise
         png.decode(position[0], position[1], scale=scale)
         self.display_busy = False
         led.set_rgb(0, 0, 0)
@@ -289,6 +293,8 @@ def screens():
             Layers.show()
         if CURRENT_SCREEN == 'field':
             screen_field()
+        if CURRENT_SCREEN == 'factfile':
+            screen_factfile()
         if CURRENT_SCREEN == 'breeding':
             screen_breeding()
         if CURRENT_SCREEN == 'breeding_animation':
@@ -504,12 +510,12 @@ def screen_breeding_visitor(visitor):
 
             Layers.text = [
                 {
-                    'text':visitor.uid,
+                    'text':visitor.get_name(),
                     'position':(50, 189),
                     'scale': 2
                 },
                 {
-                    'text':POPULATION[DATA['breeding']['right_critter_index']].uid,
+                    'text':POPULATION[DATA['breeding']['right_critter_index']].get_name(),
                     'position':(210, 189),
                     'scale': 2
                 }
@@ -880,22 +886,24 @@ def screen_factfile():
     global CURRENT_SCREEN
     Layers.clear_all()
     Layers.background = {
-        'file':f'blank',
+        'file':f'factfile',
         'position':(0, 0)
     }
     critter = POPULATION[DATA["field"]["cursor_index"]]
     Layers.middle = [{
         'file':critter.get_sprite(),
-        'position':(10, 10),
+        'position':(10, 80),
         'scale': 4
     }]
     Layers.text = [{
         'text':critter.get_name(),
-        'position':(10, 10)
+        'position':(25, 32),
+        'scale':2
     }]
+    Layers.show()
+    while CURRENT_SCREEN == 'factfile':
+        pass
 
-    # TODO:
-    # - Factfile layout
 
 def screen_field():
     global POPULATION, CURRENT_SCREEN, DATA
@@ -951,7 +959,8 @@ def screen_field():
             print(f'[ FIELD   ]: cursor_index = {DATA["field"]["cursor_index"]}')
             sleep(0.5)
         if button_y.value() == 0:
-            CURRENT_SCREEN = 'factfile'
+            if DATA['field']['cursor_index'] != len(POPULATION):
+                CURRENT_SCREEN = 'factfile'
 
 def screen_field_movement():
     positions = {}

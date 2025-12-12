@@ -58,6 +58,7 @@ Connect two devices to breed your critters with your friends'
 	- Replace body variants with more obvious horn variants
 
 - Fixes
+	- Background overwrite on bottom edge of field during movement fails with ENOENT
 	- Travel text appears before background changes
 	- Shouldn't be possible to breed a critter to itself
 	- Cursors don't move to right on breeding screen after first selection
