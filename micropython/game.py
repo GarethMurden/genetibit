@@ -882,8 +882,8 @@ def screen_connect_animation():
     # TODO: connection transition animation
     pass
 
-def screen_factfile():
-    global CURRENT_SCREEN
+def screen_factfile(cursor_index=0):
+    global CURRENT_SCREEN, DATA
     Layers.clear_all()
     Layers.background = {
         'file':f'factfile',
@@ -917,17 +917,16 @@ def screen_factfile():
             'position':(0, v_offset * counter),
         })
 
-
     print('[ DISPLAY ]: Layers.show() in screen_factfile()')
     Layers.show()
     
-    cursor_index = 0
     cursor_positions = [
         ( 10, 209), # close
         ( 55, 209), # next
         (140, 209), # breed
         (260, 209), # sell
     ]
+    show_next_critter = False
     update_screen = True
     while CURRENT_SCREEN == 'factfile':
         if button_x.value() == 0:
@@ -943,8 +942,24 @@ def screen_factfile():
                 cursor_index = 0
             update_screen = True
 
-            # TODO:
-            #   - Button functions
+        if button_y.value() == 0:
+            if cursor_index == 0: # close
+                CURRENT_SCREEN = 'field'
+            if cursor_index == 1: # reload fact file with next critter's data
+                if DATA['field']['cursor_index'] == len(POPULATION) -1:
+                    DATA['field']['cursor_index'] = 0
+                else:
+                    DATA['field']['cursor_index'] += 1
+                show_next_critter = True
+                break
+            if cursor_index == 2: # breed
+                # TODO: Breed this critter
+
+                pass
+            if cursor_index == 3: # sell
+                # TODO: Sell this critter
+                pass
+
 
         if update_screen:
             Layers.background = {
@@ -958,6 +973,10 @@ def screen_factfile():
             print('[ DISPLAY ]: Layers.show() in screen_factfile()')
             Layers.show(layers=['background', 'cursor'])
             update_screen = False
+
+    if show_next_critter: # reload fact file with next critter's data
+        screen_factfile(cursor_index)
+
 
 
 def screen_field():
