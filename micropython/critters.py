@@ -53,11 +53,16 @@ class Critter():
         return self.uid
 
     def get_phenotype(self):
+        head = sorted(self.genes['head'])[0]
+        body = sorted(self.genes['body'])[0]
+        legs = sorted(self.genes['legs'])[0]
+        colour = self.get_colour()
         return {
-            'head':sorted(self.genes['head'])[0],
-            'body':sorted(self.genes['body'])[0],
-            'legs':sorted(self.genes['legs'])[0],
-            'colour':self.get_colour()
+            'head':head,
+            'body':body,
+            'legs':legs,
+            'colour':colour,
+            'string':f'{head}{body}{legs}_{colour}'
         }
 
     def get_value(self):
@@ -85,6 +90,7 @@ class Critter():
 
         return {
             'phenotype':{'rank':ranks[ph_rank -1], 'value':ph_total},
+            'attributes':[ph_head, ph_body, ph_legs],
             'heterozygousity':heterozygousity
         }
 
@@ -92,9 +98,7 @@ class Critter():
         return tuple(self.position)
 
     def get_sprite(self):
-        name = self.get_name()
-        colour = self.get_colour()
-        return f'creatures/{name}_{colour}'
+        return f"creatures/{self.get_phenotype()['string']}"
 
     def move(self, jump=False):
         rows = range(0, 7)
@@ -140,7 +144,7 @@ class Critter():
         return in_effect, icon
 
 def build_ancestry(parent_a, parent_b):
-    ancestry = [[f'{parent_a.get_name()}_{parent_a.get_colour()}', f'{parent_b.get_name()}_{parent_b.get_colour()}']]
+    ancestry = [[f'{parent_a.get_phenotype()["string"]}', f'{parent_b.get_phenotype()["string"]}']]
     ancestry_a = parent_a.ancestors
     ancestry_b = parent_b.ancestors
     for x in range(max([len(ancestry_a), len(ancestry_b)])):

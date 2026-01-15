@@ -908,6 +908,16 @@ def screen_factfile():
             'scale':2
         }
     ]
+
+    Layers.middle = []
+    v_offset = 32
+    for counter, attribute in enumerate(value['attributes']):
+        Layers.middle.append({
+            'file':f'factfile_stat_{value["attributes"][counter]:02}',
+            'position':(0, v_offset * counter),
+        })
+
+
     print('[ DISPLAY ]: Layers.show() in screen_factfile()')
     Layers.show()
     
@@ -933,6 +943,8 @@ def screen_factfile():
                 cursor_index = 0
             update_screen = True
 
+            # TODO:
+            #   - Button functions
 
         if update_screen:
             Layers.background = {
