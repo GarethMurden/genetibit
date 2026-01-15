@@ -16,7 +16,7 @@ Introduce new genes from visiting critters
 
 ![](https://github.com/GarethMurden/genetibit/blob/master/screenshots/visitor.png?raw=true)
 
-Sell creatures with rare trates at the market
+Sell creatures with rare traits at the market
 
 ![](https://github.com/GarethMurden/genetibit/blob/master/screenshots/breeding_sell.png?raw=true)
 
