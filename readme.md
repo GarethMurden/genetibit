@@ -52,7 +52,6 @@ Connect two devices to breed your critters with your friends'
 - Features
 	- Factfile screen
 		- Close button
-		- Scroll through critters without returning to field
 		- Jump to breeding screen
 		- Sell critter
 	- Competitions

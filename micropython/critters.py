@@ -101,7 +101,7 @@ class Critter():
         return f"creatures/{self.get_phenotype()['string']}"
 
     def move(self, jump=False):
-        rows = range(0, 7)
+        rows = range(0, 6)
         cols = range(0, 9)
         if jump:
             self.position[0] = random.choice(rows)

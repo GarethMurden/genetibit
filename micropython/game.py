@@ -439,7 +439,14 @@ def screen_breeding():
             led.set_rgb(0, 0, 0)
 
 
-def screen_breeding_visitor(visitor):
+def screen_breeding_visitor(mother, population_index=None):
+    '''
+        Breed a spericic critter object `mother` with one selected from the population. 
+        If accessed from the factfile screen, the `mother` is the critter selected in 
+        the fact file and `population_index` points to that critter in `POPULATION` so the
+        breeding cooldown can be set.
+    '''
+
     global DATA, CURRENT_SCREEN, BREEDING_PAIR
     Layers.clear_all()
     DATA['breeding']['right_critter_index'] = 0
@@ -481,15 +488,18 @@ def screen_breeding_visitor(visitor):
                 POPULATION[DATA['breeding']['right_critter_index']].set_cooldown( seconds=COOLDOWNS['breeding'])
                 CURRENT_SCREEN = 'breeding_animation' # change screen on next loop iteration
 
-                BREEDING_PAIR['mother'] = visitor
+                BREEDING_PAIR['mother'] = mother
                 BREEDING_PAIR['father'] = POPULATION[DATA['breeding']['right_critter_index']]
+                
+                if population_index is not None:
+                    POPULATION[population_index].set_cooldown( seconds=COOLDOWNS['breeding'])
             else:
                 led.set_rgb(50, 0, 0)
         
         if update_screen:
             Layers.middle = [
                 {
-                    'file':visitor.get_sprite(),
+                    'file':mother.get_sprite(),
                     'position':(15, 65),
                     'scale':4
                 },
@@ -510,7 +520,7 @@ def screen_breeding_visitor(visitor):
 
             Layers.text = [
                 {
-                    'text':visitor.get_name(),
+                    'text':mother.get_name(),
                     'position':(50, 189),
                     'scale': 2
                 },
@@ -952,10 +962,11 @@ def screen_factfile(cursor_index=0):
                     DATA['field']['cursor_index'] += 1
                 show_next_critter = True
                 break
-            if cursor_index == 2: # breed
-                # TODO: Breed this critter
 
-                pass
+            if cursor_index == 2: # breed
+                CURRENT_SCREEN = 'breeding'
+                break
+
             if cursor_index == 3: # sell
                 # TODO: Sell this critter
                 pass
@@ -973,6 +984,12 @@ def screen_factfile(cursor_index=0):
             print('[ DISPLAY ]: Layers.show() in screen_factfile()')
             Layers.show(layers=['background', 'cursor'])
             update_screen = False
+
+    if CURRENT_SCREEN == 'breeding':
+        screen_breeding_visitor(
+            critter,
+            population_index=DATA["field"]["cursor_index"]
+        )
 
     if show_next_critter: # reload fact file with next critter's data
         screen_factfile(cursor_index)
