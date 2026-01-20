@@ -51,17 +51,21 @@ Connect two devices to breed your critters with your friends'
 
 - Features
 	- Factfile screen
-		- Close button
-		- Jump to breeding screen
 		- Sell critter
+	- Field upgrades
 	- Competitions
 	- Device-to-device communication
-	- Replace body variants with more obvious horn variants
+	- Replace body variants with more obvious horn/ear variants
+
+- Art / UI components
+	- Sell single critter UI
+	- Field upgrade menu icon
+	- Factfile sell confirmation message
+	- New horn/ear variants
 
 - Fixes
 	- Background overwrite on bottom edge of field during movement fails with ENOENT
 	- Travel text appears before background changes
-	- Shouldn't be possible to breed a critter to itself
 	- Cursors don't move to right on breeding screen after first selection
 	- Price sticks after menu close
 	- Closing menu doesn't necessary refresh screen
