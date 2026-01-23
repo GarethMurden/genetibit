@@ -51,7 +51,7 @@ Connect two devices to breed your critters with your friends'
 
 - Features
 	- Factfile screen
-		- Sell critter
+		- Show gold total increase on sell confirmation
 	- Field upgrades
 	- Competitions
 	- Device-to-device communication

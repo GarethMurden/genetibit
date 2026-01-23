@@ -831,6 +831,7 @@ def screen_factfile(cursor_index=0):
         (260, 209), # sell
     ]
     show_next_critter = False
+    confirm_sell = False
     update_screen = True
     while CURRENT_SCREEN == 'factfile':
         if button_x.value() == 0:
@@ -862,13 +863,12 @@ def screen_factfile(cursor_index=0):
                 break
 
             if cursor_index == 3: # sell
-                # TODO: Sell this critter
-                pass
-
+                confirm_sell = True
+                break
 
         if update_screen:
             Layers.background = {
-                'file':f'factfile_buttons',
+                'file':'factfile_buttons',
                 'position':(0, 190)
             }
             Layers.cursor = {
@@ -885,10 +885,72 @@ def screen_factfile(cursor_index=0):
             population_index=DATA["field"]["cursor_index"]
         )
 
+    if confirm_sell:
+        sleep(0.5)
+        screen_factfile_sell(critter, DATA["field"]["cursor_index"])
+
     if show_next_critter: # reload fact file with next critter's data
         screen_factfile(cursor_index)
 
 
+def screen_factfile_sell(critter, population_index):
+    global CURRENT_SCREEN
+    Layers.middle = [
+        {
+            'file':'confirm_sell',
+            'position':(0,0)
+        },
+        {
+            'file':'confirm_sell_buttons',
+            'position':(43, 120)
+        }
+    ]
+    Layers.text = [{
+        'text':critter.get_value()['phenotype']['value'],
+        'position':(200, 88),
+        'scale':3
+    }]
+    cursor_index = 0
+    cursor_positions = [
+        ( 75, 126),
+        (205, 126)
+    ]
+    sell = False
+    update_screen = True
+    while True:
+        if button_a.value() == 0:
+            cursor_index -= 1
+            if cursor_index < 0:
+                cursor_index = len(cursor_positions) - 1
+            update_screen = True
+        if button_b.value() == 0:
+            cursor_index += 1
+            if cursor_index == len(cursor_positions):
+                cursor_index = 0
+            update_screen = True
+        if button_y.value() == 0:
+            if cursor_index == 0: # cancel
+                break
+            else: # confirm
+                sell = True
+                break
+
+        if update_screen:
+            Layers.cursor = {
+                'file':'cursor',
+                'position':cursor_positions[cursor_index]
+            }
+            Layers.show(['middle', 'cursor', 'text'])
+            update_screen = False
+
+    if sell:
+        del POPULATION[population_index]
+        DATA['gold'] += critter.get_value()['phenotype']['value']
+        data_save()
+        CURRENT_SCREEN = 'field'
+
+    else:
+        screen_factfile(cursor_index=3)
 
 def screen_field():
     global POPULATION, CURRENT_SCREEN, DATA
