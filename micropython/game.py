@@ -185,6 +185,13 @@ def data_load():
 
 def data_save():
     print('[ DATA    ]: Save')
+    DATA['critters'] = []
+    for critter in POPULATION:
+        DATA['critters'].append({
+          "uid": critter.uid,
+          "ancestors": critter.ancestors,
+          "genes": critter.get_genotype()
+        })
     with open('data.json', 'w', encoding='utf-8') as f:
         f.write(json.dumps(DATA))
 
@@ -816,8 +823,9 @@ def screen_factfile(cursor_index=0):
     Layers.middle = []
     v_offset = 32
     for counter, attribute in enumerate(value['attributes']):
+        print(f'[ DEBUG   ]: (0, {v_offset * counter}) factfile_stat_{attribute:02}')
         Layers.middle.append({
-            'file':f'factfile_stat_{value["attributes"][counter]:02}',
+            'file':f'factfile_stat_{attribute:02}',
             'position':(0, v_offset * counter),
         })
 
@@ -894,7 +902,7 @@ def screen_factfile(cursor_index=0):
 
 
 def screen_factfile_sell(critter, population_index):
-    global CURRENT_SCREEN
+    global CURRENT_SCREEN, POPULATION
     Layers.middle = [
         {
             'file':'confirm_sell',
@@ -944,9 +952,13 @@ def screen_factfile_sell(critter, population_index):
             update_screen = False
 
     if sell:
+        gold = critter.get_value()['phenotype']['value']
+        screen_gold_animation(gold, show_box=True) # show gold income
         del POPULATION[population_index]
-        DATA['gold'] += critter.get_value()['phenotype']['value']
+        DATA['gold'] += gold
         data_save()
+        screen_gold_animation(0, show_box=True) # show new gold total
+        sleep(1)
         CURRENT_SCREEN = 'field'
 
     else:
@@ -1025,7 +1037,7 @@ def screen_field_movement():
                 Layers.middle.append({
                     'file':'selector',
                     'position':(
-                        cursor_coords[0] * 32,
+                        cursor_coords[0] * 32 + 5,
                         cursor_coords[1] * 32
                     ),
                     'scale':1
@@ -1114,7 +1126,19 @@ def screen_field_movement():
 
         sleep(0.5)
 
-def screen_gold_animation(change):
+def screen_gold_animation(change, show_box=False):
+    if show_box:
+        Layers.middle.append({
+            'file':'gold',
+            'position':(0,0)
+        })
+        Layers.text = [{
+            'text':DATA['gold'],
+            'position':(285, 10)
+        }]
+    print('[ DISPLAY ]: Layers.show() in screen_gold_animation()')
+    Layers.show(['middle', 'text'])
+
     if change != 0:
         if change < 0:
             colour = 'red'
@@ -1124,7 +1148,7 @@ def screen_gold_animation(change):
             text = f'+{change}'
         Layers.text.append({
             'text':text,
-            'position':(280, 25),
+            'position':(285, 25),
             'colour':colour
         })
         print('[ DISPLAY ]: Layers.show() in screen_gold_animation()')
@@ -1409,8 +1433,8 @@ def main():
                 critter_data['genes'],
                 critter_data['ancestors'],
                 position=(
-                    randint(10, 280),
-                    randint(10, 210)
+                    randint(10, 200),
+                    randint(10, 200)
                 ),
                 uid=critter_data['uid']
             )

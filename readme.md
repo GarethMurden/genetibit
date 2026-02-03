@@ -64,7 +64,8 @@ Connect two devices to breed your critters with your friends'
 	- New horn/ear variants
 
 - Fixes
-	- Background overwrite on bottom edge of field during movement fails with ENOENT
+	- Prevent critters sharing a space on the field
+	- ENOENT error on field, e.g. MISSING ASSET - "field_parts/lvl0/81"
 	- Travel text appears before background changes
 	- Cursors don't move to right on breeding screen after first selection
 	- Price sticks after menu close
