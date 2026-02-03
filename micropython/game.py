@@ -41,6 +41,32 @@ DATA = {
         'right_critter_index':1
     },
     'critters':[],
+    'contests':{
+        'Germany':{
+            'unlocked':True,
+            'intro':'Long tails are all the rage, the judges will love any critters with beautiful bushy tails!'
+        },
+        'Canada':{
+            'unlocked':True,
+            'intro':'This year\'s head judge is famous for his critters with giant antlers.'
+        },
+        'Japan':{
+            'unlocked':False,
+            'intro':'Cute critters are popular here, the one with most adorable face will probably win.'
+        },
+        'Brazil':{
+            'unlocked':False,
+            'intro':'Top tip: go for something extravagent. Big horns, big tails, go wild!'
+        },
+        'Australia':{
+            'unlocked':False,
+            'intro':'These judges value symmetry and balance, good body shape and coordination will score highly.'
+        },
+        'South Africa':{
+            'unlocked':False,
+            'intro':'The locals favour understated critters, does yours look like it could survive in the wild?'
+        }
+    },
     'field':{
         'cursor_index':0,
         'level':0,
@@ -51,6 +77,10 @@ DATA = {
         ]
     },
     'gold':0,
+    'settings':{
+        'cursor_index':0,
+        'brightness':0.6
+    }
     'travel':{
         'items':[
             {
@@ -72,10 +102,6 @@ DATA = {
                 'cooldown_duration':300 # 300 sec = 5 min
             }
         ]
-    },
-    'settings':{
-        'cursor_index':0,
-        'brightness':0.6
     }
 }
 POPULATION = []
@@ -771,7 +797,22 @@ def screen_connect():
             Layers.show()
             update_screen = False
 
+def screen_contest(contest):
+    global CURRENT_SCREEN
+    Layers.clear_all()
+    Layers.background = {
+        'file':'blank',
+        'position':(0,0)
+    }
+    Layers.show()
+    while CURRENT_SCREEN == 'contest':
+        if button_x.value() == 0:
+            menu()
+            update_screen = True
+
 def screen_contest_map():
+    global CURRENT_SCREEN
+
     Layers.clear_all()
     Layers.background = {
         'file':'world_map',
@@ -783,6 +824,10 @@ def screen_contest_map():
         if button_x.value() == 0:
             menu()
             update_screen = True
+
+        # TODO:
+        # - Track unlock progress (always 2 options available)
+        # - Allow content selection
 
         if update_screen:
             print('[ DISPLAY ]: Layers.show() in screen_contest_map()')
@@ -899,7 +944,6 @@ def screen_factfile(cursor_index=0):
 
     if show_next_critter: # reload fact file with next critter's data
         screen_factfile(cursor_index)
-
 
 def screen_factfile_sell(critter, population_index):
     global CURRENT_SCREEN, POPULATION
@@ -1167,6 +1211,65 @@ def screen_plane_animation():
         print('[ DISPLAY ]: Layers.show() in screen_plane_animation()')
         Layers.show()
     CURRENT_SCREEN = 'contest_map'
+
+def screen_settings():
+    global DATA, CURRENT_SCREEN
+    Layers.clear_all()
+    cursor_positions = [
+        ( 40, 65),
+        (140, 65)
+    ]
+    Layers.background = {
+        'file':'settings',
+        'position':(0, 0)
+    }
+    Layers.show(layers=['background'])
+    cursor_index = 0
+    update_screen = True
+    print(f'[ SETTING ]: {CURRENT_SCREEN=}, {update_screen=}')
+    while CURRENT_SCREEN == 'settings':
+        if button_a.value() == 0:
+            update_screen = True
+            cursor_index -= 1
+            if cursor_index < 0:
+                cursor_index = 1
+        if button_b.value() == 0:
+            update_screen = True
+            cursor_index =+ 1
+            if cursor_index > 1:
+                cursor_index = 0
+        if button_y.value() == 0:
+            update_screen = True
+            if cursor_index == 1:
+                DATA['settings']['brightness'] = min([
+                    DATA['settings']['brightness'] + 0.2,
+                    1.0
+                ])
+                display.set_backlight(DATA['settings']['brightness'])
+            else:
+                update_screen = True
+                DATA['settings']['brightness'] = max([
+                    DATA['settings']['brightness'] - 0.2,
+                    0.2
+                ])
+                display.set_backlight(DATA['settings']['brightness'])
+
+        if button_x.value() == 0:
+            menu()
+
+        if update_screen:
+            Layers.bottom = [{
+                'file':f"settings_brightness{DATA['settings']['brightness']}",
+                'position':(0, 0)
+            }]
+            Layers.cursor = {
+                'file':'cursor',
+                'position':cursor_positions[cursor_index]
+            }
+            print('[ DISPLAY ]: Layers.show() in screen_settings()')
+            Layers.show(layers=['background', 'bottom', 'cursor'])
+            update_screen = False
+    data_save()
     
 def screen_travel():
     Layers.background = {
@@ -1272,64 +1375,26 @@ def screen_travel():
             screen_connect_animation()
             screen_connect()
 
-def screen_settings():
-    global DATA, CURRENT_SCREEN
+def screen_upgrade():
+    global CURRENT_SCREEN
     Layers.clear_all()
-    cursor_positions = [
-        ( 40, 65),
-        (140, 65)
-    ]
     Layers.background = {
-        'file':'settings',
+        'file':'blank',
         'position':(0, 0)
     }
-    Layers.show(layers=['background'])
-    cursor_index = 0
-    update_screen = True
-    print(f'[ SETTING ]: {CURRENT_SCREEN=}, {update_screen=}')
-    while CURRENT_SCREEN == 'settings':
-        if button_a.value() == 0:
-            update_screen = True
-            cursor_index -= 1
-            if cursor_index < 0:
-                cursor_index = 1
-        if button_b.value() == 0:
-            update_screen = True
-            cursor_index =+ 1
-            if cursor_index > 1:
-                cursor_index = 0
-        if button_y.value() == 0:
-            update_screen = True
-            if cursor_index == 1:
-                DATA['settings']['brightness'] = min([
-                    DATA['settings']['brightness'] + 0.2,
-                    1.0
-                ])
-                display.set_backlight(DATA['settings']['brightness'])
-            else:
-                update_screen = True
-                DATA['settings']['brightness'] = max([
-                    DATA['settings']['brightness'] - 0.2,
-                    0.2
-                ])
-                display.set_backlight(DATA['settings']['brightness'])
-
+    Layers.show()
+    while CURRENT_SCREEN == 'screen_upgrade':
         if button_x.value() == 0:
             menu()
+            update_screen = True
 
-        if update_screen:
-            Layers.bottom = [{
-                'file':f"settings_brightness{DATA['settings']['brightness']}",
-                'position':(0, 0)
-            }]
-            Layers.cursor = {
-                'file':'cursor',
-                'position':cursor_positions[cursor_index]
-            }
-            print('[ DISPLAY ]: Layers.show() in screen_settings()')
-            Layers.show(layers=['background', 'bottom', 'cursor'])
-            update_screen = False
-    data_save()
+        # TODO:
+        # - Design field upgrade UI
+        # - Display next upgrade based on curent level
+        # - Check unlock progress vs. contest victories
+        # - Spend gold & apply upgrade
+        # - Upgrade animation
+
 
 def screen_visitor():
     global CURRENT_SCREEN
