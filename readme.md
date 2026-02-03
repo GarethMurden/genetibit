@@ -16,7 +16,7 @@ Introduce new genes from visiting critters
 
 ![](https://github.com/GarethMurden/genetibit/blob/master/screenshots/visitor.png?raw=true)
 
-Sell creatures with rare trates at the market
+Sell creatures with rare traits at the market
 
 ![](https://github.com/GarethMurden/genetibit/blob/master/screenshots/breeding_sell.png?raw=true)
 
@@ -50,16 +50,23 @@ Connect two devices to breed your critters with your friends'
 ## To do
 
 - Features
-	- Select critter from field to view info
-		- Factfile screen
-		- Sell critters from field
+	- Factfile screen
+		- Show gold total increase on sell confirmation
+	- Field upgrades
 	- Competitions
 	- Device-to-device communication
-	- Replace body variants with more obvious horn variants
+	- Replace body variants with more obvious horn/ear variants
+
+- Art / UI components
+	- Sell single critter UI
+	- Field upgrade menu icon
+	- Factfile sell confirmation message
+	- New horn/ear variants
 
 - Fixes
+	- Prevent critters sharing a space on the field
+	- ENOENT error on field, e.g. MISSING ASSET - "field_parts/lvl0/81"
 	- Travel text appears before background changes
-	- Shouldn't be possible to breed a critter to itself
 	- Cursors don't move to right on breeding screen after first selection
 	- Price sticks after menu close
 	- Closing menu doesn't necessary refresh screen
