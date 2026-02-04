@@ -80,7 +80,7 @@ DATA = {
     'settings':{
         'cursor_index':0,
         'brightness':0.6
-    }
+    },
     'travel':{
         'items':[
             {
@@ -1337,7 +1337,7 @@ def screen_travel():
             if not data_cooldown_active(DATA['travel']['items'][cursor_index]['cooldown']):
                 if DATA['gold'] > DATA['travel']['items'][cursor_index]['price']:
                     led.set_rgb(0, 10, 0)
-                    DATA['gold'] -= DATA['travel']['items'][cursor_index]['price']
+                    
                     Layers.text[0] = {
                         'text':str(DATA['gold']),
                         'position':(285, 10)
@@ -1361,7 +1361,10 @@ def screen_travel():
             update_screen = False
 
         if item_bought:
-            screen_gold_animation(0 - DATA['travel']['items'][cursor_index]['price'])
+            screen_gold_animation(0 - DATA['travel']['items'][cursor_index]['price'], show_box=True)
+            DATA['gold'] -= DATA['travel']['items'][cursor_index]['price']
+            screen_gold_animation(0, show_box=True)
+
             break
 
     if item_bought:
@@ -1383,7 +1386,7 @@ def screen_upgrade():
         'position':(0, 0)
     }
     Layers.show()
-    while CURRENT_SCREEN == 'screen_upgrade':
+    while CURRENT_SCREEN == 'upgrade':
         if button_x.value() == 0:
             menu()
             update_screen = True
