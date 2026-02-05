@@ -51,6 +51,13 @@ Connect two devices to breed your critters with your friends'
 
 - Features
 	- Competitions
+		- Competition screen
+		- Hint message bubbles
+		- Critter selection
+		- Scoring animation
+		- Random opponents
+		- Winner reveal animation
+		- Save score & victory/loss result
 	- Indicate breeding cooldown with sleep idle animation
 	- Field upgrades
 	- Replace body variants with more obvious horn/ear variants
