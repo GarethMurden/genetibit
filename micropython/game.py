@@ -818,18 +818,79 @@ def screen_connect():
             Layers.show()
             update_screen = False
 
-def screen_contest(contest):
+def screen_contest(city):
     global CURRENT_SCREEN
     Layers.clear_all()
+
+    # TODO: Background with judges & buttons
     Layers.background = {
         'file':'blank',
         'position':(0,0)
     }
-    Layers.show()
+
+    Layers.text = [{
+        'text':f'Welcome to {city.capitalize()}! Who will you enter?',
+        'position':(8,8),
+        'scale':2
+    }]
+
+    Layers.botom = [{}] # TODO: judges' animations
+
+    cursor_index = 0
+    cursor_positions = [
+        (), # previous
+        (), # next
+        ()  # confirm
+    ]
+    
+    critter_index = 0
+    next_critter_index = 1
+    previous_critter_index = len(POPULATION) -1
+
+
+    update_screen = True
     while CURRENT_SCREEN == 'contest':
         if button_x.value() == 0:
             menu()
-            update_screen = True
+            
+
+
+        if update_screen:
+            # critter carousel
+            Layers.middle = [
+                {
+                    'file':POPULATION[critter_index].get_sprite(),
+                    'position':(144, 150),
+                    'scale':3
+                },
+                {
+                    'file':POPULATION[next_critter_index -1].get_sprite(),          
+                    'position':(100, 175),
+                    'scale':2
+                },
+                {
+                    'file':POPULATION[previous_critter_index +1].get_sprite(),
+                    'position':(188, 175),
+                    'scale':2
+                }
+            ]
+
+            Layers.cursor = {
+                'file':'cursor',
+                'position':cursor_positions[cursor_index]
+            }
+
+
+            Layers.show()
+
+    # TODO:
+    #   - Hint message bubbles
+    #   - Critter selection
+    #   - Scoring animation
+    #   - Random opponents
+    #   - Winner reveal animation
+    #   - Save score & victory/loss result
+
 
 def screen_contest_map():
     global CURRENT_SCREEN
@@ -851,17 +912,13 @@ def screen_contest_map():
     cursor_index = 0
     cursor_positions = []
     unlocked_countries = []
-    for country in CONTESTS:
-        if DATA['contests'][country]['unlocked']:
-            cursor_positions.append(CONTESTS[country]['position'])
-            unlocked_countries.append(country)
+    for city in CONTESTS:
+        if DATA['contests'][city]['unlocked']:
+            cursor_positions.append(CONTESTS[city]['position'])
+            unlocked_countries.append(city)
 
     update_screen = True
     while CURRENT_SCREEN == 'contest_map':
-        if button_x.value() == 0:
-            menu()
-            update_screen = True
-
         if button_a.value() == 0:
             cursor_index -= 1
             if cursor_index < 0:
@@ -874,10 +931,8 @@ def screen_contest_map():
                 cursor_index = 0
             update_screen = True
 
-        # TODO:
-        # - Contest selection
-        # - Navigate to contest screen
-        # - Save gold deduction
+        if button_y.value() == 0:
+            screen_contest(unlocked_countries[cursor_index])
 
         if update_screen:
             Layers.cursor = {
@@ -902,7 +957,7 @@ def screen_contest_map():
             }
             Layers.text = [
                 {
-                    'text':unlocked_countries[cursor_index].replace('_', ' ').upper().center(8),
+                    'text':unlocked_countries[cursor_index].upper().center(8),
                     'position':text_position['title'],
                     'scale':2
                 },
@@ -1449,6 +1504,7 @@ def screen_travel():
             break
 
     if item_bought:
+        data_save()
         if 'earth' in item_bought:
             screen_plane_animation()
             screen_contest_map()

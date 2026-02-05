@@ -62,6 +62,8 @@ Connect two devices to breed your critters with your friends'
 	- Field upgrades
 	- Replace body variants with more obvious horn/ear variants
 	- Device-to-device communication
+	- Intro sequence
+	- Tutorial
 
 - Art / UI components
 	- Competition judges
