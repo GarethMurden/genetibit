@@ -34,6 +34,32 @@ COOLDOWNS = {
 
 MENU_OPEN = False
 CURRENT_SCREEN = 'field'
+CONTESTS = {
+    'Canada':{
+        'intro':'This year\'s head judge is famous for his critters with giant antlers.',
+        'position':( 29, 12)
+    },
+    'Germany':{
+        'intro':'Long tails are all the rage, the judges will love any critters with beautiful bushy tails!',
+        'position':(139, 12)
+    },
+    'Japan':{
+        'intro':'Cute critters are popular here, the one with most adorable face will probably win.',
+        'position':(244, 12)
+    },
+    'Brazil':{
+        'intro':'Top tip: go for something extravagent. Big horns, big tails, go wild!',
+        'position':(29, 190)
+    },
+    'South_Africa':{
+        'intro':'The locals favour understated critters, does yours look like it could survive in the wild?',
+        'position':(139, 190)
+    },
+    'Australia':{
+        'intro':'These judges value symmetry and balance, good body shape and coordination will score highly.',
+        'position':(244, 190)
+    }
+}
 DATA = {
     'breeding':{
         'cursor_index':0,
@@ -42,29 +68,23 @@ DATA = {
     },
     'critters':[],
     'contests':{
-        'Germany':{
-            'unlocked':True,
-            'intro':'Long tails are all the rage, the judges will love any critters with beautiful bushy tails!'
-        },
         'Canada':{
-            'unlocked':True,
-            'intro':'This year\'s head judge is famous for his critters with giant antlers.'
+            'unlocked':True
+        },
+        'Germany':{
+            'unlocked':True
         },
         'Japan':{
-            'unlocked':False,
-            'intro':'Cute critters are popular here, the one with most adorable face will probably win.'
+            'unlocked':False
         },
         'Brazil':{
-            'unlocked':False,
-            'intro':'Top tip: go for something extravagent. Big horns, big tails, go wild!'
+            'unlocked':False
+        },
+        'South_Africa':{
+            'unlocked':False
         },
         'Australia':{
-            'unlocked':False,
-            'intro':'These judges value symmetry and balance, good body shape and coordination will score highly.'
-        },
-        'South Africa':{
-            'unlocked':False,
-            'intro':'The locals favour understated critters, does yours look like it could survive in the wild?'
+            'unlocked':False
         }
     },
     'field':{
@@ -202,12 +222,13 @@ def data_load():
     global DATA
     print('[ DATA    ]: Load')
     save_file = 'data.json'
-    if not file_exits(save_file):
+    if file_exits(save_file):
+        with open(save_file, 'r', encoding='utf-8') as f:
+            DATA = json.loads(f.read())
+    else:
         DATA['critters'] += critters.generate_starters()
         DATA['gold'] = 0
-        data_save()
-    with open(save_file, 'r', encoding='utf-8') as f:
-        DATA = json.loads(f.read())
+    
 
 def data_save():
     print('[ DATA    ]: Save')
@@ -819,6 +840,15 @@ def screen_contest_map():
         'position':(0, 0)
     }
 
+    Layers.middle = []
+    for contest in CONTESTS:
+        if DATA['contests'][contest]['unlocked'] == False:
+            Layers.middle.append({
+                'file':'padlock',
+                'position': CONTESTS[contest]['position']
+            })
+
+
     update_screen = True
     while CURRENT_SCREEN == 'contest_map':
         if button_x.value() == 0:
@@ -826,8 +856,8 @@ def screen_contest_map():
             update_screen = True
 
         # TODO:
-        # - Track unlock progress (always 2 options available)
-        # - Allow content selection
+        # - Cursor
+        # - Contest selection
 
         if update_screen:
             print('[ DISPLAY ]: Layers.show() in screen_contest_map()')
@@ -1209,7 +1239,7 @@ def screen_plane_animation():
             'position':(left, 0)
         }
         print('[ DISPLAY ]: Layers.show() in screen_plane_animation()')
-        Layers.show()
+        Layers.show(['top'])
     CURRENT_SCREEN = 'contest_map'
 
 def screen_settings():
@@ -1364,7 +1394,6 @@ def screen_travel():
             screen_gold_animation(0 - DATA['travel']['items'][cursor_index]['price'], show_box=True)
             DATA['gold'] -= DATA['travel']['items'][cursor_index]['price']
             screen_gold_animation(0, show_box=True)
-
             break
 
     if item_bought:
@@ -1495,18 +1524,20 @@ def main():
     data_load()
     display.set_backlight(DATA['settings']['brightness'])
 
-    if len(POPULATION) < len(DATA['critters']):
-        for critter_data in DATA['critters']:
-            critter = critters.Critter(
-                critter_data['genes'],
-                critter_data['ancestors'],
-                position=(
-                    randint(10, 200),
-                    randint(10, 200)
-                ),
-                uid=critter_data['uid']
-            )
-            POPULATION.append(critter)
+    # if len(POPULATION) < len(DATA['critters']):
+    for critter_data in DATA['critters']:
+        critter = critters.Critter(
+            critter_data['genes'],
+            critter_data['ancestors'],
+            position=(
+                randint(10, 200),
+                randint(10, 200)
+            ),
+            uid=critter_data['uid']
+        )
+        POPULATION.append(critter)
+        print(f'[ DEBUG   ]: Initialize critter "{critter.get_name()}"')
+    data_save()
     led.set_rgb(0, 0, 0)
     screens()
 

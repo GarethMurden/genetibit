@@ -50,27 +50,22 @@ Connect two devices to breed your critters with your friends'
 ## To do
 
 - Features
-	- Factfile screen
-		- Show gold total increase on sell confirmation
-	- Field upgrades
 	- Competitions
-	- Device-to-device communication
+	- Indicate breeding cooldown with sleep idle animation
+	- Field upgrades
 	- Replace body variants with more obvious horn/ear variants
+	- Device-to-device communication
 
 - Art / UI components
-	- Sell single critter UI
-	- Field upgrade menu icon
-	- Factfile sell confirmation message
+	- Competition judges
 	- New horn/ear variants
 
 - Fixes
 	- Prevent critters sharing a space on the field
 	- ENOENT error on field, e.g. MISSING ASSET - "field_parts/lvl0/81"
 	- Travel text appears before background changes
-	- Cursors don't move to right on breeding screen after first selection
 	- Price sticks after menu close
 	- Closing menu doesn't necessary refresh screen
-	- Opening menu within breeding result flow should not be allowed
 
 ## Resources 
 
