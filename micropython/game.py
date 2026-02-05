@@ -35,28 +35,28 @@ COOLDOWNS = {
 MENU_OPEN = False
 CURRENT_SCREEN = 'field'
 CONTESTS = {
-    'Canada':{
-        'intro':'This year\'s head judge is famous for his critters with giant antlers.',
+    'Ottawa':{
+        'intro':'This year\'s head judge is famous for his critters\nwith giant antlers.',
         'position':( 29, 12)
     },
-    'Germany':{
-        'intro':'Long tails are all the rage, the judges will love any critters with beautiful bushy tails!',
-        'position':(139, 12)
+    'Berlin':{
+        'intro':'Long tails are all the rage, the judges will love\nany critters with beautiful bushy tails!',
+        'position':(141, 12)
     },
-    'Japan':{
-        'intro':'Cute critters are popular here, the one with most adorable face will probably win.',
+    'Tokyo':{
+        'intro':'Cute critters are popular here, the one with\nthe most adorable face will probably win.',
         'position':(244, 12)
     },
-    'Brazil':{
-        'intro':'Top tip: go for something extravagent. Big horns, big tails, go wild!',
+    'Brasilia':{
+        'intro':'Top tip: go for something extravagent. Big horns,\nbig tails, go wild!',
         'position':(29, 190)
     },
-    'South_Africa':{
-        'intro':'The locals favour understated critters, does yours look like it could survive in the wild?',
-        'position':(139, 190)
+    'Pretoria':{
+        'intro':'The locals favour understated critters, does\nyours look like it could survive in the wild?',
+        'position':(141, 190)
     },
-    'Australia':{
-        'intro':'These judges value symmetry and balance, good body shape and coordination will score highly.',
+    'Canberra':{
+        'intro':'These judges value symmetry and balance, good\nbody shape and coordination will score highly.',
         'position':(244, 190)
     }
 }
@@ -68,22 +68,22 @@ DATA = {
     },
     'critters':[],
     'contests':{
-        'Canada':{
+        'Ottawa':{
             'unlocked':True
         },
-        'Germany':{
+        'Berlin':{
             'unlocked':True
         },
-        'Japan':{
+        'Tokyo':{
             'unlocked':False
         },
-        'Brazil':{
+        'Brasilia':{
             'unlocked':False
         },
-        'South_Africa':{
+        'Pretoria':{
             'unlocked':False
         },
-        'Australia':{
+        'Canberra':{
             'unlocked':False
         }
     },
@@ -848,6 +848,13 @@ def screen_contest_map():
                 'position': CONTESTS[contest]['position']
             })
 
+    cursor_index = 0
+    cursor_positions = []
+    unlocked_countries = []
+    for country in CONTESTS:
+        if DATA['contests'][country]['unlocked']:
+            cursor_positions.append(CONTESTS[country]['position'])
+            unlocked_countries.append(country)
 
     update_screen = True
     while CURRENT_SCREEN == 'contest_map':
@@ -855,11 +862,56 @@ def screen_contest_map():
             menu()
             update_screen = True
 
+        if button_a.value() == 0:
+            cursor_index -= 1
+            if cursor_index < 0:
+                cursor_index = len(cursor_positions) -1
+            update_screen = True
+
+        if button_b.value() == 0:
+            cursor_index += 1
+            if cursor_index >= len(cursor_positions) :
+                cursor_index = 0
+            update_screen = True
+
         # TODO:
-        # - Cursor
         # - Contest selection
+        # - Navigate to contest screen
+        # - Save gold deduction
 
         if update_screen:
+            Layers.cursor = {
+                'file':'selector',
+                'position':(
+                    cursor_positions[cursor_index][0] + 2,
+                    cursor_positions[cursor_index][1] + 2
+                )
+            }
+
+            if cursor_positions[cursor_index][1] < 100:
+                # flag from top row highligted
+                text_box = 'world_map_text_bottom'
+                text_position = {'title':(122, 145), 'intro':(38, 168)}
+            else:
+                text_box = 'world_map_text_top'
+                text_position = {'title':(122, 44), 'intro':(38, 61)}
+
+            Layers.top = {
+                'file':text_box,
+                'position': (0,0)
+            }
+            Layers.text = [
+                {
+                    'text':unlocked_countries[cursor_index].replace('_', ' ').upper().center(8),
+                    'position':text_position['title'],
+                    'scale':2
+                },
+                {
+                    'text':CONTESTS[unlocked_countries[cursor_index]]['intro'],
+                    'position':text_position['intro']
+                }
+            ]
+
             print('[ DISPLAY ]: Layers.show() in screen_contest_map()')
             Layers.show()
             update_screen = False
