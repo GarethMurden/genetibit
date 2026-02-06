@@ -29,7 +29,6 @@ display.clear()
 
 COOLDOWNS = {
     'breeding': 120, # cooldown before critter can be bred again
-    'stock':   3600  # cooldown before market restocks sold items
 }
 
 MENU_OPEN = False
@@ -119,7 +118,7 @@ DATA = {
                 'sprite':'travel/earth',
                 'price':150,
                 'cooldown':None,
-                'cooldown_duration':300 # 300 sec = 5 min
+                'cooldown_duration':5 # 300 sec = 5 min # TODO: adjust this
             }
         ]
     }
@@ -824,64 +823,63 @@ def screen_contest(city):
 
     # TODO: Background with judges & buttons
     Layers.background = {
-        'file':'blank',
+        'file':'contest',
         'position':(0,0)
     }
 
-    Layers.text = [{
-        'text':f'Welcome to {city.capitalize()}! Who will you enter?',
-        'position':(8,8),
-        'scale':2
-    }]
-
-    Layers.botom = [{}] # TODO: judges' animations
+    Layers.botom = [{}] # TODO: judges' score cards
 
     cursor_index = 0
     cursor_positions = [
-        (), # previous
-        (), # next
-        ()  # confirm
+        ( 92, 210), # previous
+        (145, 210), # confirm
+        (205, 210)  # next
     ]
     
     critter_index = 0
     next_critter_index = 1
     previous_critter_index = len(POPULATION) -1
 
-
     update_screen = True
     while CURRENT_SCREEN == 'contest':
         if button_x.value() == 0:
             menu()
             
-
+        # TODO:
+        # - Cursor movement
+        # - Show critters
+        # - Select critter to enter
 
         if update_screen:
             # critter carousel
             Layers.middle = [
                 {
                     'file':POPULATION[critter_index].get_sprite(),
-                    'position':(144, 150),
+                    'position':(130, 145),
                     'scale':3
                 },
                 {
                     'file':POPULATION[next_critter_index -1].get_sprite(),          
-                    'position':(100, 175),
-                    'scale':2
-                },
-                {
-                    'file':POPULATION[previous_critter_index +1].get_sprite(),
-                    'position':(188, 175),
+                    'position':(80, 160),
                     'scale':2
                 }
             ]
+            try:
+                Layers.middle.append({
+                    'file':POPULATION[previous_critter_index +1].get_sprite(),
+                    'position':(180, 160),
+                    'scale':2
+                })
+            except IndexError: # only 2 critters in population
+                pass
 
             Layers.cursor = {
                 'file':'cursor',
                 'position':cursor_positions[cursor_index]
             }
 
-
             Layers.show()
+            update_screen = False
 
     # TODO:
     #   - Hint message bubbles
@@ -932,6 +930,7 @@ def screen_contest_map():
             update_screen = True
 
         if button_y.value() == 0:
+            CURRENT_SCREEN = 'contest'
             screen_contest(unlocked_countries[cursor_index])
 
         if update_screen:
