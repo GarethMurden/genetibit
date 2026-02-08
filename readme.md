@@ -58,6 +58,8 @@ Connect two devices to breed your critters with your friends'
 		- Random opponents
 		- Winner reveal animation
 		- Save score & victory/loss result
+	- Show current & incremented gold on breeding sell screen
+	- Prevent sale of last 2 critters
 	- Indicate breeding cooldown with sleep idle animation
 	- Field upgrades
 	- Replace body variants with more obvious horn/ear variants
