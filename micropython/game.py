@@ -204,13 +204,16 @@ class Layer_class():
         led.set_rgb(0, 0, 0)
 
 def data_cooldown_active(cooldown_end):
-    if cooldown_end is None:
-        return False
-    current_time = time()
-    if cooldown_end < current_time:
-        return False
-    else:
-        return True
+    # TODO: Revisit shop cooldowns
+    return False
+    # if cooldown_end is None:
+    #     return False
+    # current_time = time()
+    # if cooldown_end < current_time:
+    #     return False
+    # else:
+    #     print(f'[ DEBUG   ]: Cooldown ends in {cooldown_end - current_time}s')
+    #     return True
 
 def data_clear_screen():
     '''clear cached data only needed while screen open'''
@@ -855,19 +858,19 @@ def screen_contest(city):
             Layers.middle = [
                 {
                     'file':POPULATION[critter_index].get_sprite(),
-                    'position':(130, 145),
+                    'position':(110, 120),
                     'scale':3
                 },
                 {
                     'file':POPULATION[next_critter_index -1].get_sprite(),          
-                    'position':(80, 160),
+                    'position':(65, 155),
                     'scale':2
                 }
             ]
             try:
                 Layers.middle.append({
-                    'file':POPULATION[previous_critter_index +1].get_sprite(),
-                    'position':(180, 160),
+                    'file':POPULATION[previous_critter_index].get_sprite(),
+                    'position':(185, 155),
                     'scale':2
                 })
             except IndexError: # only 2 critters in population
@@ -1408,6 +1411,7 @@ def screen_settings():
     data_save()
     
 def screen_travel():
+    Layers.clear_all()
     Layers.background = {
         'file':'travel',
         'position':(0, 0)
@@ -1471,7 +1475,7 @@ def screen_travel():
 
         if button_y.value() == 0:
             if not data_cooldown_active(DATA['travel']['items'][cursor_index]['cooldown']):
-                if DATA['gold'] > DATA['travel']['items'][cursor_index]['price']:
+                if DATA['gold'] >= DATA['travel']['items'][cursor_index]['price']:
                     led.set_rgb(0, 10, 0)
                     
                     Layers.text[0] = {
