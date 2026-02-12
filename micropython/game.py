@@ -820,6 +820,10 @@ def screen_connect():
             Layers.show()
             update_screen = False
 
+def contest_scoring(city, critter, hint=False):
+    # if city == 'Ottawa':
+    return critter.get_colour() == 'red' # TODO: replace this placeholder
+
 def screen_contest(city):
     global CURRENT_SCREEN
     Layers.clear_all()
@@ -828,8 +832,6 @@ def screen_contest(city):
         'file':'contest',
         'position':(0,0)
     }
-
-    Layers.botom = [{}] # TODO: judges' score cards & hints
 
     cursor_index = 1
     cursor_positions = [
@@ -841,23 +843,23 @@ def screen_contest(city):
     critter_index = 0
     next_critter_index = 1
     previous_critter_index = len(POPULATION) -1
-
-    update_layers = ['background', 'bottom', 'middle', 'cursor']
+    critters_changed = True
+    update_screen = True
     while CURRENT_SCREEN == 'contest':
         if button_x.value() == 0:
             menu()
 
         if button_a.value() == 0:
-            cursor_index += 1
-            if cursor_index == len(cursor_positions):
-                cursor_index = 0
-            update_layers = ['bottom', 'cursor']
-
-        if button_b.value() == 0:
             cursor_index -= 1
             if cursor_index < 0:
                 cursor_index = len(cursor_positions) -1
-            update_layers = ['bottom', 'cursor']
+            update_screen = True
+
+        if button_b.value() == 0:
+            cursor_index += 1
+            if cursor_index == len(cursor_positions):
+                cursor_index = 0
+            update_screen = True
 
         if button_y.value() == 0:
             if cursor_index == 0: # previous button
@@ -880,44 +882,65 @@ def screen_contest(city):
                 previous_critter_index += 1
                 if previous_critter_index == len(POPULATION):
                     previous_critter_index = 0
-            update_layers = ['middle']
+            hint = contest_scoring(city, POPULATION[critter_index], hint=True)
+            if hint:
+                heart_positions = [
+                    ( 85, 43),
+                    (177, 67),
+                    (274, 42)
+                ]
+                Layers.top = {
+                    'file':'heart',
+                    'position':heart_positions[cursor_index]
+                }
+            else:
+                Layers.top = None
+            critters_changed = True
+            update_screen = True
 
-        if update_layers != []:
+        if update_screen:
             print(f'[ DEBUG   ]: {len(POPULATION)=}, {previous_critter_index=}, {critter_index=}, {next_critter_index=}')
 
-            # critter carousel
-            Layers.middle = [
-                {
-                    'file':POPULATION[critter_index].get_sprite(),
-                    'position':(110, 120),
-                    'scale':3
-                },
-                {
-                    'file':POPULATION[previous_critter_index].get_sprite(),          
-                    'position':(65, 155),
-                    'scale':2
-                }
-            ]
-            try:
-                Layers.middle.append({
-                    'file':POPULATION[next_critter_index].get_sprite(),
-                    'position':(185, 155),
-                    'scale':2
-                })
-            except IndexError: # only 2 critters in population
-                pass
+            Layers.bottom = [{
+                'file':'contest_buttons',
+                'position':(0,0)
+            }]
 
             Layers.cursor = {
                 'file':'cursor',
                 'position':cursor_positions[cursor_index]
             }
 
-            Layers.show(update_layers)
-            update_layers = []
+            # critter carousel
+            if critters_changed:
+                Layers.middle = [
+                    {
+                        'file':POPULATION[critter_index].get_sprite(),
+                        'position':(110, 120),
+                        'scale':3
+                    },
+                    {
+                        'file':POPULATION[previous_critter_index].get_sprite(),          
+                        'position':(65, 155),
+                        'scale':2
+                    }
+                ]
+                try:
+                    Layers.middle.append({
+                        'file':POPULATION[next_critter_index].get_sprite(),
+                        'position':(185, 155),
+                        'scale':2
+                    })
+                except IndexError: # only 2 critters in population
+                    pass
+
+                Layers.show(layers=['background', 'bottom', 'middle', 'top', 'cursor'])
+                critters_changed = False
+            else:
+                Layers.show(layers=['bottom', 'cursor'])
+            update_screen = False
 
     # TODO:
-    #   - Hint message bubbles
-    #   - Critter selection
     #   - Scoring animation
     #   - Random opponents
     #   - Winner reveal animation

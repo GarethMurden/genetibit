@@ -2,8 +2,8 @@ import random
 import time
 
 HEAD_OPTIONS = ['sa', 'se', 'shi', 'so', 'su']
-BODY_OPTIONS = ['ka', 'ke', 'ki',  'ko', 'ku']
-LEG_OPTIONS = ['chi', 'ta', 'te',  'to', 'tsu']
+BODY_OPTIONS = ['ka', 'ke', 'ki',  'ko', 'ku']  # TODO: change to antlers/ears
+LEG_OPTIONS = ['chi', 'ta', 'te',  'to', 'tsu'] # changed to tails
 
 class Critter():
     def __init__(self, genes, ancestors=['unknown','unknown'], position=None, uid=None):
