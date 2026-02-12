@@ -824,15 +824,14 @@ def screen_contest(city):
     global CURRENT_SCREEN
     Layers.clear_all()
 
-    # TODO: Background with judges & buttons
     Layers.background = {
         'file':'contest',
         'position':(0,0)
     }
 
-    Layers.botom = [{}] # TODO: judges' score cards
+    Layers.botom = [{}] # TODO: judges' score cards & hints
 
-    cursor_index = 0
+    cursor_index = 1
     cursor_positions = [
         ( 92, 210), # previous
         (145, 210), # confirm
@@ -843,17 +842,49 @@ def screen_contest(city):
     next_critter_index = 1
     previous_critter_index = len(POPULATION) -1
 
-    update_screen = True
+    update_layers = ['background', 'bottom', 'middle', 'cursor']
     while CURRENT_SCREEN == 'contest':
         if button_x.value() == 0:
             menu()
-            
-        # TODO:
-        # - Cursor movement
-        # - Show critters
-        # - Select critter to enter
 
-        if update_screen:
+        if button_a.value() == 0:
+            cursor_index += 1
+            if cursor_index == len(cursor_positions):
+                cursor_index = 0
+            update_layers = ['bottom', 'cursor']
+
+        if button_b.value() == 0:
+            cursor_index -= 1
+            if cursor_index < 0:
+                cursor_index = len(cursor_positions) -1
+            update_layers = ['bottom', 'cursor']
+
+        if button_y.value() == 0:
+            if cursor_index == 0: # previous button
+                critter_index -= 1
+                if critter_index < 0:
+                    critter_index = len(POPULATION) -1
+                next_critter_index -= 1
+                if next_critter_index < 0:
+                    next_critter_index = len(POPULATION) -1
+                previous_critter_index -= 1
+                if previous_critter_index < 0:
+                    previous_critter_index = len(POPULATION) -1
+            if cursor_index == 2: # next button
+                critter_index += 1
+                if critter_index == len(POPULATION):
+                    critter_index = 0
+                next_critter_index += 1
+                if next_critter_index == len(POPULATION):
+                    next_critter_index = 0
+                previous_critter_index += 1
+                if previous_critter_index == len(POPULATION):
+                    previous_critter_index = 0
+            update_layers = ['middle']
+
+        if update_layers != []:
+            print(f'[ DEBUG   ]: {len(POPULATION)=}, {previous_critter_index=}, {critter_index=}, {next_critter_index=}')
+
             # critter carousel
             Layers.middle = [
                 {
@@ -862,14 +893,14 @@ def screen_contest(city):
                     'scale':3
                 },
                 {
-                    'file':POPULATION[next_critter_index -1].get_sprite(),          
+                    'file':POPULATION[previous_critter_index].get_sprite(),          
                     'position':(65, 155),
                     'scale':2
                 }
             ]
             try:
                 Layers.middle.append({
-                    'file':POPULATION[previous_critter_index].get_sprite(),
+                    'file':POPULATION[next_critter_index].get_sprite(),
                     'position':(185, 155),
                     'scale':2
                 })
@@ -881,8 +912,8 @@ def screen_contest(city):
                 'position':cursor_positions[cursor_index]
             }
 
-            Layers.show()
-            update_screen = False
+            Layers.show(update_layers)
+            update_layers = []
 
     # TODO:
     #   - Hint message bubbles
