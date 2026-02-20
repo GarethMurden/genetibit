@@ -820,9 +820,6 @@ def screen_connect():
             Layers.show()
             update_screen = False
 
-def contest_scoring(city, critter, hint=False):
-    # if city == 'Ottawa':
-    return critter.get_colour() == 'red' # TODO: replace this placeholder
 
 def screen_contest(city):
     global CURRENT_SCREEN
@@ -882,7 +879,7 @@ def screen_contest(city):
                 previous_critter_index += 1
                 if previous_critter_index == len(POPULATION):
                     previous_critter_index = 0
-            hint = contest_scoring(city, POPULATION[critter_index], hint=True)
+            hint = contest.scoring(city, POPULATION[critter_index], hint=True)
             if hint:
                 heart_positions = [
                     ( 85, 43),
