@@ -64,6 +64,8 @@ Connect two devices to breed your critters with your friends'
 	- Tutorial
 
 - Art / UI components
+	- Dark stage for contest results
+	- Spotlit stage for contest results
 	- Contest result trophies
 	- Replace placeholder curtain on contest results screen
 	- New horn/ear variants

@@ -965,14 +965,9 @@ def screen_contest(city):
     print('[ DISPLAY ]: Layers.show() in screen_contest()')
     Layers.show(['bottom', 'top', 'text'])
     sleep(2)
-    screen_contest_result(city, POPULATION[critter_index])
+    screen_contest_result(city, POPULATION[critter_index], sum(scores))
 
-def screen_contest_result(city, entrant):
-    opponents = [
-        critters.Critter(critters.generate_specific_genes(contest.target(city))),   # serious opponent
-        critters.Critter(critters.generate_random_genes()),     # random opponent
-    ]
-
+def screen_contest_result(city, entrant, score):
     steps = 4
     for x in range(steps):
         pos = 0 - (240 - int(240 / steps * (x + 1)))
@@ -1001,16 +996,66 @@ def screen_contest_result(city, entrant):
         }
         Layers.show(['background', 'top'])
 
+    # serious opponent
+    opponent_one = {
+        'critter':critters.Critter(critters.generate_specific_genes(contest.target(city)))
+    }
+    opponent_one['score'] = sum(contest.scoring(city, opponent_one['critter']))
+    
+    # random opponent
+    opponent_two = {
+        'critter':critters.Critter(critters.generate_random_genes())
+    }
+    opponent_two['score'] = sum(contest.scoring(city, opponent_two['critter']))
+
+    Layers.middle = [
+        {
+            'file':opponent_one['critter'].get_sprite(),
+            'position':(50, 120),
+            'scale': 3
+        },
+        {
+            'file':entrant.get_sprite(),
+            'position':(110, 120),
+            'scale': 3
+        },
+        {
+            'file':opponent_two['critter'].get_sprite(),
+            'position':(200, 120),
+            'scale': 3
+        }
+    ]
+    Layers.show(['middle'])
+
+
+    Layers.text = []
+    if score > opponent_one['score'] and opponent_two['score']:
+        Layers.text.append({
+            'text':'1st',
+            'position':(100, 120)
+        })
+    elif or([score < opponent_one['score'], score < opponent_two['score']]):
+        Layers.text.append({
+            'text':'2nd',
+            'position':(100, 120)
+        })
+    else:
+        Layers.text.append({
+            'text':'3nd',
+            'position':(100, 120)
+        })
+
+    # TODO: opponent 1 position & opponent 2 position
+
     # TODO:
-    #   - Show opponents & entrant
-    #   - Winner reveal animation
+    #   - Switch between dark stage & spotlit background
+    #   - Replace position text with trophy icons
+    #   - "[critter name] came [position]!" message
     #   - Save score & victory/loss result
 
     while CURRENT_SCREEN == 'contest_results':
         if button_x.value() == 0:
             menu()
-        
-
 
 
 
