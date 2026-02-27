@@ -953,7 +953,7 @@ def screen_contest(city):
         },
         {
             'text':str(scores[1]),
-            'position':(176, 60),
+            'position':(178, 60),
             'scale':3
         },
         {
@@ -973,8 +973,35 @@ def screen_contest_result(city, entrant):
         critters.Critter(critters.generate_random_genes()),     # random opponent
     ]
 
+    steps = 4
+    for x in range(steps):
+        pos = 0 - (240 - int(240 / steps * (x + 1)))
+        Layers.top = {
+            'file':'curtain',
+            'position':(
+                0,
+                pos
+            )
+        }
+        Layers.show(['top'])
+
+    Layers.background = {
+        'file':'contest_results',
+        'position':(0,0)
+    }
+    steps = 3
+    for x in range(steps):
+        pos = 0 - int((240 / steps * (x + 1)))
+        Layers.top = {
+            'file':'curtain',
+            'position':(
+                0,
+                pos
+            )
+        }
+        Layers.show(['background', 'top'])
+
     # TODO:
-    #   - Lower curtain over previous screen
     #   - Show opponents & entrant
     #   - Winner reveal animation
     #   - Save score & victory/loss result

@@ -217,9 +217,9 @@ def generate_specific_genes(target):
     '''generate genes aiming for target level, with cance of heterozygousity'''
     colours = ['red', 'yellow', 'blue']
     colour = random.choice(colours)
-    head = HEAD_OPTIONS[target[0]]
-    body = BODY_OPTIONS[target[1]]
-    legs = LEG_OPTIONS[ target[2]]
+    head = HEAD_OPTIONS[target[0] -1]
+    body = BODY_OPTIONS[target[1] -1]
+    legs = LEG_OPTIONS[ target[2] -1]
     return {
         'colour':[colour, random.choice([colour, random.choice(colours)])],
         'head':  [head,   random.choice([head,   random.choice(HEAD_OPTIONS)])],

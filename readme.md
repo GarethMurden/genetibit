@@ -51,10 +51,6 @@ Connect two devices to breed your critters with your friends'
 
 - Features
 	- Competitions
-		- Competition screen
-		- Hint message bubbles
-		- Critter selection
-		- Scoring animation
 		- Random opponents
 		- Winner reveal animation
 		- Save score & victory/loss result
@@ -68,7 +64,8 @@ Connect two devices to breed your critters with your friends'
 	- Tutorial
 
 - Art / UI components
-	- Competition judges
+	- Contest result trophies
+	- Replace placeholder curtain on contest results screen
 	- New horn/ear variants
 
 - Fixes
