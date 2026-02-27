@@ -9,6 +9,7 @@ from random import choice, randint
 import _thread
 from time import sleep, time
 import critters
+import contest
 
 button_a = Pin(12, Pin.IN, Pin.PULL_UP)
 button_b = Pin(13, Pin.IN, Pin.PULL_UP)
@@ -843,7 +844,7 @@ def screen_contest(city):
     critters_changed = True
     update_screen = True
     while CURRENT_SCREEN == 'contest':
-        if button_x.value() == 0:
+        if button_x.value() == 0: # TODO: prevent menu access once contest paid for
             menu()
 
         if button_a.value() == 0:
@@ -879,6 +880,8 @@ def screen_contest(city):
                 previous_critter_index += 1
                 if previous_critter_index == len(POPULATION):
                     previous_critter_index = 0
+            if cursor_index == 1: # confirm button
+                CURRENT_SCREEN = 'contest_results'
             hint = contest.scoring(city, POPULATION[critter_index], hint=True)
             if hint:
                 heart_positions = [
@@ -896,8 +899,6 @@ def screen_contest(city):
             update_screen = True
 
         if update_screen:
-            print(f'[ DEBUG   ]: {len(POPULATION)=}, {previous_critter_index=}, {critter_index=}, {next_critter_index=}')
-
             Layers.bottom = [{
                 'file':'contest_buttons',
                 'position':(0,0)
@@ -931,17 +932,59 @@ def screen_contest(city):
                 except IndexError: # only 2 critters in population
                     pass
 
+                print('[ DISPLAY ]: Layers.show() in screen_contest()')
                 Layers.show(layers=['background', 'bottom', 'middle', 'top', 'cursor'])
                 critters_changed = False
             else:
+                print('[ DISPLAY ]: Layers.show() in screen_contest()')
                 Layers.show(layers=['bottom', 'cursor'])
             update_screen = False
 
+    scores = contest.scoring(city, POPULATION[critter_index])
+    Layers.top = {
+        'file':'contest_cards',
+        'position':(0, 0)
+    }
+    Layers.text = [
+        {
+            'text':str(scores[0]),
+            'position':(40, 60),
+            'scale':3
+        },
+        {
+            'text':str(scores[1]),
+            'position':(176, 60),
+            'scale':3
+        },
+        {
+            'text':str(scores[2]),
+            'position':(245, 34),
+            'scale':3
+        }
+    ]
+    print('[ DISPLAY ]: Layers.show() in screen_contest()')
+    Layers.show(['bottom', 'top', 'text'])
+    sleep(2)
+    screen_contest_result(city, POPULATION[critter_index])
+
+def screen_contest_result(city, entrant):
+    opponents = [
+        critters.Critter(critters.generate_specific_genes(contest.target(city))),   # serious opponent
+        critters.Critter(critters.generate_random_genes()),     # random opponent
+    ]
+
     # TODO:
-    #   - Scoring animation
-    #   - Random opponents
+    #   - Lower curtain over previous screen
+    #   - Show opponents & entrant
     #   - Winner reveal animation
     #   - Save score & victory/loss result
+
+    while CURRENT_SCREEN == 'contest_results':
+        if button_x.value() == 0:
+            menu()
+        
+
+
 
 
 def screen_contest_map():
@@ -985,6 +1028,7 @@ def screen_contest_map():
 
         if button_y.value() == 0:
             CURRENT_SCREEN = 'contest'
+            sleep(0.5)
             screen_contest(unlocked_countries[cursor_index])
 
         if update_screen:
