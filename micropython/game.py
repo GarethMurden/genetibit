@@ -968,7 +968,7 @@ def screen_contest(city):
     screen_contest_result(city, POPULATION[critter_index], sum(scores))
 
 def screen_contest_result(city, entrant, score):
-    steps = 4
+    steps = 6
     for x in range(steps):
         pos = 0 - (240 - int(240 / steps * (x + 1)))
         Layers.top = {
@@ -1011,17 +1011,17 @@ def screen_contest_result(city, entrant, score):
     Layers.middle = [
         {
             'file':opponent_one['critter'].get_sprite(),
-            'position':(50, 120),
+            'position':(10, 120),
             'scale': 3
         },
         {
             'file':entrant.get_sprite(),
-            'position':(110, 120),
+            'position':(110, 110),
             'scale': 3
         },
         {
             'file':opponent_two['critter'].get_sprite(),
-            'position':(200, 120),
+            'position':(210, 120),
             'scale': 3
         }
     ]
@@ -1034,14 +1034,14 @@ def screen_contest_result(city, entrant, score):
             'text':'1st',
             'position':(100, 120)
         })
-    elif or([score < opponent_one['score'], score < opponent_two['score']]):
+    elif any([score < opponent_one['score'], score < opponent_two['score']]):
         Layers.text.append({
             'text':'2nd',
             'position':(100, 120)
         })
     else:
         Layers.text.append({
-            'text':'3nd',
+            'text':'3rd',
             'position':(100, 120)
         })
 

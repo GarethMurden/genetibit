@@ -51,7 +51,6 @@ Connect two devices to breed your critters with your friends'
 
 - Features
 	- Competitions
-		- Random opponents
 		- Winner reveal animation
 		- Save score & victory/loss result
 	- Show current & incremented gold on breeding sell screen

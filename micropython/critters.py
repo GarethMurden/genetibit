@@ -215,6 +215,7 @@ def generate_random_genes():
 
 def generate_specific_genes(target):
     '''generate genes aiming for target level, with cance of heterozygousity'''
+    print(f'[ DEBUG   ]: generate_specific_genes({target})')
     colours = ['red', 'yellow', 'blue']
     colour = random.choice(colours)
     head = HEAD_OPTIONS[target[0] -1]
