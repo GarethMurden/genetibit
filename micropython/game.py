@@ -1051,17 +1051,17 @@ def screen_contest_result(city, entrant, score):
     trophy_message = [
         {
             'text':'Gold! Congratulations!',
-            'position':(39, 16),
+            'position':(39, 17),
             'scale':2
         },
         {
             'text':'Second place! Well done',
-            'position':(38, 16),
+            'position':(38, 17),
             'scale':2
         },
         {
             'text':'Your critter won Bronze!',
-            'position':(38, 16),
+            'position':(38, 17),
             'scale':2
         }
     ]
@@ -1077,8 +1077,6 @@ def screen_contest_result(city, entrant, score):
         if button_x.value() == 0:
             menu()
 
-
-
 def screen_contest_map():
     global CURRENT_SCREEN
 
@@ -1088,14 +1086,16 @@ def screen_contest_map():
         'position':(0, 0)
     }
 
-    # TODO:
-    # - Show Gold/Silver trophy on completed contests
-
     Layers.middle = []
     for contest in CONTESTS:
-        if DATA['contests'][contest]['unlocked'] == False:
+        if not DATA['contests'][contest]['unlocked']:
             Layers.middle.append({
                 'file':'padlock',
+                'position': CONTESTS[contest]['position']
+            })
+        elif not DATA['contests'][contest]['unlocked'] == True:
+            Layers.middle.append({
+                'file':f"trophy_{DATA['contests'][contest]['unlocked']}",
                 'position': CONTESTS[contest]['position']
             })
 
