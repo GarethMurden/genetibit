@@ -1071,6 +1071,7 @@ def screen_contest_result(city, entrant, score):
 
     # TODO:
     #   - Save score & victory/loss result
+    #   - Unlock new contest on Silver or Gold
 
     while CURRENT_SCREEN == 'contest_results':
         if button_x.value() == 0:
@@ -1086,6 +1087,9 @@ def screen_contest_map():
         'file':'world_map',
         'position':(0, 0)
     }
+
+    # TODO:
+    # - Show Gold/Silver trophy on completed contests
 
     Layers.middle = []
     for contest in CONTESTS:

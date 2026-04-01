@@ -51,23 +51,15 @@ Connect two devices to breed your critters with your friends'
 
 - Features
 	- Competitions
-		- Winner reveal animation
 		- Save score & victory/loss result
+		- Show trophy on completed contests
 	- Show current & incremented gold on breeding sell screen
 	- Prevent sale of last 2 critters
 	- Indicate breeding cooldown with sleep idle animation
 	- Field upgrades
-	- Replace body variants with more obvious horn/ear variants
 	- Device-to-device communication
 	- Intro sequence
 	- Tutorial
-
-- Art / UI components
-	- Dark stage for contest results
-	- Spotlit stage for contest results
-	- Contest result trophies
-	- Replace placeholder curtain on contest results screen
-	- New horn/ear variants
 
 - Fixes
 	- Prevent critters sharing a space on the field
