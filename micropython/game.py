@@ -968,6 +968,7 @@ def screen_contest(city):
     screen_contest_result(city, POPULATION[critter_index], sum(scores))
 
 def screen_contest_result(city, entrant, score):
+    global DATA
     steps = 6
     for x in range(steps):
         pos = 0 - (240 - int(240 / steps * (x + 1)))
@@ -1071,13 +1072,36 @@ def screen_contest_result(city, entrant, score):
 
     Layers.show(['background', 'text', 'middle'])
 
-    # TODO:
-    #   - Save score & victory/loss result
-    #   - Unlock new contest on Silver or Gold
+    DATA['contests'][city]['unlocked'] = trophies[ranks.index(score)]
+    data_save()
 
     while CURRENT_SCREEN == 'contest_results':
-        if button_x.value() == 0:
-            menu()
+        if button_y.value() == 0:
+            if trophies[ranks.index(score)] in ['gold', 'silver']:
+                screen_contets_unlock()
+            else:
+                screen_plane_animation()
+                screen_field()
+
+def screen_contets_unlock():
+    locked_contests = [c for c in DATA['contests'] if not DATA['contests'][c]['unlocked']]
+    if len(locked_contests) > 0:
+        next_contest = choice(locked_contests)
+        DATA[next_contest]['unlocked'] = True
+        # TODO:
+        # - KeyError here
+        # - Animation showing unlocked contest
+        # - 
+        print(f'[ DEBUG   ]: You can now enter the {next_contest} contest')
+
+    else:
+        pass
+        # TODO:
+        # - All contests unlocked
+        # - If all Gold, show "world champ" screen
+    screen_plane_animation()
+    screen_field()
+
 
 def screen_contest_map():
     global CURRENT_SCREEN
