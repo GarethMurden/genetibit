@@ -984,17 +984,6 @@ def screen_contest_result(city, entrant, score):
         'file':'contest_results',
         'position':(0,0)
     }
-    steps = 3
-    for x in range(steps):
-        pos = 0 - int((240 / steps * (x + 1)))
-        Layers.top = {
-            'file':'curtain',
-            'position':(
-                0,
-                pos
-            )
-        }
-        Layers.show(['background', 'top'])
 
     # serious opponent
     opponent_one = {
@@ -1025,32 +1014,62 @@ def screen_contest_result(city, entrant, score):
             'scale': 3
         }
     ]
-    Layers.show(['middle'])
 
+    # tropies
+    ranks = [score, opponent_one['score'], opponent_two['score']]
+    ranks.sort()
+    if ranks[0] == ranks[1]:
+        ranks[0] += 1
+    if ranks[1] == ranks[2]:
+        ranks[2] -= 1
+    trophies = [
+        'gold',
+        'silver',
+        'bronze'
+    ]
+    Layers.middle.append({ # player's critter
+        'file': f'trophy_{trophies[ranks.index(score)]}',
+        'position': (150, 60),
+        'scale': 2
+    })
+    Layers.middle.append({
+        'file': f'trophy_{trophies[ranks.index(opponent_one["score"])]}',
+        'position': (53, 80),
+        'scale': 2
+    })
+    Layers.middle.append({
+        'file': f'trophy_{trophies[ranks.index(opponent_two["score"])]}',
+        'position': (245, 80),
+        'scale': 2
+    })
+    Layers.middle.append({
+        'file':'cursor',
+        'position':(152, 201)
+    })
 
-    Layers.text = []
-    if score > opponent_one['score'] and opponent_two['score']:
-        Layers.text.append({
-            'text':'1st',
-            'position':(100, 120)
-        })
-    elif any([score < opponent_one['score'], score < opponent_two['score']]):
-        Layers.text.append({
-            'text':'2nd',
-            'position':(100, 120)
-        })
-    else:
-        Layers.text.append({
-            'text':'3rd',
-            'position':(100, 120)
-        })
+    # result message
+    trophy_message = [
+        {
+            'text':'Gold! Congratulations!',
+            'position':(39, 16),
+            'scale':2
+        },
+        {
+            'text':'Second place! Well done',
+            'position':(38, 16),
+            'scale':2
+        },
+        {
+            'text':'Your critter won Bronze!',
+            'position':(38, 16),
+            'scale':2
+        }
+    ]
+    Layers.text = [trophy_message[ranks.index(score)]]
 
-    # TODO: opponent 1 position & opponent 2 position
+    Layers.show(['background', 'text', 'middle'])
 
     # TODO:
-    #   - Switch between dark stage & spotlit background
-    #   - Replace position text with trophy icons
-    #   - "[critter name] came [position]!" message
     #   - Save score & victory/loss result
 
     while CURRENT_SCREEN == 'contest_results':
