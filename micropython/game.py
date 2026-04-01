@@ -1018,6 +1018,7 @@ def screen_contest_result(city, entrant, score):
     # tropies
     ranks = [score, opponent_one['score'], opponent_two['score']]
     ranks.sort()
+    ranks.reverse()
     if ranks[0] == ranks[1]:
         ranks[0] += 1
     if ranks[1] == ranks[2]:
@@ -1027,6 +1028,7 @@ def screen_contest_result(city, entrant, score):
         'silver',
         'bronze'
     ]
+    
     Layers.middle.append({ # player's critter
         'file': f'trophy_{trophies[ranks.index(score)]}',
         'position': (150, 60),

@@ -1,6 +1,6 @@
 import random
 
-def generate_variance(size=2):
+def generate_variance(size=1):
     return random.choice(list(range(0-size, size)))
 
 def scoring(city, critter, hint=False, max_score=5):
