@@ -1072,12 +1072,27 @@ def screen_contest_result(city, entrant, score):
 
     Layers.show(['background', 'text', 'middle'])
 
+    if DATA['contests'][city]['unlocked'] == 'gold':
+        print('[ DEBUG   ]: previously won gold here')
+        unlock_contest = False # previously won gold here
+    elif DATA['contests'][city]['unlocked'] == 'silver' and trophies[ranks.index(score)] == 'gold':
+        print('[ DEBUG   ]: improved on previous result')
+        unlock_contest = True # improved on previous result
+    elif DATA['contests'][city]['unlocked'] == 'bronze' and trophies[ranks.index(score)] in ['gold', 'silver']:
+        print('[ DEBUG   ]: improved on previous result')
+        unlock_contest = True # improved on previous result
+    elif DATA['contests'][city]['unlocked'] == True and trophies[ranks.index(score)] != 'bronze':
+        print('[ DEBUG   ]: 1st try & won gold/silver')
+        unlock_contest = True # 1st try & won gold/silver
+    else:
+        print('[ DEBUG   ]: did not improve / won bronze')
+        unlock_contest = False # did not improve / won bronze
     DATA['contests'][city]['unlocked'] = trophies[ranks.index(score)]
     data_save()
 
     while CURRENT_SCREEN == 'contest_results':
         if button_y.value() == 0:
-            if trophies[ranks.index(score)] in ['gold', 'silver']:
+            if unlock_contest:
                 screen_contets_unlock()
             else:
                 screen_plane_animation()
@@ -1087,11 +1102,9 @@ def screen_contets_unlock():
     locked_contests = [c for c in DATA['contests'] if not DATA['contests'][c]['unlocked']]
     if len(locked_contests) > 0:
         next_contest = choice(locked_contests)
-        DATA[next_contest]['unlocked'] = True
+        DATA['contests'][next_contest]['unlocked'] = True
         # TODO:
-        # - KeyError here
         # - Animation showing unlocked contest
-        # - 
         print(f'[ DEBUG   ]: You can now enter the {next_contest} contest')
 
     else:
