@@ -2,7 +2,7 @@ import random
 import time
 
 HEAD_OPTIONS = ['sa', 'se', 'shi', 'so', 'su']
-BODY_OPTIONS = ['ka', 'ke', 'ki',  'ko', 'ku']  # TODO: change to antlers/ears
+BODY_OPTIONS = ['ka', 'ke', 'ki',  'ko', 'ku']  # changed to antlers/ears
 LEG_OPTIONS = ['chi', 'ta', 'te',  'to', 'tsu'] # changed to tails
 
 class Critter():
@@ -90,7 +90,8 @@ class Critter():
 
         return {
             'phenotype':{'rank':ranks[ph_rank -1], 'value':ph_total},
-            'attributes':[ph_head, ph_body, ph_legs],
+             #            antlers, head,    tail   
+            'attributes':[ph_body, ph_head, ph_legs],
             'heterozygousity':heterozygousity
         }
 

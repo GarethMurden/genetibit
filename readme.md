@@ -51,8 +51,7 @@ Connect two devices to breed your critters with your friends'
 
 - Features
 	- Competitions
-		- Save score & victory/loss result
-		- Show trophy on completed contests
+		- Contest unlocked animation
 	- Show current & incremented gold on breeding sell screen
 	- Prevent sale of last 2 critters
 	- Indicate breeding cooldown with sleep idle animation
@@ -60,6 +59,7 @@ Connect two devices to breed your critters with your friends'
 	- Device-to-device communication
 	- Intro sequence
 	- Tutorial
+	- Reset & start again
 
 - Fixes
 	- Prevent critters sharing a space on the field

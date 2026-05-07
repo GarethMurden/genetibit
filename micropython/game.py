@@ -199,7 +199,7 @@ class Layer_class():
             png.open_file(f"assets/{filename}.png")
         except OSError:
             print(f'[ DISPLAY ]: MISSING ASSET - "{filename}"')
-            raise
+            # raise
         png.decode(position[0], position[1], scale=scale)
         self.display_busy = False
         led.set_rgb(0, 0, 0)
@@ -1584,8 +1584,10 @@ def screen_settings():
     global DATA, CURRENT_SCREEN
     Layers.clear_all()
     cursor_positions = [
-        ( 40, 65),
-        (140, 65)
+        ( 40,  65),
+        (140,  65),
+        ( 89, 115),
+        ( 89, 165) # TODO: Remove this gold cheat button
     ]
     Layers.background = {
         'file':'settings',
@@ -1600,27 +1602,34 @@ def screen_settings():
             update_screen = True
             cursor_index -= 1
             if cursor_index < 0:
-                cursor_index = 1
+                cursor_index = len(cursor_positions) -1
         if button_b.value() == 0:
             update_screen = True
             cursor_index =+ 1
-            if cursor_index > 1:
+            if cursor_index > len(cursor_positions) -1:
                 cursor_index = 0
         if button_y.value() == 0:
             update_screen = True
-            if cursor_index == 1:
-                DATA['settings']['brightness'] = min([
-                    DATA['settings']['brightness'] + 0.2,
-                    1.0
-                ])
-                display.set_backlight(DATA['settings']['brightness'])
-            else:
+            if cursor_index == 0:
                 update_screen = True
                 DATA['settings']['brightness'] = max([
                     DATA['settings']['brightness'] - 0.2,
                     0.2
                 ])
                 display.set_backlight(DATA['settings']['brightness'])
+            if cursor_index == 1:
+                DATA['settings']['brightness'] = min([
+                    DATA['settings']['brightness'] + 0.2,
+                    1.0
+                ])
+                display.set_backlight(DATA['settings']['brightness'])
+            if cursor_index == 2:
+                # TODO: Reset confirmation & functionality
+                pass
+            if cursor_index == 3:
+                # TODO: Remove this gold cheat button
+                DATA['gold'] = 500
+                CURRENT_SCREEN = 'field'
 
         if button_x.value() == 0:
             menu()
