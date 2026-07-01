@@ -1099,22 +1099,24 @@ def screen_contest_result(city, entrant, score):
                 screen_field()
 
 def screen_contets_unlock():
+    global CURRENT_SCREEN
     locked_contests = [c for c in DATA['contests'] if not DATA['contests'][c]['unlocked']]
     if len(locked_contests) > 0:
         next_contest = choice(locked_contests)
         DATA['contests'][next_contest]['unlocked'] = True
+        print(f'[ DEBUG   ]: You can now enter the {next_contest} contest')
         # TODO:
         # - Animation showing unlocked contest
-        print(f'[ DEBUG   ]: You can now enter the {next_contest} contest')
 
     else:
         pass
         # TODO:
         # - All contests unlocked
         # - If all Gold, show "world champ" screen
+    data_save()
     screen_plane_animation()
+    CURRENT_SCREEN = 'field'
     screen_field()
-
 
 def screen_contest_map():
     global CURRENT_SCREEN
@@ -1628,6 +1630,7 @@ def screen_settings():
                 pass
             if cursor_index == 3:
                 # TODO: Remove this gold cheat button
+                print(f'[ DEBUG   ]: Set gold to 500')
                 DATA['gold'] = 500
                 CURRENT_SCREEN = 'field'
 

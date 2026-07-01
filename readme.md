@@ -49,7 +49,20 @@ Connect two devices to breed your critters with your friends'
 
 ## To do
 
+- Hardware
+	- RTC
+		- Quiic connector
+		- 5V power
+	- Battery
+		- connect via lipoamigo 
+		- power switch
+	- Buttons
+		- bypass on-display mini buttons
+
 - Features
+	- RTC
+		- update clock.py to return current time
+		- integrate into existing functions
 	- Competitions
 		- Contest unlocked animation
 	- Show current & incremented gold on breeding sell screen
@@ -62,6 +75,7 @@ Connect two devices to breed your critters with your friends'
 	- Reset & start again
 
 - Fixes
+	- Improve visitor selction screen performance
 	- Prevent critters sharing a space on the field
 	- ENOENT error on field, e.g. MISSING ASSET - "field_parts/lvl0/81"
 	- Travel text appears before background changes
