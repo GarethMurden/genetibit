@@ -8,8 +8,10 @@ import pngdec
 from random import choice, randint
 import _thread
 from time import sleep, time
-import critters
+
+import clock
 import contest
+import critters
 
 button_a = Pin(12, Pin.IN, Pin.PULL_UP)
 button_b = Pin(13, Pin.IN, Pin.PULL_UP)
@@ -205,16 +207,14 @@ class Layer_class():
         led.set_rgb(0, 0, 0)
 
 def data_cooldown_active(cooldown_end):
-    # TODO: Revisit shop cooldowns
-    return False
-    # if cooldown_end is None:
-    #     return False
-    # current_time = time()
-    # if cooldown_end < current_time:
-    #     return False
-    # else:
-    #     print(f'[ DEBUG   ]: Cooldown ends in {cooldown_end - current_time}s')
-    #     return True
+     if cooldown_end is None:
+        return False
+
+    if Clock.is_in_the_past(cooldown_end):
+        print(f'[ DEBUG   ]: Cooldown ends in {Clock.get_seconds_until(cooldown_end)}s')
+        return True
+    else:
+        return False
 
 def data_clear_screen():
     '''clear cached data only needed while screen open'''
@@ -1894,5 +1894,6 @@ def main():
     screens()
 
 Layers = Layer_class()
+Clock = clock.Clock()
 main()
 
