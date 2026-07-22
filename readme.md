@@ -61,8 +61,7 @@ Connect two devices to breed your critters with your friends'
 
 - Features
 	- RTC
-		- update clock.py to return current time
-		- integrate into existing functions
+		- integrate into Critter class
 	- Competitions
 		- Contest unlocked animation
 	- Show current & incremented gold on breeding sell screen

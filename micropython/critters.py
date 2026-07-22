@@ -18,7 +18,7 @@ class Critter():
         self.cooldown = None
         if uid is None:
             self.uid = generate_id()
-            self.set_cooldown()
+            # self.set_cooldown()
         else:
             self.uid = uid
         
@@ -32,6 +32,13 @@ class Critter():
             return 'green'
         if 'red' in colour and 'yellow' in colour:
             return 'orange'
+
+    def get_cooldown_end(self):
+        if self.cooldown is None:
+            end = ''
+        else:
+            end = self.cooldown['end']
+        return end
 
     def get_gamete(self):
         return {
@@ -119,29 +126,16 @@ class Critter():
                     self.position[1] = self.position[1] + change
         return self.get_position()
 
-    def set_cooldown(self, seconds=0):
-        self.cooldown = {'duration':seconds, 'end':time.time() + seconds}
+    def set_cooldown(self, seconds, end_time):
+        self.cooldown = {'duration':seconds, 'end':end_time}
 
-    def check_cooldown(self):
+    def check_cooldown(self, current_time):
         in_effect = False
         icon = 'timeout/001'
         if self.cooldown is not None:
-            current_time = time.time()
             if self.cooldown['end'] > current_time:
                 in_effect = True
-                timeout_files = {
-                    1: '006',
-                    20:'005',
-                    40:'004',
-                    60:'003',
-                    80:'002',
-                    95:'001'
-                }
-                remaining = self.cooldown['end'] - current_time
-                percentage = int(remaining / self.cooldown['duration'] * 100)
-                for key in timeout_files:
-                    if percentage > key:
-                        icon = f'timeout/{timeout_files[key]}'
+                icon = f'zzz'
         return in_effect, icon
 
 def build_ancestry(parent_a, parent_b):

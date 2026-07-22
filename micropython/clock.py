@@ -79,7 +79,7 @@ class Clock():
             in_the_future = False
         return in_the_future, target_seconds - current_seconds
 
-def main():
+def test():
     clock = Clock()
     print(f'The current time is {clock.get_datetime()}')
     print(f'30 seconds from now it will be {clock.get_seconds_from_now(30)}')
@@ -90,4 +90,4 @@ def main():
     in_the_future, seconds_away = clock.get_seconds_until('2026-07-17 15:30:00')
     print(f'2026-07-17 15:30 is in {seconds_away} seconds')
 
-main()
+# test()

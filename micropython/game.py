@@ -8,10 +8,9 @@ import pngdec
 from random import choice, randint
 import _thread
 from time import sleep, time
-
-import clock
-import contest
 import critters
+import contest
+import clock
 
 button_a = Pin(12, Pin.IN, Pin.PULL_UP)
 button_b = Pin(13, Pin.IN, Pin.PULL_UP)
@@ -207,9 +206,8 @@ class Layer_class():
         led.set_rgb(0, 0, 0)
 
 def data_cooldown_active(cooldown_end):
-     if cooldown_end is None:
+    if cooldown_end is None:
         return False
-
     if Clock.is_in_the_past(cooldown_end):
         print(f'[ DEBUG   ]: Cooldown ends in {Clock.get_seconds_until(cooldown_end)}s')
         return True
@@ -433,17 +431,35 @@ def screen_breeding(mother, population_index=None):
 
         if button_y.value() == 0:
             update_screen = True
-            cooldown, _ = candidates[DATA['breeding']['right_critter_index']].check_cooldown()
+            cooldown, _ = candidates[DATA['breeding']['right_critter_index']].check_cooldown(Clock.get_datetime())
             if not cooldown:
                 led.set_rgb(0, 10, 0)
-                candidates[DATA['breeding']['right_critter_index']].set_cooldown( seconds=COOLDOWNS['breeding'])
+
+                cooldown_end = Clock.get_seconds_from_now(COOLDOWNS['breeding'])
+                candidates[DATA['breeding']['right_critter_index']].set_cooldown( 
+                    COOLDOWNS['breeding'], # duration
+                    cooldown_end # end time
+                )
+                print(f"[ DEBUG   ]: {candidates[DATA['breeding']['right_critter_index']].get_name()} breeding cooldown set to {cooldown_end}")
+                
+                mother.set_cooldown( 
+                    COOLDOWNS['breeding'], # duration
+                    cooldown_end # end time
+                )
+                print(f"[ DEBUG   ]: {mother.get_name()} breeding cooldown set to {cooldown_end}")
+
+
                 CURRENT_SCREEN = 'breeding_animation' # change screen on next loop iteration
 
                 BREEDING_PAIR['mother'] = mother
                 BREEDING_PAIR['father'] = candidates[DATA['breeding']['right_critter_index']]
                 
                 if population_index is not None:
-                    POPULATION[population_index].set_cooldown( seconds=COOLDOWNS['breeding'])
+                    POPULATION[population_index].set_cooldown( 
+                        COOLDOWNS['breeding'], # duration
+                        Clock.get_seconds_from_now(COOLDOWNS['breeding']) # end time
+                    )
+
             else:
                 led.set_rgb(50, 0, 0)
         
@@ -461,11 +477,11 @@ def screen_breeding(mother, population_index=None):
                 }
             ]
 
-            cooldown, icon = candidates[DATA['breeding']['right_critter_index']].check_cooldown()
+            cooldown, icon = candidates[DATA['breeding']['right_critter_index']].check_cooldown(Clock.get_datetime())
             if cooldown:
                 Layers.middle.append({
                     'file':icon,
-                    'position':(260, 130),
+                    'position':(270, 65),
                     'scale':2
                 })
 
@@ -1216,11 +1232,18 @@ def screen_factfile(cursor_index=0):
         'position':(0, 0)
     }
     critter = POPULATION[DATA["field"]["cursor_index"]]
-    Layers.bottom = [{
-        'file':critter.get_sprite(),
-        'position':(10, 80),
-        'scale': 4
-    }]
+    Layers.bottom = [
+        {
+            'file':critter.get_sprite(),
+            'position':(10, 80),
+            'scale': 4
+        },
+        {
+            'file':'zzz', # cooldown indicator
+            'position':(115, 80),
+            'scale': 2
+        }
+    ]
     value = critter.get_value()
     Layers.text = [
         {
@@ -1234,6 +1257,13 @@ def screen_factfile(cursor_index=0):
             'scale':2
         }
     ]
+
+    if critter.get_cooldown_end() != '':
+        Layers.text.append({
+            'text':f'{Clock.get_seconds_until(critter.get_cooldown_end())}s',
+            'position':(115, 70),
+            'scale':2
+        })
 
     Layers.middle = []
     v_offset = 32
@@ -1596,6 +1626,7 @@ def screen_settings():
         'position':(0, 0)
     }
     Layers.show(layers=['background'])
+    displayed_time = Clock.get_time()[:-3]
     cursor_index = 0
     update_screen = True
     print(f'[ SETTING ]: {CURRENT_SCREEN=}, {update_screen=}')
@@ -1607,7 +1638,7 @@ def screen_settings():
                 cursor_index = len(cursor_positions) -1
         if button_b.value() == 0:
             update_screen = True
-            cursor_index =+ 1
+            cursor_index += 1
             if cursor_index > len(cursor_positions) -1:
                 cursor_index = 0
         if button_y.value() == 0:
@@ -1637,6 +1668,18 @@ def screen_settings():
         if button_x.value() == 0:
             menu()
 
+        current_time = Clock.get_time()[:-3]
+        if displayed_time != current_time:
+            displayed_time = current_time
+            print(f'[ DEBUG   ]: Update clock to {displayed_time}')
+            update_screen = True
+        Layers.text = [{
+            'text':displayed_time,
+            'position':(50, 200),
+            'scale':2
+        }]
+
+
         if update_screen:
             Layers.bottom = [{
                 'file':f"settings_brightness{DATA['settings']['brightness']}",
@@ -1647,7 +1690,7 @@ def screen_settings():
                 'position':cursor_positions[cursor_index]
             }
             print('[ DISPLAY ]: Layers.show() in screen_settings()')
-            Layers.show(layers=['background', 'bottom', 'cursor'])
+            Layers.show(layers=['background', 'bottom', 'cursor', 'text'])
             update_screen = False
     data_save()
     
