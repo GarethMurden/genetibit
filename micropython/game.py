@@ -1816,7 +1816,8 @@ def screen_upgrade():
             update_screen = True
 
         # TODO:
-        # - Design field upgrade UI
+        # - Upload upgrade.png, upgrade_buttons.png tick_big.png
+        # - Assemble upgrade UI from the above
         # - Display next upgrade based on curent level
         # - Check unlock progress vs. contest victories
         # - Spend gold & apply upgrade
