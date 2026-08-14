@@ -50,9 +50,6 @@ Connect two devices to breed your critters with your friends'
 ## To do
 
 - Hardware
-	- RTC
-		- Quiic connector
-		- 5V power
 	- Battery
 		- connect via lipoamigo 
 		- power switch

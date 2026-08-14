@@ -1237,11 +1237,6 @@ def screen_factfile(cursor_index=0):
             'file':critter.get_sprite(),
             'position':(10, 80),
             'scale': 4
-        },
-        {
-            'file':'zzz', # cooldown indicator
-            'position':(115, 80),
-            'scale': 2
         }
     ]
     value = critter.get_value()
@@ -1259,6 +1254,11 @@ def screen_factfile(cursor_index=0):
     ]
 
     if critter.get_cooldown_end() != '':
+        Layers.bottom.append({
+            'file':'zzz', # cooldown indicator
+            'position':(115, 80),
+            'scale': 2
+        })
         Layers.text.append({
             'text':f'{Clock.get_seconds_until(critter.get_cooldown_end())}s',
             'position':(115, 70),
