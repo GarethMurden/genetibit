@@ -95,6 +95,11 @@ DATA = {
             4,
             6,
             8
+        ],
+        'upgrade_prices':[
+            0, # free starting level
+            100,
+            500
         ]
     },
     'gold':0,
@@ -1137,6 +1142,8 @@ def screen_contets_unlock():
 def screen_contest_map():
     global CURRENT_SCREEN
 
+    # TODO: Charge for travel at this point
+
     Layers.clear_all()
     Layers.background = {
         'file':'world_map',
@@ -1695,6 +1702,8 @@ def screen_settings():
     data_save()
     
 def screen_travel():
+    # TODO: Charge for plane travel after destination selection via map
+
     Layers.clear_all()
     Layers.background = {
         'file':'travel',
@@ -1806,22 +1815,95 @@ def screen_upgrade():
     global CURRENT_SCREEN
     Layers.clear_all()
     Layers.background = {
-        'file':'blank',
+        'file':'upgrade_background',
         'position':(0, 0)
     }
+    status_icon_coords = [
+        ( 52, 70),  # field lvl 0
+        (152, 70),  # lvl 1
+        (249, 70)   # lvl 2
+    ]
+    Layers.text = [
+        {
+            'text':str(DATA['gold']),
+            'position':(285, 10)
+        },
+        {
+            'text':str(DATA['field']['upgrade_prices'][1]),
+            'position':(150, 100)
+        },
+        {
+            'text':str(DATA['field']['upgrade_prices'][2]),
+            'position':(250, 100)
+        }
+    ]
+    Layers.bottom = []
+    for x in range(0, 3):
+        if x < DATA['field']['level'] +1:
+            status_icon = 'tick_big'
+        elif x > DATA['field']['level'] +1:
+            status_icon = 'padlock'
+        else:
+            status_icon = None
+        if status_icon is not None:
+            Layers.bottom.append({
+                'file':status_icon,
+                'position':status_icon_coords[x]
+            })
+
+    button_positions = [
+        (  0,   0), # initial level
+        (125, 160), # upgrade 1
+        (225, 160)  # upgrade 2
+    ]
+    Layers.middle = [{
+        'file':'upgrade_buttons',
+        'position':button_positions[DATA['field']['level'] +1]
+    }]
+
+    cursor_horizontal_positions = [
+          0, # initial level
+        144, # upgrade 1
+        244  # upgrade 2
+    ]
+    cursor_positions = [
+        (cursor_horizontal_positions[DATA['field']['level'] +1], 170), # buy
+        (cursor_horizontal_positions[DATA['field']['level'] +1], 200)  # cancel
+    ]
+    cursor_index = 0
     Layers.show()
+
+    update_screen = True
     while CURRENT_SCREEN == 'upgrade':
         if button_x.value() == 0:
             menu()
+
+        if button_a.value() == 0:
+            cursor_index += 1
+            if cursor_index >= len(cursor_positions):
+                cursor_index = 0
+            update_screen = True
+
+        if button_b.value() == 0:
+            cursor_index -= 1
+            if cursor_index < 0:
+                cursor_index = len(cursor_positions) - 1
             update_screen = True
 
         # TODO:
-        # - Upload upgrade.png, upgrade_buttons.png tick_big.png
-        # - Assemble upgrade UI from the above
-        # - Display next upgrade based on curent level
+        # - Display unlock requiremetns
         # - Check unlock progress vs. contest victories
         # - Spend gold & apply upgrade
         # - Upgrade animation
+
+        if update_screen:
+            Layers.cursor = {
+                'file':'cursor',
+                'position':cursor_positions[cursor_index]
+            }
+            print('[ DISPLAY ]: Layers.show() in screen_upgrade()')
+            Layers.show(['middle', 'cursor'])
+            update_screen = False
 
 
 def screen_visitor():

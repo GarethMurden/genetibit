@@ -57,14 +57,13 @@ Connect two devices to breed your critters with your friends'
 		- bypass on-display mini buttons
 
 - Features
-	- RTC
-		- integrate into Critter class
+	- Travel
+		- Charge for plane travel after destination selection via map
 	- Competitions
 		- Contest unlocked animation
 	- Show current & incremented gold on breeding sell screen
 	- Prevent sale of last 2 critters
 	- Indicate breeding cooldown with sleep idle animation
-	- Field upgrades
 	- Device-to-device communication
 	- Intro sequence
 	- Tutorial
@@ -77,6 +76,8 @@ Connect two devices to breed your critters with your friends'
 	- Travel text appears before background changes
 	- Price sticks after menu close
 	- Closing menu doesn't necessary refresh screen
+	- Limit ancestry in data.json to x generations
+	- Move infrequently used data to disk to save memory
 
 ## Resources 
 
