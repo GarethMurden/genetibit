@@ -1730,14 +1730,6 @@ def screen_travel():
             'text':str(item['price']),
             'position':item_coordinates[index]['price']
         })
-        if data_cooldown_active(item['cooldown']):
-            Layers.middle.append({
-                'file':'/travel/sold_out',
-                'position':(
-                    item_coordinates[index]['sprite'][0] - 15,
-                    item_coordinates[index]['sprite'][1] + 10
-                )
-            })
 
     item_bought = False
     cursor_positions = [
@@ -1767,20 +1759,17 @@ def screen_travel():
             update_screen = True
 
         if button_y.value() == 0:
-            if not data_cooldown_active(DATA['travel']['items'][cursor_index]['cooldown']):
-                if DATA['gold'] >= DATA['travel']['items'][cursor_index]['price']:
-                    led.set_rgb(0, 10, 0)
-                    
-                    Layers.text[0] = {
-                        'text':str(DATA['gold']),
-                        'position':(285, 10)
-                    }
-                    DATA['travel']['items'][cursor_index]['cooldown'] = time() + DATA['travel']['items'][cursor_index]['cooldown_duration']
-                    item_bought = DATA['travel']['items'][cursor_index]['sprite']
-                else:
-                    led.set_rgb(50, 0, 0) # not enough gold
+            if DATA['gold'] >= DATA['travel']['items'][cursor_index]['price']:
+                led.set_rgb(0, 10, 0)
+                
+                Layers.text[0] = {
+                    'text':str(DATA['gold']),
+                    'position':(285, 10)
+                }
+                DATA['travel']['items'][cursor_index]['cooldown'] = time() + DATA['travel']['items'][cursor_index]['cooldown_duration']
+                item_bought = DATA['travel']['items'][cursor_index]['sprite']
             else:
-                led.set_rgb(50, 0, 0) # sold out
+                led.set_rgb(50, 0, 0) # not enough gold
             update_screen = True
 
         if update_screen:
@@ -1871,6 +1860,14 @@ def screen_upgrade():
         (cursor_horizontal_positions[DATA['field']['level'] +1], 200)  # cancel
     ]
     cursor_index = 0
+
+    gold_contests = len([country for country in DATA['contests'] if DATA['contests'][country]['unlocked'] == 'gold'])
+    unlock_requirements = [
+        2, # 2 unlocked at game start
+        3, # 1st upgrade available after 3 unlocked
+        4  # 2nd upgrade available after 4 unlocked
+    ]
+
     Layers.show()
 
     update_screen = True
@@ -1890,12 +1887,21 @@ def screen_upgrade():
                 cursor_index = len(cursor_positions) - 1
             update_screen = True
 
-        # TODO:
-        # - Display unlock requiremetns
-        # - Check unlock progress vs. contest victories
-        # - Spend gold & apply upgrade
-        # - Upgrade animation
+        if button_y.value() == 0:
+            if cursor_index == 0:
+                # TODO: 
+                # - Spend gold & apply upgrade
+                # - Upgrade animation
 
+                print(f'[ DEBUG   ]: {gold_contests=} unlock_requirements={unlock_requirements[DATA['field']['level'] +1]}')
+                if gold_contests >= unlock_requirements[DATA['field']['level'] +1]:
+                    if DATA['gold'] > DATA['field']['upgrade_prices'][DATA['field']['level'] +1]:
+                        print(f'[ DEBUG   ]: unlock permitted')
+
+            else:
+                CURRENT_SCREEN = 'field'
+                break
+        
         if update_screen:
             Layers.cursor = {
                 'file':'cursor',

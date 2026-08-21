@@ -57,6 +57,9 @@ Connect two devices to breed your critters with your friends'
 		- bypass on-display mini buttons
 
 - Features
+	- Field
+		- Upload lvl1 & lvl2 field parts
+		- Replace with screen after all levels unlocked
 	- Travel
 		- Charge for plane travel after destination selection via map
 	- Competitions
