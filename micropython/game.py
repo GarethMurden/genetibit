@@ -1861,7 +1861,7 @@ def screen_upgrade():
     ]
     cursor_index = 0
 
-    gold_contests = len([country for country in DATA['contests'] if DATA['contests'][country]['unlocked'] == 'gold'])
+    gold_contests = len([country for country in DATA['contests'] if DATA['contests'][country]['unlocked'] in [True, 'gold']])
     unlock_requirements = [
         2, # 2 unlocked at game start
         3, # 1st upgrade available after 3 unlocked
