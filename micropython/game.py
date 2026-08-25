@@ -807,8 +807,8 @@ def screen_bus_animation():
     global CURRENT_SCREEN
     Layers.cursor = None
     Layers.text = None
-    for x in range(8):
-        left = -560 + (x * 80)
+    for x in range(4):
+        left = -560 + (x * 160)
         Layers.top = {
             'file':'transition_bus',
             'position':(left, 0)
@@ -1702,7 +1702,7 @@ def screen_settings():
     data_save()
     
 def screen_travel():
-    # TODO: Charge for plane travel after destination selection via map
+    # TODO: Charge for travel after destination selection
 
     Layers.clear_all()
     Layers.background = {
@@ -1868,6 +1868,7 @@ def screen_upgrade():
         4  # 2nd upgrade available after 4 unlocked
     ]
 
+    print('[ DISPLAY ]: Layers.show() in screen_upgrade()')
     Layers.show()
 
     update_screen = True
@@ -1913,6 +1914,75 @@ def screen_upgrade():
 
 
 def screen_visitor():
+    Layers.clear_all()
+    Layers.background = {
+        'file':'visit_road',
+        'position':(0, 0)
+    }
+    cursor_positions = [
+        ( 30, 140),
+        (118, 160),
+        (202, 128)
+    ]
+    cursor_index = 0
+    Layers.cursor = {
+        'file':'visit_bus',
+        'position':cursor_positions[cursor_index],
+        'scale':2
+    }
+
+    options = [
+        critters.Critter(critters.generate_random_genes()),
+        critters.Critter(critters.generate_random_genes()),
+        critters.Critter(critters.generate_random_genes())
+    ]
+    Layers.middle = []
+    option_positions = [
+        ( 28,  30),
+        (130,  75),
+        (248,  30)
+    ]
+    for counter, option in enumerate(options):
+        Layers.middle.append({
+            'file':option.get_sprite(),
+            'position':option_positions[counter],
+            'scale':2
+        })
+
+    # TODO:
+    # - put cards on the UI, including price boxes
+    #  - scale rarity of critter option traits so furthest is likely best
+    # - display critter option prices
+    # - on selection, deduct gold & pass selection to screen_breeding()
+
+    print('[ DISPLAY ]: Layers.show() in screen_visit()')
+    Layers.show()
+
+    update_screen = False
+    while CURRENT_SCREEN == 'visitor':
+        if button_x.value() == 0:
+            menu()
+
+        if button_a.value() == 0:
+            cursor_index += 1
+            if cursor_index >= len(cursor_positions):
+                cursor_index = 0
+            print(f'[ DEBUG   ]: cursor_positions[{cursor_index}] = {cursor_positions[cursor_index]}')
+            update_screen = True
+
+        if button_b.value() == 0:
+            cursor_index -= 1
+            if cursor_index < 0:
+                cursor_index = len(cursor_positions) - 1
+            print(f'[ DEBUG   ]: cursor_positions[{cursor_index}] = {cursor_positions[cursor_index]}')
+            update_screen = True
+
+        if update_screen:
+            print('[ DISPLAY ]: Layers.show() in screen_visit()')
+            Layers.show(['cursor'])
+            update_screen = False
+
+def screen_visitor_old():
     global CURRENT_SCREEN
     Layers.clear_all()
     Layers.background = {
