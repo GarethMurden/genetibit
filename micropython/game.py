@@ -321,6 +321,7 @@ def menu():
     Layers.top = None
     Layers.menu_cursor = None
     print('[ MENU    ]: menu closed')
+    Layers.show()
     
 def menu_move_cursor(position):
     cursor_positions = [
@@ -989,7 +990,7 @@ def screen_contest(city):
     screen_contest_result(city, POPULATION[critter_index], sum(scores))
 
 def screen_contest_result(city, entrant, score):
-    global DATA
+    global DATA, CURRENT_SCREEN
     steps = 6
     for x in range(steps):
         pos = 0 - (240 - int(240 / steps * (x + 1)))
@@ -1118,6 +1119,7 @@ def screen_contest_result(city, entrant, score):
             else:
                 screen_plane_animation()
                 screen_field()
+                CURRENT_SCREEN = 'field'
 
 def screen_contets_unlock():
     global CURRENT_SCREEN
@@ -1625,8 +1627,7 @@ def screen_settings():
     cursor_positions = [
         ( 40,  65),
         (140,  65),
-        ( 89, 115),
-        ( 89, 165) # TODO: Remove this gold cheat button
+        ( 89, 115)
     ]
     Layers.background = {
         'file':'settings',
@@ -1639,6 +1640,10 @@ def screen_settings():
     print(f'[ SETTING ]: {CURRENT_SCREEN=}, {update_screen=}')
     while CURRENT_SCREEN == 'settings':
         if button_a.value() == 0:
+            if button_b.value() == 0:
+                print(f'[ DEBUG   ]: Set gold to 500')
+                DATA['gold'] = 500
+                menu()
             update_screen = True
             cursor_index -= 1
             if cursor_index < 0:
@@ -1666,11 +1671,6 @@ def screen_settings():
             if cursor_index == 2:
                 # TODO: Reset confirmation & functionality
                 pass
-            if cursor_index == 3:
-                # TODO: Remove this gold cheat button
-                print(f'[ DEBUG   ]: Set gold to 500')
-                DATA['gold'] = 500
-                CURRENT_SCREEN = 'field'
 
         if button_x.value() == 0:
             menu()
@@ -1710,26 +1710,11 @@ def screen_travel():
         'position':(0, 0)
     }
 
-    item_coordinates = [
-        {'sprite':( 48, 75), 'price':( 53, 159)},
-        {'sprite':(143, 85), 'price':(153, 159)},
-        {'sprite':(240, 85), 'price':(250, 159)}
-    ]
     Layers.middle = []
     Layers.text = [{
         'text':str(DATA['gold']),
         'position':(285, 10)
     }]
-    for index, item in enumerate(DATA['travel']['items']):
-        Layers.middle.append({
-            'file':item['sprite'],
-            'position':item_coordinates[index]['sprite'],
-            'scale':2
-        })
-        Layers.text.append({
-            'text':str(item['price']),
-            'position':item_coordinates[index]['price']
-        })
 
     item_bought = False
     cursor_positions = [
@@ -1807,11 +1792,6 @@ def screen_upgrade():
         'file':'upgrade_background',
         'position':(0, 0)
     }
-    status_icon_coords = [
-        ( 52, 70),  # field lvl 0
-        (152, 70),  # lvl 1
-        (249, 70)   # lvl 2
-    ]
     Layers.text = [
         {
             'text':str(DATA['gold']),
@@ -1819,36 +1799,13 @@ def screen_upgrade():
         },
         {
             'text':str(DATA['field']['upgrade_prices'][1]),
-            'position':(150, 100)
+            'position':(152, 165)
         },
         {
             'text':str(DATA['field']['upgrade_prices'][2]),
-            'position':(250, 100)
+            'position':(250, 165)
         }
     ]
-    Layers.bottom = []
-    for x in range(0, 3):
-        if x < DATA['field']['level'] +1:
-            status_icon = 'tick_big'
-        elif x > DATA['field']['level'] +1:
-            status_icon = 'padlock'
-        else:
-            status_icon = None
-        if status_icon is not None:
-            Layers.bottom.append({
-                'file':status_icon,
-                'position':status_icon_coords[x]
-            })
-
-    button_positions = [
-        (  0,   0), # initial level
-        (125, 160), # upgrade 1
-        (225, 160)  # upgrade 2
-    ]
-    Layers.middle = [{
-        'file':'upgrade_buttons',
-        'position':button_positions[DATA['field']['level'] +1]
-    }]
 
     cursor_horizontal_positions = [
           0, # initial level
@@ -1856,12 +1813,29 @@ def screen_upgrade():
         244  # upgrade 2
     ]
     cursor_positions = [
-        (cursor_horizontal_positions[DATA['field']['level'] +1], 170), # buy
-        (cursor_horizontal_positions[DATA['field']['level'] +1], 200)  # cancel
+        (cursor_horizontal_positions[DATA['field']['level'] +1], 205)
     ]
     cursor_index = 0
 
-    gold_contests = len([country for country in DATA['contests'] if DATA['contests'][country]['unlocked'] in [True, 'gold']])
+    gold_contests = len([country for country in DATA['contests'] if DATA['contests'][country]['unlocked'] in ['gold']])
+    # 1st upgrade
+    if gold_contests <= 2:
+        trophy_icon = f'upgrade_trophy_{gold_contests}-2'
+    else:
+        trophy_icon = f'upgrade_trophy_2-2'
+    Layers.middle = [{
+        'file':trophy_icon,
+        'position':(142, 115)
+    }]
+    # 2nd upgrade
+    if gold_contests <= 4:
+        trophy_icon = f'upgrade_trophy_{gold_contests}-4'
+    else:
+        trophy_icon = f'upgrade_trophy_4-4'
+    Layers.middle.append({
+        'file':trophy_icon,
+        'position':(238, 115)
+    })
     unlock_requirements = [
         2, # 2 unlocked at game start
         3, # 1st upgrade available after 3 unlocked
@@ -1876,32 +1850,15 @@ def screen_upgrade():
         if button_x.value() == 0:
             menu()
 
-        if button_a.value() == 0:
-            cursor_index += 1
-            if cursor_index >= len(cursor_positions):
-                cursor_index = 0
-            update_screen = True
-
-        if button_b.value() == 0:
-            cursor_index -= 1
-            if cursor_index < 0:
-                cursor_index = len(cursor_positions) - 1
-            update_screen = True
-
         if button_y.value() == 0:
-            if cursor_index == 0:
-                # TODO: 
-                # - Spend gold & apply upgrade
-                # - Upgrade animation
+            # TODO: 
+            # - Spend gold & apply upgrade
+            # - Upgrade animation
 
-                print(f'[ DEBUG   ]: {gold_contests=} unlock_requirements={unlock_requirements[DATA['field']['level'] +1]}')
-                if gold_contests >= unlock_requirements[DATA['field']['level'] +1]:
-                    if DATA['gold'] > DATA['field']['upgrade_prices'][DATA['field']['level'] +1]:
-                        print(f'[ DEBUG   ]: unlock permitted')
-
-            else:
-                CURRENT_SCREEN = 'field'
-                break
+            print(f'[ DEBUG   ]: {gold_contests=} unlock_requirements={unlock_requirements[DATA['field']['level'] +1]}')
+            if gold_contests >= unlock_requirements[DATA['field']['level'] +1]:
+                if DATA['gold'] > DATA['field']['upgrade_prices'][DATA['field']['level'] +1]:
+                    print(f'[ DEBUG   ]: unlock permitted')
         
         if update_screen:
             Layers.cursor = {

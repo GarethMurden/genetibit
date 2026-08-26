@@ -74,11 +74,10 @@ Connect two devices to breed your critters with your friends'
 
 - Fixes
 	- Improve visitor selction screen performance
+	- Error text appears on factfile when creature asleep
 	- Prevent critters sharing a space on the field
 	- ENOENT error on field, e.g. MISSING ASSET - "field_parts/lvl0/81"
-	- Travel text appears before background changes
-	- Price sticks after menu close
-	- Closing menu doesn't necessary refresh screen
+	- Price sticks after menu close - always show the gold banner?
 	- Limit ancestry in data.json to x generations
 	- Move infrequently used data to disk to save memory
 
