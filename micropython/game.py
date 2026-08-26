@@ -1744,18 +1744,9 @@ def screen_travel():
             update_screen = True
 
         if button_y.value() == 0:
-            if DATA['gold'] >= DATA['travel']['items'][cursor_index]['price']:
-                led.set_rgb(0, 10, 0)
-                
-                Layers.text[0] = {
-                    'text':str(DATA['gold']),
-                    'position':(285, 10)
-                }
-                DATA['travel']['items'][cursor_index]['cooldown'] = time() + DATA['travel']['items'][cursor_index]['cooldown_duration']
-                item_bought = DATA['travel']['items'][cursor_index]['sprite']
-            else:
-                led.set_rgb(50, 0, 0) # not enough gold
+            item_bought = DATA['travel']['items'][cursor_index]['sprite']
             update_screen = True
+            break
 
         if update_screen:
             Layers.cursor = {
@@ -1766,12 +1757,6 @@ def screen_travel():
             Layers.show()
             led.set_rgb(0, 0, 0)
             update_screen = False
-
-        if item_bought:
-            screen_gold_animation(0 - DATA['travel']['items'][cursor_index]['price'], show_box=True)
-            DATA['gold'] -= DATA['travel']['items'][cursor_index]['price']
-            screen_gold_animation(0, show_box=True)
-            break
 
     if item_bought:
         data_save()
@@ -1871,15 +1856,16 @@ def screen_upgrade():
 
 
 def screen_visitor():
+    global CURRENT_SCREEN
     Layers.clear_all()
     Layers.background = {
-        'file':'visit_road',
+        'file':'visit',
         'position':(0, 0)
     }
     cursor_positions = [
-        ( 30, 140),
-        (118, 160),
-        (202, 128)
+        ( 28, 145),
+        (127, 167),
+        (220, 145)
     ]
     cursor_index = 0
     Layers.cursor = {
@@ -1895,9 +1881,9 @@ def screen_visitor():
     ]
     Layers.middle = []
     option_positions = [
-        ( 28,  30),
-        (130,  75),
-        (248,  30)
+        ( 28,  15),
+        (120,  25),
+        (230,  10)
     ]
     for counter, option in enumerate(options):
         Layers.middle.append({
@@ -1907,10 +1893,18 @@ def screen_visitor():
         })
 
     # TODO:
-    # - put cards on the UI, including price boxes
-    #  - scale rarity of critter option traits so furthest is likely best
+    # - scale rarity of critter option traits so furthest is likely best
     # - display critter option prices
-    # - on selection, deduct gold & pass selection to screen_breeding()
+    # - factfile-style rating indicators
+    # - heterozygosity score:
+    # {
+    #     'text':f"{option_data['heterozygousity']}%",
+    #     'position':(
+    #         panel_positions[panel_index][0] + 54,
+    #         panel_positions[panel_index][1] + 46
+    #     ),
+    #     'scale':2
+    # }
 
     print('[ DISPLAY ]: Layers.show() in screen_visit()')
     Layers.show()
@@ -1921,22 +1915,38 @@ def screen_visitor():
             menu()
 
         if button_a.value() == 0:
-            cursor_index += 1
-            if cursor_index >= len(cursor_positions):
-                cursor_index = 0
-            print(f'[ DEBUG   ]: cursor_positions[{cursor_index}] = {cursor_positions[cursor_index]}')
-            update_screen = True
-
-        if button_b.value() == 0:
             cursor_index -= 1
             if cursor_index < 0:
                 cursor_index = len(cursor_positions) - 1
             print(f'[ DEBUG   ]: cursor_positions[{cursor_index}] = {cursor_positions[cursor_index]}')
             update_screen = True
 
+        if button_b.value() == 0:
+            cursor_index += 1
+            if cursor_index >= len(cursor_positions):
+                cursor_index = 0
+            print(f'[ DEBUG   ]: cursor_positions[{cursor_index}] = {cursor_positions[cursor_index]}')
+            update_screen = True
+
+        if button_y.value() == 0:
+            # TODO:
+            # - Check & deduct gold
+            led.set_rgb(0, 10, 0)
+            CURRENT_SCREEN = 'breeding'
+            screen_breeding(options[cursor_index])
+
         if update_screen:
             print('[ DISPLAY ]: Layers.show() in screen_visit()')
-            Layers.show(['cursor'])
+            Layers.bottom = [{
+                'file':'visit_road',
+                'position':(0, 144)
+            }]
+            Layers.cursor = {
+                'file':'visit_bus',
+                'position':cursor_positions[cursor_index],
+                'scale':2
+            }
+            Layers.show(layers=['bottom', 'cursor'])
             update_screen = False
 
 def screen_visitor_old():
