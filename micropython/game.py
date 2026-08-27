@@ -1886,11 +1886,29 @@ def screen_visitor():
         (125,  30),
         (225,  10)
     ]
+    stat_bar_positions = [
+        ( 50,  86),
+        (147, 100),
+        (246,  79)
+    ]
+    stat_bars = {
+        'D':'visit_stats_0',
+        'C':'visit_stats_1',
+        'B':'visit_stats_2',
+        'A':'visit_stats_3',
+        'S':'visit_stats_3'
+    }
     for counter, option in enumerate(options):
         Layers.middle.append({
             'file':option.get_sprite(),
             'position':option_positions[counter],
             'scale':2
+        })
+        rank = option.get_value()['phenotype']['rank']
+        print(f'[ DEBUG   ]: {rank=}')
+        Layers.middle.append({
+            'file':stat_bars[rank],
+            'position':stat_bar_positions[counter]
         })
         Layers.text.append({
             'text':str(option.get_value()['phenotype']['value'] * 10),
