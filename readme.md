@@ -64,6 +64,8 @@ Connect two devices to breed your critters with your friends'
 		- Display current gold total
 	- Travel
 		- Charge for plane travel after destination selection via map
+	- Breeding results
+		- Change rank indicator to factfile style bars
 	- Competitions
 		- Contest unlocked animation
 	- Show current & incremented gold on breeding sell screen

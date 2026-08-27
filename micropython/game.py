@@ -1716,9 +1716,9 @@ def screen_travel():
 
     item_bought = False
     cursor_positions = [
-        ( 55, 155),
-        (153, 155),
-        (248, 155)
+        ( 50, 125),
+        (148, 125),
+        (243, 125)
     ]
     cursor_index = 0
     update_screen = True
@@ -1905,7 +1905,6 @@ def screen_visitor():
             'scale':2
         })
         rank = option.get_value()['phenotype']['rank']
-        print(f'[ DEBUG   ]: {rank=}')
         Layers.middle.append({
             'file':stat_bars[rank],
             'position':stat_bar_positions[counter]
@@ -1917,18 +1916,14 @@ def screen_visitor():
                 option_positions[counter][1] + 105
             )
         })
-
-    # TODO:
-    # - factfile-style rating indicators
-    # - heterozygosity score:
-    # {
-    #     'text':f"{option_data['heterozygousity']}%",
-    #     'position':(
-    #         panel_positions[panel_index][0] + 54,
-    #         panel_positions[panel_index][1] + 46
-    #     ),
-    #     'scale':2
-    # }
+        Layers.text.append({
+            'text':f"{option.get_value()['heterozygousity']}%",
+            'position':(
+                option_positions[counter][0] + 20,
+                option_positions[counter][1] + 50
+            ),
+            'scale':2
+        })
 
     print('[ DISPLAY ]: Layers.show() in screen_visit()')
     Layers.show()
