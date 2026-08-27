@@ -1702,8 +1702,6 @@ def screen_settings():
     data_save()
     
 def screen_travel():
-    # TODO: Charge for travel after destination selection
-
     Layers.clear_all()
     Layers.background = {
         'file':'travel',
@@ -1863,7 +1861,7 @@ def screen_visitor():
         'position':(0, 0)
     }
     cursor_positions = [
-        ( 28, 145),
+        ( 25, 148),
         (127, 167),
         (220, 145)
     ]
@@ -1874,16 +1872,19 @@ def screen_visitor():
         'scale':2
     }
 
-    options = [
+    unsorted_options = [
         critters.Critter(critters.generate_random_genes()),
         critters.Critter(critters.generate_random_genes()),
         critters.Critter(critters.generate_random_genes())
     ]
+    options = sorted(unsorted_options, key=lambda x: x.get_value()['phenotype']['value'])
+
     Layers.middle = []
+    Layers.text = []
     option_positions = [
         ( 28,  15),
-        (120,  25),
-        (230,  10)
+        (125,  30),
+        (225,  10)
     ]
     for counter, option in enumerate(options):
         Layers.middle.append({
@@ -1891,10 +1892,15 @@ def screen_visitor():
             'position':option_positions[counter],
             'scale':2
         })
+        Layers.text.append({
+            'text':str(option.get_value()['phenotype']['value'] * 10),
+            'position':(
+                option_positions[counter][0] + 5,
+                option_positions[counter][1] + 105
+            )
+        })
 
     # TODO:
-    # - scale rarity of critter option traits so furthest is likely best
-    # - display critter option prices
     # - factfile-style rating indicators
     # - heterozygosity score:
     # {
@@ -1918,14 +1924,12 @@ def screen_visitor():
             cursor_index -= 1
             if cursor_index < 0:
                 cursor_index = len(cursor_positions) - 1
-            print(f'[ DEBUG   ]: cursor_positions[{cursor_index}] = {cursor_positions[cursor_index]}')
             update_screen = True
 
         if button_b.value() == 0:
             cursor_index += 1
             if cursor_index >= len(cursor_positions):
                 cursor_index = 0
-            print(f'[ DEBUG   ]: cursor_positions[{cursor_index}] = {cursor_positions[cursor_index]}')
             update_screen = True
 
         if button_y.value() == 0:

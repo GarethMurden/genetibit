@@ -60,6 +60,8 @@ Connect two devices to breed your critters with your friends'
 	- Field
 		- Upload lvl1 & lvl2 field parts
 		- Replace with screen after all levels unlocked
+	- Visit
+		- Display current gold total
 	- Travel
 		- Charge for plane travel after destination selection via map
 	- Competitions
