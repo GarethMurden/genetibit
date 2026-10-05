@@ -131,11 +131,11 @@ class Critter():
 
     def check_cooldown(self, current_time):
         in_effect = False
-        icon = 'timeout/001'
+        icon = None
         if self.cooldown is not None:
             if self.cooldown['end'] > current_time:
                 in_effect = True
-                icon = f'zzz'
+                icon = 'zzz'
         return in_effect, icon
 
 def build_ancestry(parent_a, parent_b):

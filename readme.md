@@ -59,7 +59,7 @@ Connect two devices to breed your critters with your friends'
 - Features
 	- Field
 		- Upload lvl1 & lvl2 field parts
-		- Replace with screen after all levels unlocked
+		- Replace upgrade UI when all levels unlocked
 	- Visit
 		- Display current gold total
 	- Travel

@@ -1262,8 +1262,9 @@ def screen_factfile(cursor_index=0):
             'position':(115, 80),
             'scale': 2
         })
+        _, reset_in = Clock.get_seconds_until(critter.get_cooldown_end())
         Layers.text.append({
-            'text':f'{Clock.get_seconds_until(critter.get_cooldown_end())}s',
+            'text':f'{reset_in}s',
             'position':(115, 70),
             'scale':2
         })
@@ -1602,6 +1603,7 @@ def screen_gold_animation(change, show_box=False):
         Layers.show()
 
 def screen_settings():
+    # TODO: remove debug gold button from background
     global DATA, CURRENT_SCREEN
     Layers.clear_all()
     cursor_positions = [
@@ -1773,6 +1775,9 @@ def screen_travel():
             screen_connect()
 
 def screen_upgrade():
+    # TODO:
+    # - disallow spending & display different background if all levels unlocked
+
     global CURRENT_SCREEN
     Layers.clear_all()
     Layers.background = {
@@ -1824,8 +1829,8 @@ def screen_upgrade():
         'position':(238, 115)
     })
     unlock_requirements = [
-        2, # 2 unlocked at game start
-        3, # 1st upgrade available after 3 unlocked
+        0, # game start
+        2, # 1st upgrade available after 2 unlocked
         4  # 2nd upgrade available after 4 unlocked
     ]
 
@@ -1838,13 +1843,14 @@ def screen_upgrade():
             menu()
 
         if button_y.value() == 0:
-            # TODO: 
-            # - Spend gold & apply upgrade
-
+            # spend gold & apply upgrade
             print(f'[ DEBUG   ]: {gold_contests=} unlock_requirements={unlock_requirements[DATA['field']['level'] +1]}')
             if gold_contests >= unlock_requirements[DATA['field']['level'] +1]:
                 if DATA['gold'] > DATA['field']['upgrade_prices'][DATA['field']['level'] +1]:
                     print(f'[ DEBUG   ]: unlock permitted')
+
+                    DATA['gold'] -= DATA['field']['upgrade_prices'][DATA['field']['level'] +1]
+                    DATA['field']['level'] += 1
                     screen_transition(
                         'transition_digger',
                         'field',
