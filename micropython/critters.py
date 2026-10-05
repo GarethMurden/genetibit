@@ -138,24 +138,6 @@ class Critter():
                 icon = 'zzz'
         return in_effect, icon
 
-def build_ancestry(parent_a, parent_b):
-    ancestry = [[f'{parent_a.get_phenotype()["string"]}', f'{parent_b.get_phenotype()["string"]}']]
-    # NOTE: Removed ancestry tree to save memory
-    # ancestry_a = parent_a.ancestors
-    # ancestry_b = parent_b.ancestors
-    # for x in range(max([len(ancestry_a), len(ancestry_b)])):
-    #     generation = []
-    #     if x < len(ancestry_a):
-    #         generation.append(ancestry_a[x])
-    #     else:
-    #         generation.append([['unkown', 'unkown'] for y in range(x +1)])
-    #     if x < len(ancestry_b):
-    #         generation.append(ancestry_b[x])
-    #     else:
-    #         generation.append([['unkown', 'unkown'] for y in range(x +1)])
-    #     ancestry.append(generation)
-    return ancestry
-
 def generate_id():
     source = ['a', 'i', 'u', 'e', 'o', 'ka', 'ki', 'ku', 'ke', 'ko', 'sa', 'su', 'se', 'so', 'ta', 'te', 'to', 'ma', 'mi', 'mu', 'me', 'mo', 'ra', 'ri', 'ru', 're', 'ro', 'ya', 'ma', 'mo', 'wa', 'n']
     # source = ['c','b','d','f','g','h','j','k','m','n','p','r','s','t','v','w','x','y','z']
