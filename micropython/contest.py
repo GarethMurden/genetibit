@@ -7,6 +7,7 @@ def scoring(city, critter, hint=False, max_score=5):
     attributes = critter.get_value()['attributes']
     scores = []
     if city == 'Ottawa': # big antlers
+        # TODO: Investigate unexpected low scores; is this backwards? 
         base_score = attributes[1]
         for x in range(3):
             scores.append(max([base_score + generate_variance(), 1]))

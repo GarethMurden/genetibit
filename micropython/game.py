@@ -541,7 +541,10 @@ def screen_breeding_animation():
             ]
         DATA['breeding']['children'].append({
             'genes':child_genotype,
-            'ancestors':critters.build_ancestry(mother, father)
+            'ancestors':[
+                mother.get_phenotype()["string"],
+                father.get_phenotype()["string"]
+            ]
         })
 
     # HATCHING ANIMATION
@@ -714,6 +717,7 @@ def screen_breeding_sale(children):
                                 })
                         del DATA['breeding']['sell_selections']
                         DATA['breeding']['cursor_index'] = 0
+                        DATA['breeding']['children'] = []
                         data_save()
                         CURRENT_SCREEN = 'field'
                         break
