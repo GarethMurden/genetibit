@@ -2,8 +2,8 @@ import random
 import time
 
 HEAD_OPTIONS = ['sa', 'se', 'shi', 'so', 'su']
-BODY_OPTIONS = ['ka', 'ke', 'ki',  'ko', 'ku']
-LEG_OPTIONS = ['chi', 'ta', 'te',  'to', 'tsu']
+BODY_OPTIONS = ['ka', 'ke', 'ki',  'ko', 'ku']  # changed to antlers/ears
+LEG_OPTIONS = ['chi', 'ta', 'te',  'to', 'tsu'] # changed to tails
 
 class Critter():
     def __init__(self, genes, ancestors=['unknown','unknown'], position=None, uid=None):
@@ -18,7 +18,7 @@ class Critter():
         self.cooldown = None
         if uid is None:
             self.uid = generate_id()
-            self.set_cooldown()
+            # self.set_cooldown()
         else:
             self.uid = uid
         
@@ -32,6 +32,13 @@ class Critter():
             return 'green'
         if 'red' in colour and 'yellow' in colour:
             return 'orange'
+
+    def get_cooldown_end(self):
+        if self.cooldown is None:
+            end = ''
+        else:
+            end = self.cooldown['end']
+        return end
 
     def get_gamete(self):
         return {
@@ -90,7 +97,8 @@ class Critter():
 
         return {
             'phenotype':{'rank':ranks[ph_rank -1], 'value':ph_total},
-            'attributes':[ph_head, ph_body, ph_legs],
+             #            antlers, head,    tail   
+            'attributes':[ph_body, ph_head, ph_legs],
             'heterozygousity':heterozygousity
         }
 
@@ -118,29 +126,16 @@ class Critter():
                     self.position[1] = self.position[1] + change
         return self.get_position()
 
-    def set_cooldown(self, seconds=0):
-        self.cooldown = {'duration':seconds, 'end':time.time() + seconds}
+    def set_cooldown(self, seconds, end_time):
+        self.cooldown = {'duration':seconds, 'end':end_time}
 
-    def check_cooldown(self):
+    def check_cooldown(self, current_time):
         in_effect = False
-        icon = 'timeout/001'
+        icon = None
         if self.cooldown is not None:
-            current_time = time.time()
             if self.cooldown['end'] > current_time:
                 in_effect = True
-                timeout_files = {
-                    1: '006',
-                    20:'005',
-                    40:'004',
-                    60:'003',
-                    80:'002',
-                    95:'001'
-                }
-                remaining = self.cooldown['end'] - current_time
-                percentage = int(remaining / self.cooldown['duration'] * 100)
-                for key in timeout_files:
-                    if percentage > key:
-                        icon = f'timeout/{timeout_files[key]}'
+                icon = 'zzz'
         return in_effect, icon
 
 def build_ancestry(parent_a, parent_b):
@@ -206,6 +201,20 @@ def generate_random_genes():
     head =   random.choice(HEAD_OPTIONS)
     body =   random.choice(BODY_OPTIONS)
     legs =   random.choice(LEG_OPTIONS)
+    return {
+        'colour':[colour, random.choice([colour, random.choice(colours)])],
+        'head':  [head,   random.choice([head,   random.choice(HEAD_OPTIONS)])],
+        'body':  [body,   random.choice([body,   random.choice(BODY_OPTIONS)])],
+        'legs':  [legs,   random.choice([legs,   random.choice(LEG_OPTIONS)])]
+    }
+
+def generate_specific_genes(target):
+    '''generate genes aiming for target level, with cance of heterozygousity'''
+    colours = ['red', 'yellow', 'blue']
+    colour = random.choice(colours)
+    head = HEAD_OPTIONS[target[0] -1]
+    body = BODY_OPTIONS[target[1] -1]
+    legs = LEG_OPTIONS[ target[2] -1]
     return {
         'colour':[colour, random.choice([colour, random.choice(colours)])],
         'head':  [head,   random.choice([head,   random.choice(HEAD_OPTIONS)])],

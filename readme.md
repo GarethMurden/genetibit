@@ -49,28 +49,41 @@ Connect two devices to breed your critters with your friends'
 
 ## To do
 
-- Features
-	- Factfile screen
-		- Show gold total increase on sell confirmation
-	- Field upgrades
-	- Competitions
-	- Device-to-device communication
-	- Replace body variants with more obvious horn/ear variants
+- Hardware
+	- Battery
+		- connect via lipoamigo 
+		- power switch
+	- Buttons
+		- bypass on-display mini buttons
 
-- Art / UI components
-	- Sell single critter UI
-	- Field upgrade menu icon
-	- Factfile sell confirmation message
-	- New horn/ear variants
+- Features
+	- Field
+		- Upload lvl1 & lvl2 field parts
+		- Replace upgrade UI when all levels unlocked
+	- Visit
+		- Display current gold total
+	- Travel
+		- Charge for plane travel after destination selection via map
+	- Breeding results
+		- Change rank indicator to factfile style bars
+	- Competitions
+		- Contest unlocked animation
+	- Show current & incremented gold on breeding sell screen
+	- Prevent sale of last 2 critters
+	- Indicate breeding cooldown with sleep idle animation
+	- Device-to-device communication
+	- Intro sequence
+	- Tutorial
+	- Reset & start again
 
 - Fixes
+	- Improve visitor selction screen performance
+	- Error text appears on factfile when creature asleep
 	- Prevent critters sharing a space on the field
 	- ENOENT error on field, e.g. MISSING ASSET - "field_parts/lvl0/81"
-	- Travel text appears before background changes
-	- Cursors don't move to right on breeding screen after first selection
-	- Price sticks after menu close
-	- Closing menu doesn't necessary refresh screen
-	- Opening menu within breeding result flow should not be allowed
+	- Price sticks after menu close - always show the gold banner?
+	- Limit ancestry in data.json to x generations
+	- Move infrequently used data to disk to save memory
 
 ## Resources 
 

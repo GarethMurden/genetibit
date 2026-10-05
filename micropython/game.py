@@ -9,6 +9,8 @@ from random import choice, randint
 import _thread
 from time import sleep, time
 import critters
+import contest
+import clock
 
 button_a = Pin(12, Pin.IN, Pin.PULL_UP)
 button_b = Pin(13, Pin.IN, Pin.PULL_UP)
@@ -29,11 +31,36 @@ display.clear()
 
 COOLDOWNS = {
     'breeding': 120, # cooldown before critter can be bred again
-    'stock':   3600  # cooldown before market restocks sold items
 }
 
 MENU_OPEN = False
 CURRENT_SCREEN = 'field'
+CONTESTS = {
+    'Ottawa':{
+        'intro':'This year\'s head judge is famous for his critters\nwith giant antlers.',
+        'position':( 29, 12)
+    },
+    'Berlin':{
+        'intro':'Long tails are all the rage, the judges will love\nany critters with beautiful bushy tails!',
+        'position':(141, 12)
+    },
+    'Tokyo':{
+        'intro':'Cute critters are popular here, the one with\nthe most adorable face will probably win.',
+        'position':(244, 12)
+    },
+    'Brasilia':{
+        'intro':'Top tip: go for something extravagent. Big horns,\nbig tails, go wild!',
+        'position':(29, 190)
+    },
+    'Pretoria':{
+        'intro':'The locals favour understated critters, does\nyours look like it could survive in the wild?',
+        'position':(141, 190)
+    },
+    'Canberra':{
+        'intro':'These judges value symmetry and balance, good\nbody shape and coordination will score highly.',
+        'position':(244, 190)
+    }
+}
 DATA = {
     'breeding':{
         'cursor_index':0,
@@ -41,6 +68,26 @@ DATA = {
         'right_critter_index':1
     },
     'critters':[],
+    'contests':{
+        'Ottawa':{
+            'unlocked':True
+        },
+        'Berlin':{
+            'unlocked':True
+        },
+        'Tokyo':{
+            'unlocked':False
+        },
+        'Brasilia':{
+            'unlocked':False
+        },
+        'Pretoria':{
+            'unlocked':False
+        },
+        'Canberra':{
+            'unlocked':False
+        }
+    },
     'field':{
         'cursor_index':0,
         'level':0,
@@ -48,9 +95,18 @@ DATA = {
             4,
             6,
             8
+        ],
+        'upgrade_prices':[
+            0, # free starting level
+            100,
+            500
         ]
     },
     'gold':0,
+    'settings':{
+        'cursor_index':0,
+        'brightness':0.6
+    },
     'travel':{
         'items':[
             {
@@ -69,13 +125,9 @@ DATA = {
                 'sprite':'travel/earth',
                 'price':150,
                 'cooldown':None,
-                'cooldown_duration':300 # 300 sec = 5 min
+                'cooldown_duration':5 # 300 sec = 5 min # TODO: adjust this
             }
         ]
-    },
-    'settings':{
-        'cursor_index':0,
-        'brightness':0.6
     }
 }
 POPULATION = []
@@ -153,7 +205,7 @@ class Layer_class():
             png.open_file(f"assets/{filename}.png")
         except OSError:
             print(f'[ DISPLAY ]: MISSING ASSET - "{filename}"')
-            raise
+            # raise
         png.decode(position[0], position[1], scale=scale)
         self.display_busy = False
         led.set_rgb(0, 0, 0)
@@ -161,11 +213,11 @@ class Layer_class():
 def data_cooldown_active(cooldown_end):
     if cooldown_end is None:
         return False
-    current_time = time()
-    if cooldown_end < current_time:
-        return False
-    else:
+    if Clock.is_in_the_past(cooldown_end):
+        print(f'[ DEBUG   ]: Cooldown ends in {Clock.get_seconds_until(cooldown_end)}s')
         return True
+    else:
+        return False
 
 def data_clear_screen():
     '''clear cached data only needed while screen open'''
@@ -176,12 +228,13 @@ def data_load():
     global DATA
     print('[ DATA    ]: Load')
     save_file = 'data.json'
-    if not file_exits(save_file):
+    if file_exits(save_file):
+        with open(save_file, 'r', encoding='utf-8') as f:
+            DATA = json.loads(f.read())
+    else:
         DATA['critters'] += critters.generate_starters()
         DATA['gold'] = 0
-        data_save()
-    with open(save_file, 'r', encoding='utf-8') as f:
-        DATA = json.loads(f.read())
+    
 
 def data_save():
     print('[ DATA    ]: Save')
@@ -268,6 +321,7 @@ def menu():
     Layers.top = None
     Layers.menu_cursor = None
     print('[ MENU    ]: menu closed')
+    Layers.show()
     
 def menu_move_cursor(position):
     cursor_positions = [
@@ -383,17 +437,35 @@ def screen_breeding(mother, population_index=None):
 
         if button_y.value() == 0:
             update_screen = True
-            cooldown, _ = candidates[DATA['breeding']['right_critter_index']].check_cooldown()
+            cooldown, _ = candidates[DATA['breeding']['right_critter_index']].check_cooldown(Clock.get_datetime())
             if not cooldown:
                 led.set_rgb(0, 10, 0)
-                candidates[DATA['breeding']['right_critter_index']].set_cooldown( seconds=COOLDOWNS['breeding'])
+
+                cooldown_end = Clock.get_seconds_from_now(COOLDOWNS['breeding'])
+                candidates[DATA['breeding']['right_critter_index']].set_cooldown( 
+                    COOLDOWNS['breeding'], # duration
+                    cooldown_end # end time
+                )
+                print(f"[ DEBUG   ]: {candidates[DATA['breeding']['right_critter_index']].get_name()} breeding cooldown set to {cooldown_end}")
+                
+                mother.set_cooldown( 
+                    COOLDOWNS['breeding'], # duration
+                    cooldown_end # end time
+                )
+                print(f"[ DEBUG   ]: {mother.get_name()} breeding cooldown set to {cooldown_end}")
+
+
                 CURRENT_SCREEN = 'breeding_animation' # change screen on next loop iteration
 
                 BREEDING_PAIR['mother'] = mother
                 BREEDING_PAIR['father'] = candidates[DATA['breeding']['right_critter_index']]
                 
                 if population_index is not None:
-                    POPULATION[population_index].set_cooldown( seconds=COOLDOWNS['breeding'])
+                    POPULATION[population_index].set_cooldown( 
+                        COOLDOWNS['breeding'], # duration
+                        Clock.get_seconds_from_now(COOLDOWNS['breeding']) # end time
+                    )
+
             else:
                 led.set_rgb(50, 0, 0)
         
@@ -411,11 +483,11 @@ def screen_breeding(mother, population_index=None):
                 }
             ]
 
-            cooldown, icon = candidates[DATA['breeding']['right_critter_index']].check_cooldown()
+            cooldown, icon = candidates[DATA['breeding']['right_critter_index']].check_cooldown(Clock.get_datetime())
             if cooldown:
                 Layers.middle.append({
                     'file':icon,
-                    'position':(260, 130),
+                    'position':(270, 65),
                     'scale':2
                 })
 
@@ -732,20 +804,6 @@ def screen_breeding_result():
     BREEDING_PAIR = {}
     screen_breeding_sale(children)
 
-def screen_bus_animation():
-    global CURRENT_SCREEN
-    Layers.cursor = None
-    Layers.text = None
-    for x in range(8):
-        left = -560 + (x * 80)
-        Layers.top = {
-            'file':'transition_bus',
-            'position':(left, 0)
-        }
-        print('[ DISPLAY ]: Layers.show() in screen_bus_animation()')
-        Layers.show()
-    CURRENT_SCREEN = 'visitor'
-
 def screen_connect():
     global CURRENT_SCREEN
     Layers.clear_all()
@@ -771,20 +829,396 @@ def screen_connect():
             Layers.show()
             update_screen = False
 
+
+def screen_contest(city):
+    global CURRENT_SCREEN
+    Layers.clear_all()
+
+    Layers.background = {
+        'file':'contest',
+        'position':(0,0)
+    }
+
+    cursor_index = 1
+    cursor_positions = [
+        ( 92, 210), # previous
+        (145, 210), # confirm
+        (205, 210)  # next
+    ]
+    
+    critter_index = 0
+    next_critter_index = 1
+    previous_critter_index = len(POPULATION) -1
+    critters_changed = True
+    update_screen = True
+    while CURRENT_SCREEN == 'contest':
+        if button_x.value() == 0: # TODO: prevent menu access once contest paid for
+            menu()
+
+        if button_a.value() == 0:
+            cursor_index -= 1
+            if cursor_index < 0:
+                cursor_index = len(cursor_positions) -1
+            update_screen = True
+
+        if button_b.value() == 0:
+            cursor_index += 1
+            if cursor_index == len(cursor_positions):
+                cursor_index = 0
+            update_screen = True
+
+        if button_y.value() == 0:
+            if cursor_index == 0: # previous button
+                critter_index -= 1
+                if critter_index < 0:
+                    critter_index = len(POPULATION) -1
+                next_critter_index -= 1
+                if next_critter_index < 0:
+                    next_critter_index = len(POPULATION) -1
+                previous_critter_index -= 1
+                if previous_critter_index < 0:
+                    previous_critter_index = len(POPULATION) -1
+            if cursor_index == 2: # next button
+                critter_index += 1
+                if critter_index == len(POPULATION):
+                    critter_index = 0
+                next_critter_index += 1
+                if next_critter_index == len(POPULATION):
+                    next_critter_index = 0
+                previous_critter_index += 1
+                if previous_critter_index == len(POPULATION):
+                    previous_critter_index = 0
+            if cursor_index == 1: # confirm button
+                CURRENT_SCREEN = 'contest_results'
+            hint = contest.scoring(city, POPULATION[critter_index], hint=True)
+            if hint:
+                heart_positions = [
+                    ( 85, 43),
+                    (177, 67),
+                    (274, 42)
+                ]
+                Layers.top = {
+                    'file':'heart',
+                    'position':heart_positions[cursor_index]
+                }
+            else:
+                Layers.top = None
+            critters_changed = True
+            update_screen = True
+
+        if update_screen:
+            Layers.bottom = [{
+                'file':'contest_buttons',
+                'position':(0,0)
+            }]
+
+            Layers.cursor = {
+                'file':'cursor',
+                'position':cursor_positions[cursor_index]
+            }
+
+            # critter carousel
+            if critters_changed:
+                Layers.middle = [
+                    {
+                        'file':POPULATION[critter_index].get_sprite(),
+                        'position':(110, 120),
+                        'scale':3
+                    },
+                    {
+                        'file':POPULATION[previous_critter_index].get_sprite(),          
+                        'position':(65, 155),
+                        'scale':2
+                    }
+                ]
+                try:
+                    Layers.middle.append({
+                        'file':POPULATION[next_critter_index].get_sprite(),
+                        'position':(185, 155),
+                        'scale':2
+                    })
+                except IndexError: # only 2 critters in population
+                    pass
+
+                print('[ DISPLAY ]: Layers.show() in screen_contest()')
+                Layers.show(layers=['background', 'bottom', 'middle', 'top', 'cursor'])
+                critters_changed = False
+            else:
+                print('[ DISPLAY ]: Layers.show() in screen_contest()')
+                Layers.show(layers=['bottom', 'cursor'])
+            update_screen = False
+
+    scores = contest.scoring(city, POPULATION[critter_index])
+    Layers.top = {
+        'file':'contest_cards',
+        'position':(0, 0)
+    }
+    Layers.text = [
+        {
+            'text':str(scores[0]),
+            'position':(40, 60),
+            'scale':3
+        },
+        {
+            'text':str(scores[1]),
+            'position':(178, 60),
+            'scale':3
+        },
+        {
+            'text':str(scores[2]),
+            'position':(245, 34),
+            'scale':3
+        }
+    ]
+    print('[ DISPLAY ]: Layers.show() in screen_contest()')
+    Layers.show(['bottom', 'top', 'text'])
+    sleep(2)
+    screen_contest_result(city, POPULATION[critter_index], sum(scores))
+
+def screen_contest_result(city, entrant, score):
+    global DATA, CURRENT_SCREEN
+    steps = 6
+    for x in range(steps):
+        pos = 0 - (240 - int(240 / steps * (x + 1)))
+        Layers.top = {
+            'file':'curtain',
+            'position':(
+                0,
+                pos
+            )
+        }
+        Layers.show(['top'])
+
+    Layers.background = {
+        'file':'contest_results',
+        'position':(0,0)
+    }
+
+    # serious opponent
+    opponent_one = {
+        'critter':critters.Critter(critters.generate_specific_genes(contest.target(city)))
+    }
+    opponent_one['score'] = sum(contest.scoring(city, opponent_one['critter']))
+    
+    # random opponent
+    opponent_two = {
+        'critter':critters.Critter(critters.generate_random_genes())
+    }
+    opponent_two['score'] = sum(contest.scoring(city, opponent_two['critter']))
+
+    Layers.middle = [
+        {
+            'file':opponent_one['critter'].get_sprite(),
+            'position':(10, 120),
+            'scale': 3
+        },
+        {
+            'file':entrant.get_sprite(),
+            'position':(110, 110),
+            'scale': 3
+        },
+        {
+            'file':opponent_two['critter'].get_sprite(),
+            'position':(210, 120),
+            'scale': 3
+        }
+    ]
+
+    # tropies
+    ranks = [score, opponent_one['score'], opponent_two['score']]
+    ranks.sort()
+    ranks.reverse()
+    if ranks[0] == ranks[1]:
+        ranks[0] += 1
+    if ranks[1] == ranks[2]:
+        ranks[2] -= 1
+    trophies = [
+        'gold',
+        'silver',
+        'bronze'
+    ]
+    
+    Layers.middle.append({ # player's critter
+        'file': f'trophy_{trophies[ranks.index(score)]}',
+        'position': (150, 60),
+        'scale': 2
+    })
+    Layers.middle.append({
+        'file': f'trophy_{trophies[ranks.index(opponent_one["score"])]}',
+        'position': (53, 80),
+        'scale': 2
+    })
+    Layers.middle.append({
+        'file': f'trophy_{trophies[ranks.index(opponent_two["score"])]}',
+        'position': (245, 80),
+        'scale': 2
+    })
+    Layers.middle.append({
+        'file':'cursor',
+        'position':(152, 201)
+    })
+
+    # result message
+    trophy_message = [
+        {
+            'text':'Gold! Congratulations!',
+            'position':(39, 17),
+            'scale':2
+        },
+        {
+            'text':'Second place! Well done',
+            'position':(38, 17),
+            'scale':2
+        },
+        {
+            'text':'Your critter won Bronze!',
+            'position':(38, 17),
+            'scale':2
+        }
+    ]
+    Layers.text = [trophy_message[ranks.index(score)]]
+
+    Layers.show(['background', 'text', 'middle'])
+
+    if DATA['contests'][city]['unlocked'] == 'gold':
+        print('[ DEBUG   ]: previously won gold here')
+        unlock_contest = False # previously won gold here
+    elif DATA['contests'][city]['unlocked'] == 'silver' and trophies[ranks.index(score)] == 'gold':
+        print('[ DEBUG   ]: improved on previous result')
+        unlock_contest = True # improved on previous result
+    elif DATA['contests'][city]['unlocked'] == 'bronze' and trophies[ranks.index(score)] in ['gold', 'silver']:
+        print('[ DEBUG   ]: improved on previous result')
+        unlock_contest = True # improved on previous result
+    elif DATA['contests'][city]['unlocked'] == True and trophies[ranks.index(score)] != 'bronze':
+        print('[ DEBUG   ]: 1st try & won gold/silver')
+        unlock_contest = True # 1st try & won gold/silver
+    else:
+        print('[ DEBUG   ]: did not improve / won bronze')
+        unlock_contest = False # did not improve / won bronze
+    DATA['contests'][city]['unlocked'] = trophies[ranks.index(score)]
+    data_save()
+
+    while CURRENT_SCREEN == 'contest_results':
+        if button_y.value() == 0:
+            if unlock_contest:
+                screen_contets_unlock()
+            else:
+                screen_transition(
+                    'transition_plane',
+                    'field',
+                    step_size=80,
+                    step_count=8
+                )
+                screen_field()
+
+def screen_contets_unlock():
+    global CURRENT_SCREEN
+    locked_contests = [c for c in DATA['contests'] if not DATA['contests'][c]['unlocked']]
+    if len(locked_contests) > 0:
+        next_contest = choice(locked_contests)
+        DATA['contests'][next_contest]['unlocked'] = True
+        print(f'[ DEBUG   ]: You can now enter the {next_contest} contest')
+        # TODO:
+        # - Animation showing unlocked contest
+
+    else:
+        pass
+        # TODO:
+        # - All contests unlocked
+        # - If all Gold, show "world champ" screen
+    data_save()
+    screen_transition(
+        'transition_plane',
+        'field',
+        step_size=80,
+        step_count=8
+    )
+    screen_field()
+
 def screen_contest_map():
+    global CURRENT_SCREEN
+
+    # TODO: Charge for travel at this point
+
     Layers.clear_all()
     Layers.background = {
         'file':'world_map',
         'position':(0, 0)
     }
 
+    Layers.middle = []
+    for contest in CONTESTS:
+        if not DATA['contests'][contest]['unlocked']:
+            Layers.middle.append({
+                'file':'padlock',
+                'position': CONTESTS[contest]['position']
+            })
+        elif not DATA['contests'][contest]['unlocked'] == True:
+            Layers.middle.append({
+                'file':f"trophy_{DATA['contests'][contest]['unlocked']}",
+                'position': CONTESTS[contest]['position']
+            })
+
+    cursor_index = 0
+    cursor_positions = []
+    unlocked_countries = []
+    for city in CONTESTS:
+        if DATA['contests'][city]['unlocked']:
+            cursor_positions.append(CONTESTS[city]['position'])
+            unlocked_countries.append(city)
+
     update_screen = True
     while CURRENT_SCREEN == 'contest_map':
-        if button_x.value() == 0:
-            menu()
+        if button_a.value() == 0:
+            cursor_index -= 1
+            if cursor_index < 0:
+                cursor_index = len(cursor_positions) -1
             update_screen = True
 
+        if button_b.value() == 0:
+            cursor_index += 1
+            if cursor_index >= len(cursor_positions) :
+                cursor_index = 0
+            update_screen = True
+
+        if button_y.value() == 0:
+            CURRENT_SCREEN = 'contest'
+            sleep(0.5)
+            screen_contest(unlocked_countries[cursor_index])
+
         if update_screen:
+            Layers.cursor = {
+                'file':'selector',
+                'position':(
+                    cursor_positions[cursor_index][0] + 2,
+                    cursor_positions[cursor_index][1] + 2
+                )
+            }
+
+            if cursor_positions[cursor_index][1] < 100:
+                # flag from top row highligted
+                text_box = 'world_map_text_bottom'
+                text_position = {'title':(122, 145), 'intro':(38, 168)}
+            else:
+                text_box = 'world_map_text_top'
+                text_position = {'title':(122, 44), 'intro':(38, 61)}
+
+            Layers.top = {
+                'file':text_box,
+                'position': (0,0)
+            }
+            Layers.text = [
+                {
+                    'text':unlocked_countries[cursor_index].upper().center(8),
+                    'position':text_position['title'],
+                    'scale':2
+                },
+                {
+                    'text':CONTESTS[unlocked_countries[cursor_index]]['intro'],
+                    'position':text_position['intro']
+                }
+            ]
+
             print('[ DISPLAY ]: Layers.show() in screen_contest_map()')
             Layers.show()
             update_screen = False
@@ -801,11 +1235,13 @@ def screen_factfile(cursor_index=0):
         'position':(0, 0)
     }
     critter = POPULATION[DATA["field"]["cursor_index"]]
-    Layers.bottom = [{
-        'file':critter.get_sprite(),
-        'position':(10, 80),
-        'scale': 4
-    }]
+    Layers.bottom = [
+        {
+            'file':critter.get_sprite(),
+            'position':(10, 80),
+            'scale': 4
+        }
+    ]
     value = critter.get_value()
     Layers.text = [
         {
@@ -819,6 +1255,19 @@ def screen_factfile(cursor_index=0):
             'scale':2
         }
     ]
+
+    if critter.get_cooldown_end() != '':
+        Layers.bottom.append({
+            'file':'zzz', # cooldown indicator
+            'position':(115, 80),
+            'scale': 2
+        })
+        _, reset_in = Clock.get_seconds_until(critter.get_cooldown_end())
+        Layers.text.append({
+            'text':f'{reset_in}s',
+            'position':(115, 70),
+            'scale':2
+        })
 
     Layers.middle = []
     v_offset = 32
@@ -899,7 +1348,6 @@ def screen_factfile(cursor_index=0):
 
     if show_next_critter: # reload fact file with next critter's data
         screen_factfile(cursor_index)
-
 
 def screen_factfile_sell(critter, population_index):
     global CURRENT_SCREEN, POPULATION
@@ -1154,60 +1602,119 @@ def screen_gold_animation(change, show_box=False):
         print('[ DISPLAY ]: Layers.show() in screen_gold_animation()')
         Layers.show()
 
-def screen_plane_animation():
+def screen_settings():
+    # TODO: remove debug gold button from background
+    global DATA, CURRENT_SCREEN
+    Layers.clear_all()
+    cursor_positions = [
+        ( 40,  65),
+        (140,  65),
+        ( 89, 115)
+    ]
+    Layers.background = {
+        'file':'settings',
+        'position':(0, 0)
+    }
+    Layers.show(layers=['background'])
+    displayed_time = Clock.get_time()[:-3]
+    cursor_index = 0
+    update_screen = True
+    print(f'[ SETTING ]: {CURRENT_SCREEN=}, {update_screen=}')
+    while CURRENT_SCREEN == 'settings':
+        if button_a.value() == 0:
+            if button_b.value() == 0:
+                print(f'[ DEBUG   ]: Set gold to 500')
+                DATA['gold'] = 500
+                menu()
+            update_screen = True
+            cursor_index -= 1
+            if cursor_index < 0:
+                cursor_index = len(cursor_positions) -1
+        if button_b.value() == 0:
+            update_screen = True
+            cursor_index += 1
+            if cursor_index > len(cursor_positions) -1:
+                cursor_index = 0
+        if button_y.value() == 0:
+            update_screen = True
+            if cursor_index == 0:
+                update_screen = True
+                DATA['settings']['brightness'] = max([
+                    DATA['settings']['brightness'] - 0.2,
+                    0.2
+                ])
+                display.set_backlight(DATA['settings']['brightness'])
+            if cursor_index == 1:
+                DATA['settings']['brightness'] = min([
+                    DATA['settings']['brightness'] + 0.2,
+                    1.0
+                ])
+                display.set_backlight(DATA['settings']['brightness'])
+            if cursor_index == 2:
+                # TODO: Reset confirmation & functionality
+                pass
+
+        if button_x.value() == 0:
+            menu()
+
+        current_time = Clock.get_time()[:-3]
+        if displayed_time != current_time:
+            displayed_time = current_time
+            print(f'[ DEBUG   ]: Update clock to {displayed_time}')
+            update_screen = True
+        Layers.text = [{
+            'text':displayed_time,
+            'position':(50, 200),
+            'scale':2
+        }]
+
+
+        if update_screen:
+            Layers.bottom = [{
+                'file':f"settings_brightness{DATA['settings']['brightness']}",
+                'position':(0, 0)
+            }]
+            Layers.cursor = {
+                'file':'cursor',
+                'position':cursor_positions[cursor_index]
+            }
+            print('[ DISPLAY ]: Layers.show() in screen_settings()')
+            Layers.show(layers=['background', 'bottom', 'cursor', 'text'])
+            update_screen = False
+    data_save()
+
+def screen_transition(filename, next_screen, step_size=80, step_count=8):
     global CURRENT_SCREEN
     Layers.cursor = None
     Layers.text = None
-    for x in range(8):
-        left = -560 + (x * 80)
+    for x in range(step_count):
+        left = -560 + (x * step_size)
         Layers.top = {
-            'file':'transition_plane',
+            'file':filename,
             'position':(left, 0)
         }
-        print('[ DISPLAY ]: Layers.show() in screen_plane_animation()')
-        Layers.show()
-    CURRENT_SCREEN = 'contest_map'
-    
+        print(f'[ DISPLAY ]: Layers.show() in screen_transition("{filename}")')
+        Layers.show(['top'])
+    CURRENT_SCREEN = next_screen
+
 def screen_travel():
+    Layers.clear_all()
     Layers.background = {
         'file':'travel',
         'position':(0, 0)
     }
 
-    item_coordinates = [
-        {'sprite':( 48, 75), 'price':( 53, 159)},
-        {'sprite':(143, 85), 'price':(153, 159)},
-        {'sprite':(240, 85), 'price':(250, 159)}
-    ]
     Layers.middle = []
     Layers.text = [{
         'text':str(DATA['gold']),
         'position':(285, 10)
     }]
-    for index, item in enumerate(DATA['travel']['items']):
-        Layers.middle.append({
-            'file':item['sprite'],
-            'position':item_coordinates[index]['sprite'],
-            'scale':2
-        })
-        Layers.text.append({
-            'text':str(item['price']),
-            'position':item_coordinates[index]['price']
-        })
-        if data_cooldown_active(item['cooldown']):
-            Layers.middle.append({
-                'file':'/travel/sold_out',
-                'position':(
-                    item_coordinates[index]['sprite'][0] - 15,
-                    item_coordinates[index]['sprite'][1] + 10
-                )
-            })
 
     item_bought = False
     cursor_positions = [
-        ( 55, 155),
-        (153, 155),
-        (248, 155)
+        ( 50, 125),
+        (148, 125),
+        (243, 125)
     ]
     cursor_index = 0
     update_screen = True
@@ -1231,21 +1738,9 @@ def screen_travel():
             update_screen = True
 
         if button_y.value() == 0:
-            if not data_cooldown_active(DATA['travel']['items'][cursor_index]['cooldown']):
-                if DATA['gold'] > DATA['travel']['items'][cursor_index]['price']:
-                    led.set_rgb(0, 10, 0)
-                    DATA['gold'] -= DATA['travel']['items'][cursor_index]['price']
-                    Layers.text[0] = {
-                        'text':str(DATA['gold']),
-                        'position':(285, 10)
-                    }
-                    DATA['travel']['items'][cursor_index]['cooldown'] = time() + DATA['travel']['items'][cursor_index]['cooldown_duration']
-                    item_bought = DATA['travel']['items'][cursor_index]['sprite']
-                else:
-                    led.set_rgb(50, 0, 0) # not enough gold
-            else:
-                led.set_rgb(50, 0, 0) # sold out
+            item_bought = DATA['travel']['items'][cursor_index]['sprite']
             update_screen = True
+            break
 
         if update_screen:
             Layers.cursor = {
@@ -1257,81 +1752,236 @@ def screen_travel():
             led.set_rgb(0, 0, 0)
             update_screen = False
 
-        if item_bought:
-            screen_gold_animation(0 - DATA['travel']['items'][cursor_index]['price'])
-            break
-
     if item_bought:
+        data_save()
         if 'earth' in item_bought:
-            screen_plane_animation()
+            screen_transition(
+                'transition_plane',
+                'contest_map',
+                step_size=80,
+                step_count=8
+            )
             screen_contest_map()
         if 'bus' in item_bought:
-            screen_bus_animation()
+            screen_transition(
+                'transition_bus',
+                'visitor',
+                step_size=160,
+                step_count=4
+            )
             screen_visitor()
         if 'connect' in item_bought:
             screen_connect_animation()
             screen_connect()
 
-def screen_settings():
-    global DATA, CURRENT_SCREEN
+def screen_upgrade():
+    # TODO:
+    # - disallow spending & display different background if all levels unlocked
+
+    global CURRENT_SCREEN
     Layers.clear_all()
-    cursor_positions = [
-        ( 40, 65),
-        (140, 65)
-    ]
     Layers.background = {
-        'file':'settings',
+        'file':'upgrade_background',
         'position':(0, 0)
     }
-    Layers.show(layers=['background'])
-    cursor_index = 0
-    update_screen = True
-    print(f'[ SETTING ]: {CURRENT_SCREEN=}, {update_screen=}')
-    while CURRENT_SCREEN == 'settings':
-        if button_a.value() == 0:
-            update_screen = True
-            cursor_index -= 1
-            if cursor_index < 0:
-                cursor_index = 1
-        if button_b.value() == 0:
-            update_screen = True
-            cursor_index =+ 1
-            if cursor_index > 1:
-                cursor_index = 0
-        if button_y.value() == 0:
-            update_screen = True
-            if cursor_index == 1:
-                DATA['settings']['brightness'] = min([
-                    DATA['settings']['brightness'] + 0.2,
-                    1.0
-                ])
-                display.set_backlight(DATA['settings']['brightness'])
-            else:
-                update_screen = True
-                DATA['settings']['brightness'] = max([
-                    DATA['settings']['brightness'] - 0.2,
-                    0.2
-                ])
-                display.set_backlight(DATA['settings']['brightness'])
+    Layers.text = [
+        {
+            'text':str(DATA['gold']),
+            'position':(285, 10)
+        },
+        {
+            'text':str(DATA['field']['upgrade_prices'][1]),
+            'position':(152, 165)
+        },
+        {
+            'text':str(DATA['field']['upgrade_prices'][2]),
+            'position':(250, 165)
+        }
+    ]
 
+    cursor_horizontal_positions = [
+          0, # initial level
+        144, # upgrade 1
+        244  # upgrade 2
+    ]
+    cursor_positions = [
+        (cursor_horizontal_positions[DATA['field']['level'] +1], 205)
+    ]
+    cursor_index = 0
+
+    gold_contests = len([country for country in DATA['contests'] if DATA['contests'][country]['unlocked'] in ['gold']])
+    # 1st upgrade
+    if gold_contests <= 2:
+        trophy_icon = f'upgrade_trophy_{gold_contests}-2'
+    else:
+        trophy_icon = f'upgrade_trophy_2-2'
+    Layers.middle = [{
+        'file':trophy_icon,
+        'position':(142, 115)
+    }]
+    # 2nd upgrade
+    if gold_contests <= 4:
+        trophy_icon = f'upgrade_trophy_{gold_contests}-4'
+    else:
+        trophy_icon = f'upgrade_trophy_4-4'
+    Layers.middle.append({
+        'file':trophy_icon,
+        'position':(238, 115)
+    })
+    unlock_requirements = [
+        0, # game start
+        2, # 1st upgrade available after 2 unlocked
+        4  # 2nd upgrade available after 4 unlocked
+    ]
+
+    print('[ DISPLAY ]: Layers.show() in screen_upgrade()')
+    Layers.show()
+
+    update_screen = True
+    while CURRENT_SCREEN == 'upgrade':
         if button_x.value() == 0:
             menu()
 
+        if button_y.value() == 0:
+            # spend gold & apply upgrade
+            print(f'[ DEBUG   ]: {gold_contests=} unlock_requirements={unlock_requirements[DATA['field']['level'] +1]}')
+            if gold_contests >= unlock_requirements[DATA['field']['level'] +1]:
+                if DATA['gold'] > DATA['field']['upgrade_prices'][DATA['field']['level'] +1]:
+                    print(f'[ DEBUG   ]: unlock permitted')
+
+                    DATA['gold'] -= DATA['field']['upgrade_prices'][DATA['field']['level'] +1]
+                    DATA['field']['level'] += 1
+                    screen_transition(
+                        'transition_digger',
+                        'field',
+                        step_size=160,
+                        step_count=4
+                    )
+        
         if update_screen:
-            Layers.bottom = [{
-                'file':f"settings_brightness{DATA['settings']['brightness']}",
-                'position':(0, 0)
-            }]
             Layers.cursor = {
                 'file':'cursor',
                 'position':cursor_positions[cursor_index]
             }
-            print('[ DISPLAY ]: Layers.show() in screen_settings()')
-            Layers.show(layers=['background', 'bottom', 'cursor'])
+            print('[ DISPLAY ]: Layers.show() in screen_upgrade()')
+            Layers.show(['middle', 'cursor'])
             update_screen = False
-    data_save()
+
 
 def screen_visitor():
+    global CURRENT_SCREEN
+    Layers.clear_all()
+    Layers.background = {
+        'file':'visit',
+        'position':(0, 0)
+    }
+    cursor_positions = [
+        ( 25, 148),
+        (127, 167),
+        (220, 145)
+    ]
+    cursor_index = 0
+    Layers.cursor = {
+        'file':'visit_bus',
+        'position':cursor_positions[cursor_index],
+        'scale':2
+    }
+
+    unsorted_options = [
+        critters.Critter(critters.generate_random_genes()),
+        critters.Critter(critters.generate_random_genes()),
+        critters.Critter(critters.generate_random_genes())
+    ]
+    options = sorted(unsorted_options, key=lambda x: x.get_value()['phenotype']['value'])
+
+    Layers.middle = []
+    Layers.text = []
+    option_positions = [
+        ( 28,  15),
+        (125,  30),
+        (225,  10)
+    ]
+    stat_bar_positions = [
+        ( 50,  86),
+        (147, 100),
+        (246,  79)
+    ]
+    stat_bars = {
+        'D':'visit_stats_0',
+        'C':'visit_stats_1',
+        'B':'visit_stats_2',
+        'A':'visit_stats_3',
+        'S':'visit_stats_3'
+    }
+    for counter, option in enumerate(options):
+        Layers.middle.append({
+            'file':option.get_sprite(),
+            'position':option_positions[counter],
+            'scale':2
+        })
+        rank = option.get_value()['phenotype']['rank']
+        Layers.middle.append({
+            'file':stat_bars[rank],
+            'position':stat_bar_positions[counter]
+        })
+        Layers.text.append({
+            'text':str(option.get_value()['phenotype']['value'] * 10),
+            'position':(
+                option_positions[counter][0] + 5,
+                option_positions[counter][1] + 105
+            )
+        })
+        Layers.text.append({
+            'text':f"{option.get_value()['heterozygousity']}%",
+            'position':(
+                option_positions[counter][0] + 20,
+                option_positions[counter][1] + 50
+            ),
+            'scale':2
+        })
+
+    print('[ DISPLAY ]: Layers.show() in screen_visit()')
+    Layers.show()
+
+    update_screen = False
+    while CURRENT_SCREEN == 'visitor':
+        if button_x.value() == 0:
+            menu()
+
+        if button_a.value() == 0:
+            cursor_index -= 1
+            if cursor_index < 0:
+                cursor_index = len(cursor_positions) - 1
+            update_screen = True
+
+        if button_b.value() == 0:
+            cursor_index += 1
+            if cursor_index >= len(cursor_positions):
+                cursor_index = 0
+            update_screen = True
+
+        if button_y.value() == 0:
+            # TODO:
+            # - Check & deduct gold
+            led.set_rgb(0, 10, 0)
+            CURRENT_SCREEN = 'breeding'
+            screen_breeding(options[cursor_index])
+
+        if update_screen:
+            print('[ DISPLAY ]: Layers.show() in screen_visit()')
+            Layers.bottom = [{
+                'file':'visit_road',
+                'position':(0, 144)
+            }]
+            Layers.cursor = {
+                'file':'visit_bus',
+                'position':cursor_positions[cursor_index],
+                'scale':2
+            }
+            Layers.show(layers=['bottom', 'cursor'])
+            update_screen = False
+
+def screen_visitor_old():
     global CURRENT_SCREEN
     Layers.clear_all()
     Layers.background = {
@@ -1427,21 +2077,24 @@ def main():
     data_load()
     display.set_backlight(DATA['settings']['brightness'])
 
-    if len(POPULATION) < len(DATA['critters']):
-        for critter_data in DATA['critters']:
-            critter = critters.Critter(
-                critter_data['genes'],
-                critter_data['ancestors'],
-                position=(
-                    randint(10, 200),
-                    randint(10, 200)
-                ),
-                uid=critter_data['uid']
-            )
-            POPULATION.append(critter)
+    # if len(POPULATION) < len(DATA['critters']):
+    for critter_data in DATA['critters']:
+        critter = critters.Critter(
+            critter_data['genes'],
+            critter_data['ancestors'],
+            position=(
+                randint(10, 200),
+                randint(10, 200)
+            ),
+            uid=critter_data['uid']
+        )
+        POPULATION.append(critter)
+        print(f'[ DEBUG   ]: Initialize critter "{critter.get_name()}"')
+    data_save()
     led.set_rgb(0, 0, 0)
     screens()
 
 Layers = Layer_class()
+Clock = clock.Clock()
 main()
 
