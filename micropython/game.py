@@ -8,9 +8,11 @@ import pngdec
 from random import choice, randint
 import _thread
 from time import sleep, time
+
 import critters
 import contest
 import clock
+import system
 
 button_a = Pin(12, Pin.IN, Pin.PULL_UP)
 button_b = Pin(13, Pin.IN, Pin.PULL_UP)
@@ -235,8 +237,8 @@ def data_load():
         DATA['critters'] += critters.generate_starters()
         DATA['gold'] = 0
     
-
 def data_save():
+    print(f'[ SYSTEM  ]: Memory usage: {system.memory_in_use()}%')
     print('[ DATA    ]: Save')
     DATA['critters'] = []
     for critter in POPULATION:
