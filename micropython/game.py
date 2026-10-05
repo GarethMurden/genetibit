@@ -804,20 +804,6 @@ def screen_breeding_result():
     BREEDING_PAIR = {}
     screen_breeding_sale(children)
 
-def screen_bus_animation():
-    global CURRENT_SCREEN
-    Layers.cursor = None
-    Layers.text = None
-    for x in range(4):
-        left = -560 + (x * 160)
-        Layers.top = {
-            'file':'transition_bus',
-            'position':(left, 0)
-        }
-        print('[ DISPLAY ]: Layers.show() in screen_bus_animation()')
-        Layers.show()
-    CURRENT_SCREEN = 'visitor'
-
 def screen_connect():
     global CURRENT_SCREEN
     Layers.clear_all()
@@ -1117,9 +1103,13 @@ def screen_contest_result(city, entrant, score):
             if unlock_contest:
                 screen_contets_unlock()
             else:
-                screen_plane_animation()
+                screen_transition(
+                    'transition_plane',
+                    'field',
+                    step_size=80,
+                    step_count=8
+                )
                 screen_field()
-                CURRENT_SCREEN = 'field'
 
 def screen_contets_unlock():
     global CURRENT_SCREEN
@@ -1137,8 +1127,12 @@ def screen_contets_unlock():
         # - All contests unlocked
         # - If all Gold, show "world champ" screen
     data_save()
-    screen_plane_animation()
-    CURRENT_SCREEN = 'field'
+    screen_transition(
+        'transition_plane',
+        'field',
+        step_size=80,
+        step_count=8
+    )
     screen_field()
 
 def screen_contest_map():
@@ -1607,20 +1601,6 @@ def screen_gold_animation(change, show_box=False):
         print('[ DISPLAY ]: Layers.show() in screen_gold_animation()')
         Layers.show()
 
-def screen_plane_animation():
-    global CURRENT_SCREEN
-    Layers.cursor = None
-    Layers.text = None
-    for x in range(8):
-        left = -560 + (x * 80)
-        Layers.top = {
-            'file':'transition_plane',
-            'position':(left, 0)
-        }
-        print('[ DISPLAY ]: Layers.show() in screen_plane_animation()')
-        Layers.show(['top'])
-    CURRENT_SCREEN = 'contest_map'
-
 def screen_settings():
     global DATA, CURRENT_SCREEN
     Layers.clear_all()
@@ -1700,7 +1680,21 @@ def screen_settings():
             Layers.show(layers=['background', 'bottom', 'cursor', 'text'])
             update_screen = False
     data_save()
-    
+
+def screen_transition(filename, next_screen, step_size=80, step_count=8):
+    global CURRENT_SCREEN
+    Layers.cursor = None
+    Layers.text = None
+    for x in range(step_count):
+        left = -560 + (x * step_size)
+        Layers.top = {
+            'file':filename,
+            'position':(left, 0)
+        }
+        print(f'[ DISPLAY ]: Layers.show() in screen_transition("{filename}")')
+        Layers.show(['top'])
+    CURRENT_SCREEN = next_screen
+
 def screen_travel():
     Layers.clear_all()
     Layers.background = {
@@ -1759,10 +1753,20 @@ def screen_travel():
     if item_bought:
         data_save()
         if 'earth' in item_bought:
-            screen_plane_animation()
+            screen_transition(
+                'transition_plane',
+                'contest_map',
+                step_size=80,
+                step_count=8
+            )
             screen_contest_map()
         if 'bus' in item_bought:
-            screen_bus_animation()
+            screen_transition(
+                'transition_bus',
+                'visitor',
+                step_size=160,
+                step_count=4
+            )
             screen_visitor()
         if 'connect' in item_bought:
             screen_connect_animation()
@@ -1836,12 +1840,17 @@ def screen_upgrade():
         if button_y.value() == 0:
             # TODO: 
             # - Spend gold & apply upgrade
-            # - Upgrade animation
 
             print(f'[ DEBUG   ]: {gold_contests=} unlock_requirements={unlock_requirements[DATA['field']['level'] +1]}')
             if gold_contests >= unlock_requirements[DATA['field']['level'] +1]:
                 if DATA['gold'] > DATA['field']['upgrade_prices'][DATA['field']['level'] +1]:
                     print(f'[ DEBUG   ]: unlock permitted')
+                    screen_transition(
+                        'transition_digger',
+                        'field',
+                        step_size=160,
+                        step_count=4
+                    )
         
         if update_screen:
             Layers.cursor = {
