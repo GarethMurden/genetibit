@@ -211,6 +211,13 @@ class Layer_class():
         self.display_busy = False
         led.set_rgb(0, 0, 0)
 
+def initialize():
+    global CONTESTS, DATA
+    with open('initial_values.json', 'r', encoding='utf-8') as f:
+        initial_values = json.loads(f.read())
+    CONTESTS = initial_values['CONTESTS']
+    DATA = initial_values['DATA']
+
 def data_cooldown_active(cooldown_end):
     if cooldown_end is None:
         return False
@@ -238,7 +245,6 @@ def data_load(initialize_population=False):
         DATA['gold'] = 0
     if initialize_population:
         POPULATION = []
-        print(f'[ DEBUG   ]: Population  {len(POPULATION)} critter(s)')
         display.set_backlight(DATA['settings']['brightness'])
         for critter_data in DATA['critters']:
             critter = critters.Critter(
@@ -1608,6 +1614,8 @@ def screen_field_movement():
 
 def screen_gold_animation(change, show_box=False):
     if show_box:
+        if Layers.middle is None:
+            Layers.middle = []
         Layers.middle.append({
             'file':'gold',
             'position':(0,0)
@@ -1770,6 +1778,7 @@ def screen_settings_reset():
 
     if reset:
         os.remove('data.json')
+        initialize()
         data_load(initialize_population=True)
         data_save()
         CURRENT_SCREEN = 'field'
@@ -2170,7 +2179,7 @@ def screen_visitor_old():
 
 def main():
     led.set_rgb(75, 25, 0)
-    global POPULATION
+    initialize()
     data_load(initialize_population=True)
     data_save()
     led.set_rgb(0, 0, 0)
