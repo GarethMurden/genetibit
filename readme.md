@@ -62,8 +62,6 @@ Connect two devices to breed your critters with your friends'
 		- Replace upgrade UI when all levels unlocked
 	- Visit
 		- Display current gold total
-	- Travel
-		- Charge for plane travel after destination selection via map
 	- Breeding results
 		- Change rank indicator to factfile style bars
 	- Competitions
@@ -77,13 +75,9 @@ Connect two devices to breed your critters with your friends'
 	- Reset & start again
 
 - Fixes
-	- Improve visitor selction screen performance
-	- Error text appears on factfile when creature asleep
 	- Prevent critters sharing a space on the field
 	- ENOENT error on field, e.g. MISSING ASSET - "field_parts/lvl0/81"
 	- Price sticks after menu close - always show the gold banner?
-	- Limit ancestry in data.json to x generations
-	- Move infrequently used data to disk to save memory
 
 ## Resources 
 

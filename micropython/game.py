@@ -1,10 +1,13 @@
+from picographics import PicoGraphics, DISPLAY_PICO_DISPLAY_2, PEN_RGB332
+import pngdec
+
+display = PicoGraphics(display=DISPLAY_PICO_DISPLAY_2, pen_type=PEN_RGB332) # size = 320 x 240
+png = pngdec.PNG(display)
 
 import json
 from machine import Pin
 import os
-from picographics import PicoGraphics, DISPLAY_PICO_DISPLAY_2, PEN_RGB332
 from pimoroni import RGBLED
-import pngdec
 from random import choice, randint
 import _thread
 from time import sleep, time
@@ -20,10 +23,6 @@ button_x = Pin(14, Pin.IN, Pin.PULL_UP)
 button_y = Pin(15, Pin.IN, Pin.PULL_UP)
 
 led = RGBLED(26, 27, 28)
-
-display = PicoGraphics(display=DISPLAY_PICO_DISPLAY_2, pen_type=PEN_RGB332) # size = 320 x 240
-
-png = pngdec.PNG(display)
 
 TEXT = display.create_pen(0, 0, 0)
 TEXT_RED = display.create_pen(200, 0, 0)
@@ -226,16 +225,33 @@ def data_clear_screen():
     global DATA
     DATA['breeding']['cursor_index'] = 0
     
-def data_load():
-    global DATA
+def data_load(initialize_population=False):
+    global DATA, POPULATION
     print('[ DATA    ]: Load')
     save_file = 'data.json'
     if file_exits(save_file):
         with open(save_file, 'r', encoding='utf-8') as f:
             DATA = json.loads(f.read())
     else:
-        DATA['critters'] += critters.generate_starters()
+        print('[ DEBUG   ]: No saved data, generate starters')
+        DATA['critters'] = critters.generate_starters()
         DATA['gold'] = 0
+    if initialize_population:
+        POPULATION = []
+        print(f'[ DEBUG   ]: Population  {len(POPULATION)} critter(s)')
+        display.set_backlight(DATA['settings']['brightness'])
+        for critter_data in DATA['critters']:
+            critter = critters.Critter(
+                critter_data['genes'],
+                critter_data['ancestors'],
+                position=(
+                    randint(10, 200),
+                    randint(10, 200)
+                ),
+                uid=critter_data['uid']
+            )
+            POPULATION.append(critter)
+            print(f'[ DEBUG   ]: Initialize critter "{critter.get_name()}"')
     
 def data_save():
     print(f'[ SYSTEM  ]: Memory usage: {system.memory_in_use()}%')
@@ -469,7 +485,7 @@ def screen_breeding(mother, population_index=None):
                     )
 
             else:
-                led.set_rgb(50, 0, 0)
+                led.set_rgb(50, 0, 0) # TODO: not enough gold indicator
         
         if update_screen:
             Layers.middle = [
@@ -1143,9 +1159,6 @@ def screen_contets_unlock():
 
 def screen_contest_map():
     global CURRENT_SCREEN
-
-    # TODO: Charge for travel at this point
-
     Layers.clear_all()
     Layers.background = {
         'file':'world_map',
@@ -1165,6 +1178,8 @@ def screen_contest_map():
                 'position': CONTESTS[contest]['position']
             })
 
+    travel_cost = 100
+
     cursor_index = 0
     cursor_positions = []
     unlocked_countries = []
@@ -1175,6 +1190,9 @@ def screen_contest_map():
 
     update_screen = True
     while CURRENT_SCREEN == 'contest_map':
+        if button_x.value() == 0:
+            menu()
+
         if button_a.value() == 0:
             cursor_index -= 1
             if cursor_index < 0:
@@ -1188,9 +1206,13 @@ def screen_contest_map():
             update_screen = True
 
         if button_y.value() == 0:
-            CURRENT_SCREEN = 'contest'
-            sleep(0.5)
-            screen_contest(unlocked_countries[cursor_index])
+            if DATA['gold'] >= travel_cost:
+                DATA['gold'] -= travel_cost
+                CURRENT_SCREEN = 'contest'
+                sleep(0.5)
+                screen_contest(unlocked_countries[cursor_index])
+            else:
+                led.set_rgb(50, 0, 0) # TODO: not enough gold indicator
 
         if update_screen:
             Layers.cursor = {
@@ -1204,10 +1226,10 @@ def screen_contest_map():
             if cursor_positions[cursor_index][1] < 100:
                 # flag from top row highligted
                 text_box = 'world_map_text_bottom'
-                text_position = {'title':(122, 145), 'intro':(38, 168)}
+                text_position = {'title':(122, 145), 'intro':(38, 168), 'gold':(250, 205)}
             else:
                 text_box = 'world_map_text_top'
-                text_position = {'title':(122, 44), 'intro':(38, 61)}
+                text_position = {'title':(122, 44), 'intro':(38, 61), 'gold':(250, 103)}
 
             Layers.top = {
                 'file':text_box,
@@ -1222,6 +1244,10 @@ def screen_contest_map():
                 {
                     'text':CONTESTS[unlocked_countries[cursor_index]]['intro'],
                     'position':text_position['intro']
+                },
+                {
+                    'text':str(travel_cost),
+                    'position':text_position['gold']
                 }
             ]
 
@@ -1363,7 +1389,7 @@ def screen_factfile_sell(critter, population_index):
             'position':(0,0)
         },
         {
-            'file':'confirm_sell_buttons',
+            'file':'confirm_buttons',
             'position':(43, 120)
         }
     ]
@@ -1625,11 +1651,11 @@ def screen_settings():
     displayed_time = Clock.get_time()[:-3]
     cursor_index = 0
     update_screen = True
-    print(f'[ SETTING ]: {CURRENT_SCREEN=}, {update_screen=}')
     while CURRENT_SCREEN == 'settings':
         if button_a.value() == 0:
             if button_b.value() == 0:
-                print(f'[ DEBUG   ]: Set gold to 500')
+                print('[ DEBUG   ]: Set gold to 500')
+                screen_gold_animation(500, True)
                 DATA['gold'] = 500
                 menu()
             update_screen = True
@@ -1642,6 +1668,7 @@ def screen_settings():
             if cursor_index > len(cursor_positions) -1:
                 cursor_index = 0
         if button_y.value() == 0:
+            print(f'[ DEBUG   ]: {cursor_index=}')
             update_screen = True
             if cursor_index == 0:
                 update_screen = True
@@ -1657,8 +1684,7 @@ def screen_settings():
                 ])
                 display.set_backlight(DATA['settings']['brightness'])
             if cursor_index == 2:
-                # TODO: Reset confirmation & functionality
-                pass
+                screen_settings_reset()
 
         if button_x.value() == 0:
             menu()
@@ -1688,6 +1714,68 @@ def screen_settings():
             Layers.show(layers=['background', 'bottom', 'cursor', 'text'])
             update_screen = False
     data_save()
+
+def screen_settings_reset():
+    global CURRENT_SCREEN
+    Layers.middle = [
+        {
+            'file':'confirm_reset',
+            'position':(0,0)
+        },
+        {
+            'file':'confirm_buttons',
+            'position':(43, 120)
+        }
+    ]
+    cursor_index = 0
+    cursor_positions = [
+        ( 75, 126),
+        (205, 126)
+    ]
+    print('[ DISPLAY ]: Layers.show() in screen_settings_reset()')
+    Layers.cursor = {
+        'file':'cursor',
+        'position':cursor_positions[cursor_index]
+    }
+    Layers.show(['middle', 'cursor'])
+    update_screen = False
+    reset = False
+    update_screen = False
+    while True:
+        if button_a.value() == 0:
+            cursor_index -= 1
+            if cursor_index < 0:
+                cursor_index = len(cursor_positions) - 1
+            update_screen = True
+        if button_b.value() == 0:
+            cursor_index += 1
+            if cursor_index == len(cursor_positions):
+                cursor_index = 0
+            update_screen = True
+        if button_y.value() == 0:
+            if cursor_index == 0: # cancel
+                break
+            else: # confirm
+                reset = True
+                break
+
+        if update_screen:
+            print('[ DISPLAY ]: Layers.show() in screen_settings_reset()')
+            Layers.cursor = {
+                'file':'cursor',
+                'position':cursor_positions[cursor_index]
+            }
+            Layers.show(['middle', 'cursor'])
+            update_screen = False
+
+    if reset:
+        os.remove('data.json')
+        data_load(initialize_population=True)
+        data_save()
+        CURRENT_SCREEN = 'field'
+
+    else:
+        screen_settings()
 
 def screen_transition(filename, next_screen, step_size=80, step_count=8):
     global CURRENT_SCREEN
@@ -1849,12 +1937,8 @@ def screen_upgrade():
             menu()
 
         if button_y.value() == 0:
-            # spend gold & apply upgrade
-            print(f'[ DEBUG   ]: {gold_contests=} unlock_requirements={unlock_requirements[DATA['field']['level'] +1]}')
             if gold_contests >= unlock_requirements[DATA['field']['level'] +1]:
                 if DATA['gold'] > DATA['field']['upgrade_prices'][DATA['field']['level'] +1]:
-                    print(f'[ DEBUG   ]: unlock permitted')
-
                     DATA['gold'] -= DATA['field']['upgrade_prices'][DATA['field']['level'] +1]
                     DATA['field']['level'] += 1
                     screen_transition(
@@ -1863,6 +1947,8 @@ def screen_upgrade():
                         step_size=160,
                         step_count=4
                     )
+                else:
+                    led.set_rgb(50, 0, 0) # TODO: not enough gold indicator
         
         if update_screen:
             Layers.cursor = {
@@ -1919,6 +2005,7 @@ def screen_visitor():
         'A':'visit_stats_3',
         'S':'visit_stats_3'
     }
+    option_prices = []
     for counter, option in enumerate(options):
         Layers.middle.append({
             'file':option.get_sprite(),
@@ -1930,8 +2017,10 @@ def screen_visitor():
             'file':stat_bars[rank],
             'position':stat_bar_positions[counter]
         })
+        option_price = option.get_value()['phenotype']['value'] * 10
+        option_prices.append(option_price)
         Layers.text.append({
-            'text':str(option.get_value()['phenotype']['value'] * 10),
+            'text':str(option_price),
             'position':(
                 option_positions[counter][0] + 5,
                 option_positions[counter][1] + 105
@@ -1967,11 +2056,13 @@ def screen_visitor():
             update_screen = True
 
         if button_y.value() == 0:
-            # TODO:
-            # - Check & deduct gold
-            led.set_rgb(0, 10, 0)
-            CURRENT_SCREEN = 'breeding'
-            screen_breeding(options[cursor_index])
+            if DATA['gold'] >= option_prices[cursor_index]:
+                DATA['gold'] -= option_prices[cursor_index]
+                led.set_rgb(0, 10, 0)
+                CURRENT_SCREEN = 'breeding'
+                screen_breeding(options[cursor_index])
+            else:
+                led.set_rgb(50, 0, 0) # TODO: not enough gold indicator
 
         if update_screen:
             print('[ DISPLAY ]: Layers.show() in screen_visit()')
@@ -2080,22 +2171,7 @@ def screen_visitor_old():
 def main():
     led.set_rgb(75, 25, 0)
     global POPULATION
-    data_load()
-    display.set_backlight(DATA['settings']['brightness'])
-
-    # if len(POPULATION) < len(DATA['critters']):
-    for critter_data in DATA['critters']:
-        critter = critters.Critter(
-            critter_data['genes'],
-            critter_data['ancestors'],
-            position=(
-                randint(10, 200),
-                randint(10, 200)
-            ),
-            uid=critter_data['uid']
-        )
-        POPULATION.append(critter)
-        print(f'[ DEBUG   ]: Initialize critter "{critter.get_name()}"')
+    data_load(initialize_population=True)
     data_save()
     led.set_rgb(0, 0, 0)
     screens()
