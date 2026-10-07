@@ -15,7 +15,7 @@ class Critter():
                 random.randint(0, 7)
             )
         self.position = [position[0], position[1]]
-        self.cooldown = None
+        self.cooldown = {'duration':0, 'end':'2000-01-01 00:00:00'}
         if uid is None:
             self.uid = generate_id()
             # self.set_cooldown()
@@ -34,11 +34,7 @@ class Critter():
             return 'orange'
 
     def get_cooldown_end(self):
-        if self.cooldown is None:
-            end = ''
-        else:
-            end = self.cooldown['end']
-        return end
+        return self.cooldown['end']
 
     def get_gamete(self):
         return {
@@ -127,6 +123,7 @@ class Critter():
         return self.get_position()
 
     def set_cooldown(self, seconds, end_time):
+        print(f"[ DEBUG   ]: cooldown set: duration={seconds}, end={end_time}")
         self.cooldown = {'duration':seconds, 'end':end_time}
 
     def check_cooldown(self, current_time):

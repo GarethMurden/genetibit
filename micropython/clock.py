@@ -73,21 +73,26 @@ class Clock():
             0       # ?
         ))
         current_seconds = urtc.tuple2seconds(rtc.datetime())
-        if target_second > current_seconds:
+        remaining_seconds = target_seconds - current_seconds
+        if remaining_seconds > 0:
             in_the_future = True
         else:
             in_the_future = False
-        return in_the_future, target_seconds - current_seconds
+        
+        return in_the_future, remaining_seconds
 
 def test():
     clock = Clock()
+    # clock.set_time(2026, 10, 7, 11, 40, 0)
     print(f'The current time is {clock.get_datetime()}')
-    print(f'30 seconds from now it will be {clock.get_seconds_from_now(30)}')
-    if clock.is_in_the_past('2026-01-01 09:00:00'):
-        print('2026-01-01 09:00:00 is in the past')
-    if not clock.is_in_the_past('2060-01-01 09:00:00'):
-        print('2060-01-01 09:00:00 is in the future')
-    in_the_future, seconds_away = clock.get_seconds_until('2026-07-17 15:30:00')
-    print(f'2026-07-17 15:30 is in {seconds_away} seconds')
+
+    # print(f'The current time is {clock.get_datetime()}')
+    # print(f'30 seconds from now it will be {clock.get_seconds_from_now(30)}')
+    # if clock.is_in_the_past('2026-01-01 09:00:00'):
+    #     print('2026-01-01 09:00:00 is in the past')
+    # if not clock.is_in_the_past('2060-01-01 09:00:00'):
+    #     print('2060-01-01 09:00:00 is in the future')
+    # in_the_future, seconds_away = clock.get_seconds_until('2026-07-17 15:30:00')
+    # print(f'2026-10-07 15:30 is in {seconds_away} seconds')
 
 # test()

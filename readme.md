@@ -57,8 +57,9 @@ Connect two devices to breed your critters with your friends'
 		- bypass on-display mini buttons
 
 - Features
-	- Field
-		- Upload lvl1 & lvl2 field parts
+	- Settings
+		- Set time
+	- Upgrade
 		- Replace upgrade UI when all levels unlocked
 	- Visit
 		- Display current gold total
@@ -75,6 +76,7 @@ Connect two devices to breed your critters with your friends'
 	- Reset & start again
 
 - Fixes
+	- Cursor graphical glitch on sell confirmation during gold update
 	- Prevent critters sharing a space on the field
 	- ENOENT error on field, e.g. MISSING ASSET - "field_parts/lvl0/81"
 	- Price sticks after menu close - always show the gold banner?

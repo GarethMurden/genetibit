@@ -36,101 +36,8 @@ COOLDOWNS = {
 
 MENU_OPEN = False
 CURRENT_SCREEN = 'field'
-CONTESTS = {
-    'Ottawa':{
-        'intro':'This year\'s head judge is famous for his critters\nwith giant antlers.',
-        'position':( 29, 12)
-    },
-    'Berlin':{
-        'intro':'Long tails are all the rage, the judges will love\nany critters with beautiful bushy tails!',
-        'position':(141, 12)
-    },
-    'Tokyo':{
-        'intro':'Cute critters are popular here, the one with\nthe most adorable face will probably win.',
-        'position':(244, 12)
-    },
-    'Brasilia':{
-        'intro':'Top tip: go for something extravagent. Big horns,\nbig tails, go wild!',
-        'position':(29, 190)
-    },
-    'Pretoria':{
-        'intro':'The locals favour understated critters, does\nyours look like it could survive in the wild?',
-        'position':(141, 190)
-    },
-    'Canberra':{
-        'intro':'These judges value symmetry and balance, good\nbody shape and coordination will score highly.',
-        'position':(244, 190)
-    }
-}
-DATA = {
-    'breeding':{
-        'cursor_index':0,
-        'left_critter_index':0,
-        'right_critter_index':1
-    },
-    'critters':[],
-    'contests':{
-        'Ottawa':{
-            'unlocked':True
-        },
-        'Berlin':{
-            'unlocked':True
-        },
-        'Tokyo':{
-            'unlocked':False
-        },
-        'Brasilia':{
-            'unlocked':False
-        },
-        'Pretoria':{
-            'unlocked':False
-        },
-        'Canberra':{
-            'unlocked':False
-        }
-    },
-    'field':{
-        'cursor_index':0,
-        'level':0,
-        'limits':[
-            4,
-            6,
-            8
-        ],
-        'upgrade_prices':[
-            0, # free starting level
-            100,
-            500
-        ]
-    },
-    'gold':0,
-    'settings':{
-        'cursor_index':0,
-        'brightness':0.6
-    },
-    'travel':{
-        'items':[
-            {
-                'sprite':'travel/connect',
-                'price':0,
-                'cooldown':None,
-                'cooldown_duration':5
-            },
-            {
-                'sprite':'travel/bus',
-                'price':50,
-                'cooldown':None,
-                'cooldown_duration':90
-            },
-            {
-                'sprite':'travel/earth',
-                'price':150,
-                'cooldown':None,
-                'cooldown_duration':5 # 300 sec = 5 min # TODO: adjust this
-            }
-        ]
-    }
-}
+CONTESTS = {}
+DATA = {}
 POPULATION = []
 BREEDING_PAIR = {}
 
@@ -470,14 +377,19 @@ def screen_breeding(mother, population_index=None):
                     COOLDOWNS['breeding'], # duration
                     cooldown_end # end time
                 )
-                print(f"[ DEBUG   ]: {candidates[DATA['breeding']['right_critter_index']].get_name()} breeding cooldown set to {cooldown_end}")
+
+                print(f"[ DEBUG   ]: {candidates[DATA['breeding']['right_critter_index']].get_name()} breeding cooldown:")
+                print(f"             current time={Clock.get_datetime()}")
+                print(f"             {cooldown_end=} ({COOLDOWNS['breeding']}s from now)")
                 
                 mother.set_cooldown( 
                     COOLDOWNS['breeding'], # duration
                     cooldown_end # end time
                 )
-                print(f"[ DEBUG   ]: {mother.get_name()} breeding cooldown set to {cooldown_end}")
-
+                
+                print(f"[ DEBUG   ]: {mother.get_name()} breeding cooldown:")
+                print(f"             current time={Clock.get_datetime()}")
+                print(f"             {cooldown_end=} ({COOLDOWNS['breeding']}s from now)")
 
                 CURRENT_SCREEN = 'breeding_animation' # change screen on next loop iteration
 
@@ -1294,13 +1206,15 @@ def screen_factfile(cursor_index=0):
         }
     ]
 
-    if critter.get_cooldown_end() != '':
+    end_in_future, reset_in = Clock.get_seconds_until(critter.get_cooldown_end())
+    print(f'[ DEBUG   ]: cooldown end = {critter.get_cooldown_end()} ({reset_in}s) {end_in_future=}')
+    
+    if end_in_future:
         Layers.bottom.append({
             'file':'zzz', # cooldown indicator
             'position':(115, 80),
             'scale': 2
         })
-        _, reset_in = Clock.get_seconds_until(critter.get_cooldown_end())
         Layers.text.append({
             'text':f'{reset_in}s',
             'position':(115, 70),
@@ -1310,7 +1224,6 @@ def screen_factfile(cursor_index=0):
     Layers.middle = []
     v_offset = 32
     for counter, attribute in enumerate(value['attributes']):
-        print(f'[ DEBUG   ]: (0, {v_offset * counter}) factfile_stat_{attribute:02}')
         Layers.middle.append({
             'file':f'factfile_stat_{attribute:02}',
             'position':(0, v_offset * counter),
