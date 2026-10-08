@@ -83,7 +83,7 @@ class Clock():
 
 def test():
     clock = Clock()
-    # clock.set_time(2026, 10, 7, 11, 40, 0)
+    clock.set_time(2026, 10, 8, 11, 34, 0)
     print(f'The current time is {clock.get_datetime()}')
 
     # print(f'The current time is {clock.get_datetime()}')

@@ -1556,13 +1556,14 @@ def screen_gold_animation(change, show_box=False):
         Layers.show()
 
 def screen_settings():
-    # TODO: remove debug gold button from background
     global DATA, CURRENT_SCREEN
     Layers.clear_all()
     cursor_positions = [
-        ( 40,  65),
-        (140,  65),
-        ( 89, 115)
+        ( 40,  65), # brigtness down
+        (140,  65), # brightness up
+        ( 77, 128), # H
+        (144, 128), # M
+        ( 89, 197)  # reset
     ]
     Layers.background = {
         'file':'settings',
@@ -1570,6 +1571,7 @@ def screen_settings():
     }
     Layers.show(layers=['background'])
     displayed_time = Clock.get_time()[:-3]
+    new_time = None
     cursor_index = 0
     update_screen = True
     while CURRENT_SCREEN == 'settings':
@@ -1591,6 +1593,8 @@ def screen_settings():
         if button_y.value() == 0:
             print(f'[ DEBUG   ]: {cursor_index=}')
             update_screen = True
+
+            # brightness
             if cursor_index == 0:
                 update_screen = True
                 DATA['settings']['brightness'] = max([
@@ -1604,22 +1608,62 @@ def screen_settings():
                     1.0
                 ])
                 display.set_backlight(DATA['settings']['brightness'])
-            if cursor_index == 2:
+            
+            # time
+            if cursor_index == 2: # hour
+                if new_time is None:
+                    new_time = [int(displayed_time[:2]), int(displayed_time[-2:])]
+                new_time[0] += 1
+                if new_time[0] > 23:
+                    new_time[0] = 0
+            if cursor_index == 3: # minutes
+                if new_time is None:
+                    new_time = [int(displayed_time[:2]), int(displayed_time[-2:])]
+                new_time[1] += 1
+                if new_time[1] > 59:
+                    new_time[1] = 0
+
+            # reset
+            if cursor_index == 4:
                 screen_settings_reset()
 
         if button_x.value() == 0:
+            if new_time is not None:
+                Clock.set_time(2000, 1, 1, new_time[0], new_time[1], 0)
+                print(f'[ DEBUG   ]: Set clock to {new_time[0]:02}:{new_time[1]:02}')
             menu()
 
         current_time = Clock.get_time()[:-3]
         if displayed_time != current_time:
             displayed_time = current_time
-            print(f'[ DEBUG   ]: Update clock to {displayed_time}')
             update_screen = True
-        Layers.text = [{
-            'text':displayed_time,
-            'position':(50, 200),
-            'scale':2
-        }]
+        if new_time is not None:
+            h1, h2, = f'{new_time[0]:02}'
+            m1, m2, = f'{new_time[1]:02}'
+        else:
+            h1, h2, _, m1, m2, = displayed_time
+        Layers.text = [
+            {
+                'text':h1,
+                'position':( 58, 119),
+                'scale':2
+            },
+            {
+                'text':h2,
+                'position':( 84, 119),
+                'scale':2
+            },
+            {
+                'text':m1,
+                'position':(121, 119),
+                'scale':2
+            },
+            {
+                'text':m2,
+                'position':(149, 119),
+                'scale':2
+            }
+        ]
 
 
         if update_screen:

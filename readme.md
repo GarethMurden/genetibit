@@ -59,12 +59,13 @@ Connect two devices to breed your critters with your friends'
 - Features
 	- Settings
 		- Set time
+	- Breeding results
+		- Change rank indicator to factfile style bars
 	- Upgrade
 		- Replace upgrade UI when all levels unlocked
 	- Visit
+		- Warn before visit if field full
 		- Display current gold total
-	- Breeding results
-		- Change rank indicator to factfile style bars
 	- Competitions
 		- Contest unlocked animation
 	- Show current & incremented gold on breeding sell screen
