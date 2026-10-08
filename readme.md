@@ -57,8 +57,6 @@ Connect two devices to breed your critters with your friends'
 		- bypass on-display mini buttons
 
 - Features
-	- Settings
-		- Set time
 	- Breeding results
 		- Change rank indicator to factfile style bars
 	- Upgrade
