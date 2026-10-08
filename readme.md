@@ -72,7 +72,6 @@ Connect two devices to breed your critters with your friends'
 	- Device-to-device communication
 	- Intro sequence
 	- Tutorial
-	- Reset & start again
 
 - Fixes
 	- Cursor graphical glitch on sell confirmation during gold update
