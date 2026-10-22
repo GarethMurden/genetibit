@@ -568,20 +568,29 @@ def screen_breeding_sale(children):
 
     available_space = DATA['field']['limits'][DATA['field']['level']] - len(POPULATION)
 
+    statbar_assets = {
+        'S':'statbar_05',
+        'A':'statbar_04',
+        'B':'statbar_03',
+        'C':'statbar_02',
+        'D':'statbar_01',
+    }
     for v_counter, critter in enumerate(children):
         value = critter.get_value()
 
         vertical_position = 10 + (48 * v_counter)
-        Layers.middle.append({
+        Layers.middle.append(
+            {
             'file':     critter.get_sprite(),
             'position': (10, vertical_position),
             'scale':    2
-        })
-        Layers.text.append({
-            'text':value['phenotype']['rank'],
-            'position':(110, vertical_position + 18),
-            'scale': 3
-        })
+            },
+            {
+            'file':     statbar_assets.get(value['phenotype']['rank'], 'statbar_01'),
+            'position': (68, vertical_position + 20),
+            'scale':    2
+            }
+        )
         Layers.text.append({
             'text':f"{value['heterozygousity']}%",
             'position':(145, vertical_position + 20),
