@@ -9,6 +9,7 @@ class Critter():
     def __init__(self, genes, ancestors=['unknown','unknown'], position=None, uid=None):
         self.ancestors = ancestors
         self.genes = genes
+        self.selected = False
         if position is None:
             position = {'index':0, 'coords':[0, 0]}
         self.position = position
