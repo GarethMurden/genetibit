@@ -10,11 +10,8 @@ class Critter():
         self.ancestors = ancestors
         self.genes = genes
         if position is None:
-            position = (
-                random.randint(0, 9),
-                random.randint(0, 7)
-            )
-        self.position = [position[0], position[1]]
+            position = {'index':0, 'coords':[0, 0]}
+        self.position = position
         self.cooldown = {'duration':0, 'end':'2000-01-01 00:00:00'}
         if uid is None:
             self.uid = generate_id()
@@ -99,27 +96,14 @@ class Critter():
         }
 
     def get_position(self):
-        return tuple(self.position)
+        return tuple(self.position['coords']), self.position['index']
 
     def get_sprite(self):
         return f"creatures/{self.get_phenotype()['string']}"
 
-    def move(self, jump=False):
-        rows = range(0, 6)
-        cols = range(0, 9)
-        if jump:
-            self.position[0] = random.choice(rows)
-            self.position[1] = random.choice(cols)
-        else:
-            change = random.choice([-1, +1]) # direction
-            if random.choice(['h', 'h', 'v']) == 'h':
-                # horizontal move
-                if min(cols) < self.position[0] + change < max(cols):
-                    self.position[0] = self.position[0] + change
-            else:
-                # vertical move
-                if min(rows) < self.position[1] + change < max(rows):
-                    self.position[1] = self.position[1] + change
+    def move(self, new_index, new_coords):
+        self.position['index'] = new_index
+        self.position['coords'] = new_coords
         return self.get_position()
 
     def set_cooldown(self, seconds, end_time):
