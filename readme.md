@@ -79,8 +79,6 @@ Connect two devices to breed your critters with your friends'
 
 - Fixes
 	- Cursor graphical glitch on sell confirmation during gold update
-	- Prevent critters sharing a space on the field
-	- ENOENT error on field, e.g. MISSING ASSET - "field_parts/lvl0/81"
 	- Price sticks after menu close - always show the gold banner?
 
 ## Resources 
