@@ -58,12 +58,16 @@ Connect two devices to breed your critters with your friends'
 
 - Features
 	- Breeding results
-		- Change rank indicator to factfile style bars
+		- Move prices & checkboxes right to accomodate statbars
+		- Update lock icon based on field upgrade state
 	- Upgrade
 		- Replace upgrade UI when all levels unlocked
 	- Visit
+		- Do not allow if all critters are on cooldown
 		- Warn before visit if field full
 		- Display current gold total
+	- Field
+		- Critters move between fixed locations, rather than free wandering
 	- Competitions
 		- Contest unlocked animation
 	- Show current & incremented gold on breeding sell screen

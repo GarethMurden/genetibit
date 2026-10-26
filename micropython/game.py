@@ -527,7 +527,6 @@ def screen_breeding_animation():
     }]
     print('[ DISPLAY ]: Layers.show() in screen_breeding_animation()')
     Layers.show(layers=['bottom'])
-    sleep(1)
     Layers.bottom = None
     CURRENT_SCREEN = 'breeding_result'
 
@@ -584,16 +583,15 @@ def screen_breeding_sale(children):
             'file':     critter.get_sprite(),
             'position': (10, vertical_position),
             'scale':    2
-            },
-            {
+        })
+        Layers.middle.append({
             'file':     statbar_assets.get(value['phenotype']['rank'], 'statbar_01'),
-            'position': (68, vertical_position + 20),
-            'scale':    2
-            }
-        )
+            'position': (75, vertical_position + 20),
+            'scale':    1
+        })
         Layers.text.append({
             'text':f"{value['heterozygousity']}%",
-            'position':(145, vertical_position + 20),
+            'position':(175, vertical_position + 20),
             'scale': 2
         })
         Layers.text.append({
@@ -1216,7 +1214,7 @@ def screen_factfile(cursor_index=0):
     ]
 
     end_in_future, reset_in = Clock.get_seconds_until(critter.get_cooldown_end())
-    print(f'[ DEBUG   ]: cooldown end = {critter.get_cooldown_end()} ({reset_in}s) {end_in_future=}')
+    print(f'[ DEBUG   ]: current_time = {Clock.get_datetime()} cooldown end = {critter.get_cooldown_end()} ({reset_in}s) {end_in_future=}')
     
     if end_in_future:
         Layers.bottom.append({
