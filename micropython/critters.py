@@ -96,7 +96,7 @@ class Critter():
         }
 
     def get_position(self):
-        return tuple(self.position['coords']), self.position['index']
+        return self.position['coords'], self.position['index']
 
     def get_sprite(self):
         return f"creatures/{self.get_phenotype()['string']}"

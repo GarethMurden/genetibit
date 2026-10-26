@@ -1437,49 +1437,57 @@ def screen_field_movement():
         {'coords':[ 11, 159], 'occupied':False}
     ]
 
-    # TODO: set initial positions
-    
+    # set initial positions
+    for critter in POPULATION:
+        available_spaces = [x for x in range(len(spaces)) if not spaces[x]['occupied']]
+        chosen_space = choice(available_spaces)
+        print(f"[ FIELD   ]: {critter.uid} starts in space #{chosen_space}")
+        critter.move(
+            chosen_space,
+            spaces[chosen_space]['coords']
+        )
+        spaces[chosen_space]['occupied'] = True
 
     counter = 0
     previous_selection = DATA["field"]["cursor_index"]
     while CURRENT_SCREEN == 'field':
-        counter += 1
         update_screen = False
-        
+        if not MENU_OPEN:
+            Layers.middle = [{
+                'file':f'field/spaces_{DATA["field"]["level"]}', # overwrite critter positions with empty spaces
+                'position':(0, 0)
+            }]
 
-        # TODO: New critter movement
-        # - decide new positions for each critter
-        # - draw spaces for current field level
-        # - draw all critter sprites
+            if counter == 0:
+                counter = 10
+                for critter in POPULATION:
+                    _, current_position = critter.get_position()
+                    if current_position == len(spaces) -1:
+                        next_position = 0
+                    else:
+                        next_position = current_position +1
+                    if not spaces[next_position]['occupied']:
+                        if choice([True, False, False]): # 33% chance to move
+                            print(f"[ FIELD   ]: {critter.uid} moves from space #{current_position} to space #{next_position}")
+                            spaces[current_position]['occupied'] = False
+                            spaces[next_position]['occupied'] = True
+                            critter.move(
+                                next_position,
+                                spaces[next_position]['coords']
+                            )
+                    coords, _ = critter.get_position() 
+                    Layers.middle.append({
+                        'file':critter.get_sprite(), # draw critters in new spaces
+                        'position':coords
+                    })
+                    update_screen = True
+            counter -= 1
 
-        Layers.middle = [{
-            'file':f'field/spaces_{DATA["field"]["level"]}', # overwrite critter positions with empty spaces
-            'position':(0, 0)
-        }]
+            if update_screen:
+                print('[ DISPLAY ]: Layers.show() in screen_field_movement()')
+                Layers.show(layers=['middle'])
 
-        if counter == 10:
-            counter = 0
-            for critter in POPULATION:
-                _, current_position = critter.get_position()
-                if current_position == len(spaces) -1:
-                    next_position = 0
-                else:
-                    next_position = current_position +1
-                if not spaces[next_position]['occupied']:
-                    if choice([True, True, False]): # 66% chance to move
-                        print(f"[ FIELD   ]: {critter.uid} moved from space #{current_position} to space #{next_position}")
-                        spaces[current_position]['occupied'] = False
-                        spaces[next_position]['occupied'] = True
-                        critter.move(
-                            next_position,
-                            spaces[next_position]['coords']
-                        )
-                coords, _ = critter.get_position() 
-                Layers.middle.append({
-                    'file':critter.get_sprite(), # draw critters in new spaces
-                    'position':coords
-                })
-                update_screen = True
+        sleep(0.5)
 
         # TODO: Optimise cursor movement
         # - draw selector mask for current field level
@@ -1578,11 +1586,11 @@ def screen_field_movement():
                 #             'scale':1
                 #         })
 
-        if update_screen:
-            print('[ DISPLAY ]: Layers.show() in screen_field_movement()')
-            Layers.show(layers=['middle'])
+        # if update_screen:
+        #     print('[ DISPLAY ]: Layers.show() in screen_field_movement()')
+        #     Layers.show(layers=['middle'])
 
-        sleep(0.5)
+        # sleep(0.5)
 
 def screen_gold_animation(change, show_box=False):
     if show_box:
