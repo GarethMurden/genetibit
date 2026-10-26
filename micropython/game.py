@@ -1376,7 +1376,7 @@ def screen_field():
     # load single full background image
     Layers.clear_all()
     Layers.background = {
-        'file':f'field_{DATA["field"]["level"]}',
+        'file':f'field/field_{DATA["field"]["level"]}',
         'position':(0, 0)
     }
     print('[ DISPLAY ]: Layers.show() in screen_field()')
@@ -1436,6 +1436,11 @@ def screen_field_movement():
         update_screen = False
         Layers.middle = []
 
+        # TODO: Optimise cursor movement
+        # - draw selector mask for current field level
+        # - draw cursor above celected critter coords
+
+
         if DATA["field"]["cursor_index"] != previous_selection:
             try:
                 # re-draw critters as soon as cursor moved
@@ -1480,6 +1485,12 @@ def screen_field_movement():
             previous_selection = DATA["field"]["cursor_index"]
 
         if counter % 10 == 0:
+
+            # TODO:
+            # - decide new positions for each critter
+            # - draw spaces for current field level
+            # - draw all critter sprites
+
             # re-draw critters every 10 loop iterations
             for critter_index, critter in enumerate(POPULATION):
 
