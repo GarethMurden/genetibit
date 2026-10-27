@@ -1378,24 +1378,6 @@ def screen_field():
     print('[ DISPLAY ]: Layers.show() in screen_field()')
     Layers.show()
 
-    # # draw critters in their starting positions
-    # Layers.middle = []
-    # for critter in POPULATION:
-    #     critter.move(jump=True) # random starting position
-    #     position, _ = critter.get_position()
-    #     coords = (
-    #         position[0] * 32,
-    #         position[1] * 32
-    #     )
-    #     Layers.middle.append({
-    #         'file':critter.get_sprite(),
-    #         'position':coords,
-    #         'scale':1
-    #     })
-
-    # print('[ DISPLAY ]: Layers.show() in screen_field()')
-    # Layers.show(layers=['middle'])
-
     # critter movement thread
     movement_thread = _thread.start_new_thread(screen_field_movement, ())
 
@@ -1440,7 +1422,7 @@ def screen_field():
 def screen_field_movement():
     # positions = {}
     spaces = [
-        {'coords': [ 54,  12], 'occupied':False},
+        {'coords':[ 54,  12], 'occupied':False},
         {'coords':[ 94,  12], 'occupied':False},
         {'coords':[175,  78], 'occupied':False},
         {'coords':[242,  14], 'occupied':False},
@@ -1451,6 +1433,7 @@ def screen_field_movement():
         {'coords':[ 11, 159], 'occupied':False}
     ]
 
+    Layers.bottom = []
     # set initial positions
     for critter in POPULATION:
         available_spaces = [x for x in range(len(spaces)) if not spaces[x]['occupied']]
@@ -1461,6 +1444,12 @@ def screen_field_movement():
             spaces[chosen_space]['coords']
         )
         spaces[chosen_space]['occupied'] = True
+        Layers.bottom.append({
+            'file':critter.get_sprite(), # draw critter in new position
+            'position':spaces[chosen_space]['coords']
+        })
+    print('[ DISPLAY ]: Layers.show() in screen_field_movement()')
+    Layers.show(layers=['bottom'])
 
     previous_selection = DATA["field"]["cursor_index"]
 
@@ -1470,10 +1459,6 @@ def screen_field_movement():
         update_screen_cursor = False
         if not MENU_OPEN:
             if counter == 0: # move critters every 10 iterations
-                Layers.bottom = [{
-                    'file':f'field/spaces_{DATA["field"]["level"]}', # overwrite critter positions with empty spaces
-                    'position':(0, 0)
-                }]
 
                 counter = 10
                 for critter_index, critter in enumerate(POPULATION):
@@ -1493,11 +1478,16 @@ def screen_field_movement():
                                 spaces[next_position]['coords']
                             )
 
-                    coords, _ = critter.get_position() 
-                    Layers.bottom.append({
-                        'file':critter.get_sprite(), # draw critters in new spaces
-                        'position':coords
-                    })
+                            Layers.bottom = [
+                                {
+                                    'file':f'field/level_{DATA["field"]["level"]}/space_{current_position}', # draw over previous position
+                                    'position':(0, 0)
+                                },
+                                {
+                                    'file':critter.get_sprite(), # draw critter in new position
+                                    'position':spaces[next_position]['coords']
+                                }
+                            ]
             counter -= 1
 
             if DATA["field"]["cursor_index"] != previous_selection: # move cursor immediately on button press

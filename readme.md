@@ -58,7 +58,7 @@ Connect two devices to breed your critters with your friends'
 
 - Features
 	- Breeding results
-		- Move prices & checkboxes right to accomodate statbars
+		- Use small statbars
 		- Update lock icon based on field upgrade state
 	- Upgrade
 		- Replace upgrade UI when all levels unlocked
@@ -66,8 +66,6 @@ Connect two devices to breed your critters with your friends'
 		- Do not allow if all critters are on cooldown
 		- Warn before visit if field full
 		- Display current gold total
-	- Field
-		- Critters move between fixed locations, rather than free wandering
 	- Competitions
 		- Contest unlocked animation
 	- Show current & incremented gold on breeding sell screen
@@ -78,6 +76,7 @@ Connect two devices to breed your critters with your friends'
 	- Tutorial
 
 - Fixes
+	- field/level_x/space_y.png might not be right for spaces 5/6/7 as sometimes critters vanish
 	- Cursor graphical glitch on sell confirmation during gold update
 	- Price sticks after menu close - always show the gold banner?
 
