@@ -57,10 +57,11 @@ Connect two devices to breed your critters with your friends'
 		- bypass on-display mini buttons
 
 - Features
-	- Breeding results
-		- Use small statbars
-		- Update lock icon based on field upgrade state
 	- Upgrade
+		- Update UI for 2nd upgrade
+			- Move Buy button
+			- Replace 1st upgrate tropies with tick icon
+			- Remove 1st upgrade price
 		- Replace upgrade UI when all levels unlocked
 	- Visit
 		- Do not allow if all critters are on cooldown
@@ -76,6 +77,7 @@ Connect two devices to breed your critters with your friends'
 	- Tutorial
 
 - Fixes
+	- Improve performance of contest critter selection
 	- field/level_x/space_y.png might not be right for spaces 5/6/7 as sometimes critters vanish
 	- Cursor graphical glitch on sell confirmation during gold update
 	- Price sticks after menu close - always show the gold banner?

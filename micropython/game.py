@@ -564,11 +564,11 @@ def screen_breeding_sale(children):
     available_space = DATA['field']['limits'][DATA['field']['level']] - len(POPULATION)
 
     statbar_assets = {
-        'S':'statbar_05',
-        'A':'statbar_04',
-        'B':'statbar_03',
-        'C':'statbar_02',
-        'D':'statbar_01',
+        'D':'visit_stats_0',
+        'C':'visit_stats_1',
+        'B':'visit_stats_2',
+        'A':'visit_stats_3',
+        'S':'visit_stats_3'
     }
     for v_counter, critter in enumerate(children):
         value = critter.get_value()
@@ -587,7 +587,7 @@ def screen_breeding_sale(children):
         })
         Layers.text.append({
             'text':f"{value['heterozygousity']}%",
-            'position':(175, vertical_position + 20),
+            'position':(150, vertical_position + 20),
             'scale': 2
         })
         Layers.text.append({
@@ -1908,12 +1908,8 @@ def screen_upgrade():
                 if DATA['gold'] > DATA['field']['upgrade_prices'][DATA['field']['level'] +1]:
                     DATA['gold'] -= DATA['field']['upgrade_prices'][DATA['field']['level'] +1]
                     DATA['field']['level'] += 1
-                    screen_transition(
-                        'transition_digger',
-                        'field',
-                        step_size=160,
-                        step_count=4
-                    )
+                    screen_upgrade_animation()
+                    CURRENT_SCREEN = 'field'
                 else:
                     led.set_rgb(50, 0, 0) # TODO: not enough gold indicator
         
@@ -1925,6 +1921,80 @@ def screen_upgrade():
             print('[ DISPLAY ]: Layers.show() in screen_upgrade()')
             Layers.show(['middle', 'cursor'])
             update_screen = False
+
+def screen_upgrade_animation():
+    Layers.background = {
+        'file':f'field/field_{DATA["field"]["level"] -1}',
+        'position':(0, 0)
+    }
+    print(f'[ DISPLAY ]: Layers.show() in screen_upgrade_animation()')
+    Layers.show(['background'])
+    coords = [
+        [],
+        [
+            ( 54,  12),
+            (125,  46),
+            (223, 119),
+            (245, 172)
+        ],
+        [
+            ( 54,  12),
+            ( 94,  12),
+            (186,  41),
+            (278,  87)
+        ]
+    ]
+    Layers.middle = []
+    for coord in coords[DATA["field"]["level"]]:
+        Layers.middle = [
+            {
+                'file':f'field/field_{DATA["field"]["level"] -1}',
+                'position':(0, 0)
+            },
+            {
+                'file':'digger01',
+                'position':coord
+            }
+        ]
+        print(f'[ DISPLAY ]: Layers.show() in screen_upgrade_animation()')
+        Layers.show(['middle'])
+        Layers.middle = [
+            {
+                'file':f'field/field_{DATA["field"]["level"] -1}',
+                'position':(0, 0)
+            },
+            {
+                'file':'digger02',
+                'position':coord
+            }
+        ]
+        print(f'[ DISPLAY ]: Layers.show() in screen_upgrade_animation()')
+        Layers.show(['middle'])
+        Layers.middle = [
+            {
+                'file':f'field/field_{DATA["field"]["level"] -1}',
+                'position':(0, 0)
+            },
+            {
+                'file':'digger01',
+                'position':coord
+            }
+        ]
+        print(f'[ DISPLAY ]: Layers.show() in screen_upgrade_animation()')
+        Layers.show(['middle'])
+        Layers.middle = [
+            {
+                'file':f'field/field_{DATA["field"]["level"] -1}',
+                'position':(0, 0)
+            },
+            {
+                'file':'digger02',
+                'position':coord
+            }
+        ]
+        print(f'[ DISPLAY ]: Layers.show() in screen_upgrade_animation()')
+        Layers.show(['middle'])
+        sleep(0.5)
 
 
 def screen_visitor():
