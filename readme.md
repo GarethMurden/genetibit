@@ -57,12 +57,6 @@ Connect two devices to breed your critters with your friends'
 		- bypass on-display mini buttons
 
 - Features
-	- Upgrade
-		- Update UI for 2nd upgrade
-			- Move Buy button
-			- Replace 1st upgrate tropies with tick icon
-			- Remove 1st upgrade price
-		- Replace upgrade UI when all levels unlocked
 	- Visit
 		- Do not allow if all critters are on cooldown
 		- Warn before visit if field full
@@ -75,6 +69,13 @@ Connect two devices to breed your critters with your friends'
 	- Device-to-device communication
 	- Intro sequence
 	- Tutorial
+	- Achievement notifications
+		- First critter of each colour
+		- First new feature encountered
+		- Fully upgraded field
+		- First Gold trophy
+		- Unlocked all contests
+		- Gold in all contests
 
 - Fixes
 	- Improve performance of contest critter selection
