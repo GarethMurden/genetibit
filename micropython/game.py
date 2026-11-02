@@ -1839,56 +1839,68 @@ def screen_upgrade():
     # TODO:
     # - disallow spending & display different background if all levels unlocked
 
-    global CURRENT_SCREEN
+    global CURRENT_SCREEN, DATA
     Layers.clear_all()
     Layers.background = {
         'file':'upgrade_background',
         'position':(0, 0)
     }
-    Layers.text = [
-        {
-            'text':str(DATA['gold']),
-            'position':(285, 10)
-        },
-        {
-            'text':str(DATA['field']['upgrade_prices'][1]),
-            'position':(152, 165)
-        },
-        {
-            'text':str(DATA['field']['upgrade_prices'][2]),
-            'position':(250, 165)
-        }
-    ]
-
-    cursor_horizontal_positions = [
-          0, # initial level
-        144, # upgrade 1
-        244  # upgrade 2
-    ]
-    cursor_positions = [
-        (cursor_horizontal_positions[DATA['field']['level'] +1], 205)
-    ]
-    cursor_index = 0
 
     gold_contests = len([country for country in DATA['contests'] if DATA['contests'][country]['unlocked'] in ['gold']])
     # 1st upgrade
-    if gold_contests <= 2:
+    if DATA['field']['level'] == 1:
+        trophy_icon = 'upgrade_tick'
+    elif gold_contests <= 2:
         trophy_icon = f'upgrade_trophy_{gold_contests}-2'
     else:
-        trophy_icon = f'upgrade_trophy_2-2'
+        trophy_icon = 'upgrade_trophy_2-2'
     Layers.middle = [{
         'file':trophy_icon,
         'position':(142, 115)
     }]
     # 2nd upgrade
-    if gold_contests <= 4:
+    if DATA['field']['level'] == 2:
+        trophy_icon = 'upgrade_tick'
+    elif gold_contests <= 4:
         trophy_icon = f'upgrade_trophy_{gold_contests}-4'
     else:
-        trophy_icon = f'upgrade_trophy_4-4'
+        trophy_icon = 'upgrade_trophy_4-4'
     Layers.middle.append({
         'file':trophy_icon,
         'position':(238, 115)
     })
+
+    horizontal_positions = [
+          0, # initial level
+        122, # upgrade 1
+        218  # upgrade 2
+    ]
+    Layers.middle.append({
+        'file':'upgrade_buttons', # button, cursor & price background
+        'position':(
+           horizontal_positions[DATA['field']['level'] +1],
+           155
+        )
+    })
+
+    Layers.text = [
+        {
+            'text':str(DATA['gold']),
+            'position':(285, 10)
+        }
+    ]
+    if DATA['field']['level'] == 0: # only show 1st upgrade price until it's bought
+        Layers.text.append({
+            'text':str(DATA['field']['upgrade_prices'][1]),
+            'position':(152, 165)
+        })
+    if DATA['field']['level'] == 1:
+        Layers.text.append({
+            'text':str(DATA['field']['upgrade_prices'][2]),
+            'position':(250, 165)
+        })
+        
+
     unlock_requirements = [
         0, # game start
         2, # 1st upgrade available after 2 unlocked
@@ -1909,18 +1921,10 @@ def screen_upgrade():
                     DATA['gold'] -= DATA['field']['upgrade_prices'][DATA['field']['level'] +1]
                     DATA['field']['level'] += 1
                     screen_upgrade_animation()
+                    data_save()
                     CURRENT_SCREEN = 'field'
                 else:
                     led.set_rgb(50, 0, 0) # TODO: not enough gold indicator
-        
-        if update_screen:
-            Layers.cursor = {
-                'file':'cursor',
-                'position':cursor_positions[cursor_index]
-            }
-            print('[ DISPLAY ]: Layers.show() in screen_upgrade()')
-            Layers.show(['middle', 'cursor'])
-            update_screen = False
 
 def screen_upgrade_animation():
     Layers.background = {
