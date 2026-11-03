@@ -48,6 +48,7 @@ class Layer_class():
     middle      = None # multiple overlapping images allowed
     top         = None
     cursor      = None
+    notify      = None # special object for notification pop-ups
     menu_cursor = None
     text        = None # multiple text entries allowed
     
@@ -58,6 +59,7 @@ class Layer_class():
         self.top         = None
         self.cursor      = None
         self.menu_cursor = None
+        self.notify      = None
         self.text        = None
 
     def show(self, layers=['background', 'bottom', 'middle', 'top', 'cursor', 'menu_cursor', 'text']):
@@ -82,6 +84,20 @@ class Layer_class():
         if self.menu_cursor is not None and 'menu_cursor' in layers:
             print('[ DISPLAY ]: Update menu_cursor')
             self.update_display(self.menu_cursor['file'], self.menu_cursor['position'], self.menu_cursor.get('scale', 1))
+        if self.notify is not None and 'notify' in layers:
+            print('[ DISPLAY ]: Update notification')
+            for item in self.notify:
+                if 'text' in item:
+                    display.set_pen(TEXT)
+                    display.text(
+                        str(item['text']),
+                        item['position'][0],
+                        item['position'][1],
+                        scale=item.get('scale', 1)
+                    )
+                    display.set_pen(IMAGES)
+                else:
+                    self.update_display(item['file'], item['position'], item.get('scale', 1))
         if self.text is not None and 'text' in layers:
             display.set_pen(TEXT)
             for entry in self.text:
@@ -275,6 +291,31 @@ def menu_move_cursor(position):
         )
     }
     return position
+
+def notify(message, icon='exclamation'):
+    Layers.notify = [
+        {
+            'file':f'notification/{icon}',
+            'position':(0, 0)
+        },
+        {
+            'text':message,
+            'position':(35, 20),
+            'scale': 2
+        }
+    ]
+
+    Layers.show(['notify'])
+    for x in range(4, -1, -1):
+        Layers.notify = [{
+            'file':f'notification/countdown_{x}',
+            'position':(0, 0)
+        }]
+        Layers.show(['notify'])
+        sleep(0.5)
+        if button_a.value() == 0 or button_b.value() == 0 or button_x.value() == 0 or button_y.value() == 0:
+            break
+    Layers.notify = []
 
 def screens():
     global CURRENT_SCREEN
@@ -1907,6 +1948,9 @@ def screen_upgrade():
 
     print('[ DISPLAY ]: Layers.show() in screen_upgrade()')
     Layers.show()
+
+    if DATA['field']['level'] >= 2:
+        notify('All upgrades unlocked!', icon='exclamation') # TODO: test this
 
     update_screen = True
     while CURRENT_SCREEN == 'upgrade':
