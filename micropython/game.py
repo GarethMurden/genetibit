@@ -2194,7 +2194,7 @@ def screen_visitor():
                 screen_breeding(options[cursor_index])
             else:
                 screen_gold_insufficient_animation()
-                update_screen = True
+                Layers.show()
 
         if update_screen:
             print('[ DISPLAY ]: Layers.show() in screen_visit()')
@@ -2207,7 +2207,7 @@ def screen_visitor():
                 'position':cursor_positions[cursor_index],
                 'scale':2
             }
-            Layers.show(layers=['bottom', 'cursor', 'notify'])
+            Layers.show(layers=['bottom', 'cursor'])
             update_screen = False
 
 def screen_visitor_old():
