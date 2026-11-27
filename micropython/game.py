@@ -62,7 +62,7 @@ class Layer_class():
         self.notify      = None
         self.text        = None
 
-    def show(self, layers=['background', 'bottom', 'middle', 'top', 'cursor', 'menu_cursor', 'text']):
+    def show(self, layers=['background', 'bottom', 'middle', 'top', 'cursor', 'menu_cursor', 'text', 'notify']):
         
         if self.background is not None and 'background' in layers:
             print('[ DISPLAY ]: Update background')
@@ -300,7 +300,7 @@ def notify(message, icon='exclamation'):
         },
         {
             'text':message,
-            'position':(35, 20),
+            'position':(40, 22),
             'scale': 2
         }
     ]
@@ -440,7 +440,8 @@ def screen_breeding(mother, population_index=None):
                     )
 
             else:
-                led.set_rgb(50, 0, 0) # TODO: not enough gold indicator
+                screen_gold_insufficient_animation()
+                update_screen = True
         
         if update_screen:
             Layers.middle = [
@@ -587,6 +588,10 @@ def screen_breeding_sale(children):
     Layers.middle = [{
         'file':'gold',
         'position':(0,0)
+    }]
+    Layers.text = [{
+        'text':str(DATA['gold']),
+        'position':(285, 10)
     }]
     if DATA['field']['level'] == 0:
         Layers.middle.append({
@@ -1131,7 +1136,15 @@ def screen_contest_map():
         'position':(0, 0)
     }
 
-    Layers.middle = []
+    Layers.middle = [{
+        'file':'gold',
+        'position':(0,0)
+    }]
+    Layers.text = [{
+        'text':DATA['gold'],
+        'position':(285, 10)
+    }]
+
     for contest in CONTESTS:
         if not DATA['contests'][contest]['unlocked']:
             Layers.middle.append({
@@ -1178,7 +1191,8 @@ def screen_contest_map():
                 sleep(0.5)
                 screen_contest(unlocked_countries[cursor_index])
             else:
-                led.set_rgb(50, 0, 0) # TODO: not enough gold indicator
+                screen_gold_insufficient_animation()
+                update_screen = True
 
         if update_screen:
             Layers.cursor = {
@@ -1606,6 +1620,18 @@ def screen_gold_animation(change, show_box=False):
         print('[ DISPLAY ]: Layers.show() in screen_gold_animation()')
         Layers.show()
 
+def screen_gold_insufficient_animation():
+    led.set_rgb(50, 0, 0)
+    Layers.notify = [{
+        'file':'not_enough_gold',
+        'position':(0,0)
+    }]
+    print('[ DISPLAY ]: Layers.show() in screen_gold_insufficient_animation()')
+    Layers.show(['notify'])
+    sleep(1)
+    led.set_rgb(0, 0, 0)
+    Layers.notify = []
+
 def screen_settings():
     global DATA, CURRENT_SCREEN
     Layers.clear_all()
@@ -1976,7 +2002,11 @@ def screen_upgrade():
                         data_save()
                         CURRENT_SCREEN = 'field'
                     else:
-                        led.set_rgb(50, 0, 0) # TODO: not enough gold indicator
+                        screen_gold_insufficient_animation()
+                        Layers.show()
+                else:
+                    notify('Need more trophies', icon='not_allowed')
+                    Layers.show()
 
 def screen_upgrade_animation():
     Layers.background = {
@@ -2079,8 +2109,16 @@ def screen_visitor():
     ]
     options = sorted(unsorted_options, key=lambda x: x.get_value()['phenotype']['value'])
 
-    Layers.middle = []
-    Layers.text = []
+    Layers.middle = [{
+        'file':'gold',
+        'position':(0,0)
+    }]
+    Layers.text = [{
+        'text':str(DATA['gold']),
+        'position':(285, 10)
+    }]
+    Layers.show(['middle', 'text'])
+
     option_positions = [
         ( 28,  15),
         (125,  30),
@@ -2155,7 +2193,8 @@ def screen_visitor():
                 CURRENT_SCREEN = 'breeding'
                 screen_breeding(options[cursor_index])
             else:
-                led.set_rgb(50, 0, 0) # TODO: not enough gold indicator
+                screen_gold_insufficient_animation()
+                update_screen = True
 
         if update_screen:
             print('[ DISPLAY ]: Layers.show() in screen_visit()')
@@ -2168,7 +2207,7 @@ def screen_visitor():
                 'position':cursor_positions[cursor_index],
                 'scale':2
             }
-            Layers.show(layers=['bottom', 'cursor'])
+            Layers.show(layers=['bottom', 'cursor', 'notify'])
             update_screen = False
 
 def screen_visitor_old():
