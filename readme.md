@@ -18,7 +18,7 @@ Introduce new genes from visiting critters
 
 Sell creatures with rare traits at the market
 
-![](https://github.com/GarethMurden/genetibit/blob/master/screenshots/breeding_sell.png?raw=true)
+![](https://github.com/GarethMurden/genetibit/blob/master/screenshots/factfile.png?raw=true)
 
 Upgrade your field to fit more creatures
 
