@@ -1900,13 +1900,21 @@ def screen_travel():
             )
             screen_contest_map()
         if 'bus' in item_bought:
-            screen_transition(
-                'transition_bus',
-                'visitor',
-                step_size=160,
-                step_count=4
-            )
-            screen_visitor()
+            # TODO: 
+            #   - warn if field full
+            #   - disallow if all critters on cooldown
+
+            available_space = DATA['field']['limits'][DATA['field']['level']] - len(POPULATION)
+            if available_space == 0:
+                notify('No space in field', icon='not_allowed')
+            else:
+                screen_transition(
+                    'transition_bus',
+                    'visitor',
+                    step_size=160,
+                    step_count=4
+                )
+                screen_visitor()
         if 'connect' in item_bought:
             screen_connect_animation()
             screen_connect()
