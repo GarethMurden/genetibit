@@ -62,7 +62,7 @@ class Layer_class():
         self.notify      = None
         self.text        = None
 
-    def show(self, layers=['background', 'bottom', 'middle', 'top', 'cursor', 'menu_cursor', 'text']):
+    def show(self, layers=['background', 'bottom', 'middle', 'top', 'cursor', 'menu_cursor', 'text', 'notify']):
         
         if self.background is not None and 'background' in layers:
             print('[ DISPLAY ]: Update background')
@@ -99,6 +99,7 @@ class Layer_class():
                 else:
                     self.update_display(item['file'], item['position'], item.get('scale', 1))
         if self.text is not None and 'text' in layers:
+            print('[ DISPLAY ]: Update text')
             display.set_pen(TEXT)
             for entry in self.text:
                 if entry.get('colour', None) is not 'red':
@@ -300,7 +301,7 @@ def notify(message, icon='exclamation'):
         },
         {
             'text':message,
-            'position':(35, 20),
+            'position':(42, 23),
             'scale': 2
         }
     ]
@@ -315,7 +316,7 @@ def notify(message, icon='exclamation'):
         sleep(0.5)
         if button_a.value() == 0 or button_b.value() == 0 or button_x.value() == 0 or button_y.value() == 0:
             break
-    Layers.notify = []
+    Layers.notify = None
 
 def screens():
     global CURRENT_SCREEN
@@ -440,7 +441,8 @@ def screen_breeding(mother, population_index=None):
                     )
 
             else:
-                led.set_rgb(50, 0, 0) # TODO: not enough gold indicator
+                screen_gold_insufficient_animation()
+                update_screen = True
         
         if update_screen:
             Layers.middle = [
@@ -584,7 +586,14 @@ def screen_breeding_sale(children):
         'position':(285, 10)
     }]
 
-    Layers.middle = []
+    Layers.middle = [{
+        'file':'gold',
+        'position':(0,0)
+    }]
+    Layers.text = [{
+        'text':str(DATA['gold']),
+        'position':(285, 10)
+    }]
     if DATA['field']['level'] == 0:
         Layers.middle.append({
             'file':'breeding_sell_locked_01',
@@ -683,8 +692,10 @@ def screen_breeding_sale(children):
                 
                 else: # ok button highlighted
                     if len([selected for selected in DATA['breeding']['sell_selections'] if not selected]) <= available_space:
+                        sell_total = 0
                         for index, sold in enumerate(DATA['breeding']['sell_selections']):
                             if sold:
+                                sell_total += children[index].get_value()['phenotype']['value']
                                 DATA['gold'] += children[index].get_value()['phenotype']['value']
                             else:
                                 POPULATION.append(children[index])
@@ -693,6 +704,8 @@ def screen_breeding_sale(children):
                                     'genes':children[index].get_genotype(),
                                     'uid':children[index].uid
                                 })
+                        screen_gold_animation(sell_total)
+                        sleep(1)
                         del DATA['breeding']['sell_selections']
                         DATA['breeding']['cursor_index'] = 0
                         DATA['breeding']['children'] = []
@@ -1124,7 +1137,15 @@ def screen_contest_map():
         'position':(0, 0)
     }
 
-    Layers.middle = []
+    Layers.middle = [{
+        'file':'gold',
+        'position':(0,0)
+    }]
+    Layers.text = [{
+        'text':DATA['gold'],
+        'position':(285, 10)
+    }]
+
     for contest in CONTESTS:
         if not DATA['contests'][contest]['unlocked']:
             Layers.middle.append({
@@ -1171,7 +1192,8 @@ def screen_contest_map():
                 sleep(0.5)
                 screen_contest(unlocked_countries[cursor_index])
             else:
-                led.set_rgb(50, 0, 0) # TODO: not enough gold indicator
+                screen_gold_insufficient_animation()
+                update_screen = True
 
         if update_screen:
             Layers.cursor = {
@@ -1312,8 +1334,14 @@ def screen_factfile(cursor_index=0):
                 break
 
             if cursor_index == 3: # sell
-                confirm_sell = True
-                break
+                if len(POPULATION) <= 2:
+                    # TODO: Stop this sticking after Layers.show()
+                    notify("Can't sell last two", icon='not_allowed')
+                    print('[ DISPLAY ]: Layers.show() in screen_factfile()')
+                    Layers.show()
+                else:
+                    confirm_sell = True
+                    break
 
         if update_screen:
             Layers.background = {
@@ -1576,10 +1604,15 @@ def screen_gold_animation(change, show_box=False):
             'text':DATA['gold'],
             'position':(285, 10)
         }]
-    print('[ DISPLAY ]: Layers.show() in screen_gold_animation()')
-    Layers.show(['middle', 'text'])
+        print('[ DISPLAY ]: Layers.show() in screen_gold_animation()')
+        Layers.show(['middle', 'text'])
 
     if change != 0:
+        Layers.middle.append({
+            'file':'change_gold',
+            'position':(0,0)
+        })
+
         if change < 0:
             colour = 'red'
             text = str(change)
@@ -1588,11 +1621,23 @@ def screen_gold_animation(change, show_box=False):
             text = f'+{change}'
         Layers.text.append({
             'text':text,
-            'position':(285, 25),
+            'position':(286, 40),
             'colour':colour
         })
         print('[ DISPLAY ]: Layers.show() in screen_gold_animation()')
         Layers.show()
+
+def screen_gold_insufficient_animation():
+    led.set_rgb(50, 0, 0)
+    Layers.notify = [{
+        'file':'not_enough_gold',
+        'position':(0,0)
+    }]
+    print('[ DISPLAY ]: Layers.show() in screen_gold_insufficient_animation()')
+    Layers.show(['notify'])
+    sleep(1)
+    led.set_rgb(0, 0, 0)
+    Layers.notify = None
 
 def screen_settings():
     global DATA, CURRENT_SCREEN
@@ -1609,6 +1654,7 @@ def screen_settings():
         'position':(0, 0)
     }
     Layers.show(layers=['background'])
+
     displayed_time = Clock.get_time()[:-3]
     new_time = None
     cursor_index = 0
@@ -1616,10 +1662,9 @@ def screen_settings():
     while CURRENT_SCREEN == 'settings':
         if button_a.value() == 0:
             if button_b.value() == 0:
-                print('[ DEBUG   ]: Set gold to 500')
-                screen_gold_animation(500, True)
+                screen_gold_animation(500 - DATA['gold'], True)
                 DATA['gold'] = 500
-                menu()
+                notify('Free gold!', icon='exclamation')
             update_screen = True
             cursor_index -= 1
             if cursor_index < 0:
@@ -1862,13 +1907,28 @@ def screen_travel():
             )
             screen_contest_map()
         if 'bus' in item_bought:
-            screen_transition(
-                'transition_bus',
-                'visitor',
-                step_size=160,
-                step_count=4
-            )
-            screen_visitor()
+
+            available_space = DATA['field']['limits'][DATA['field']['level']] - len(POPULATION)
+            if available_space == 0:
+                notify('No space in field', icon='not_allowed')
+
+            else:
+                cooldowns_active = 0
+                for critter in POPULATION:
+                    in_effect, _ = critter.check_cooldown(Clock.get_datetime())
+                    if in_effect:
+                        cooldowns_active += 1
+                if cooldowns_active == len(POPULATION):
+                    notify('All critters tired', icon='not_allowed')
+
+                else:
+                    screen_transition(
+                        'transition_bus',
+                        'visitor',
+                        step_size=160,
+                        step_count=4
+                    )
+                    screen_visitor()
         if 'connect' in item_bought:
             screen_connect_animation()
             screen_connect()
@@ -1964,7 +2024,11 @@ def screen_upgrade():
                         data_save()
                         CURRENT_SCREEN = 'field'
                     else:
-                        led.set_rgb(50, 0, 0) # TODO: not enough gold indicator
+                        screen_gold_insufficient_animation()
+                        Layers.show()
+                else:
+                    notify('Need more trophies', icon='not_allowed')
+                    Layers.show()
 
 def screen_upgrade_animation():
     Layers.background = {
@@ -2067,8 +2131,16 @@ def screen_visitor():
     ]
     options = sorted(unsorted_options, key=lambda x: x.get_value()['phenotype']['value'])
 
-    Layers.middle = []
-    Layers.text = []
+    Layers.middle = [{
+        'file':'gold',
+        'position':(0,0)
+    }]
+    Layers.text = [{
+        'text':str(DATA['gold']),
+        'position':(285, 10)
+    }]
+    Layers.show(['middle', 'text'])
+
     option_positions = [
         ( 28,  15),
         (125,  30),
@@ -2143,7 +2215,8 @@ def screen_visitor():
                 CURRENT_SCREEN = 'breeding'
                 screen_breeding(options[cursor_index])
             else:
-                led.set_rgb(50, 0, 0) # TODO: not enough gold indicator
+                screen_gold_insufficient_animation()
+                Layers.show()
 
         if update_screen:
             print('[ DISPLAY ]: Layers.show() in screen_visit()')
