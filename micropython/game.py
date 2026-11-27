@@ -99,6 +99,7 @@ class Layer_class():
                 else:
                     self.update_display(item['file'], item['position'], item.get('scale', 1))
         if self.text is not None and 'text' in layers:
+            print('[ DISPLAY ]: Update text')
             display.set_pen(TEXT)
             for entry in self.text:
                 if entry.get('colour', None) is not 'red':
@@ -315,7 +316,7 @@ def notify(message, icon='exclamation'):
         sleep(0.5)
         if button_a.value() == 0 or button_b.value() == 0 or button_x.value() == 0 or button_y.value() == 0:
             break
-    Layers.notify = []
+    Layers.notify = None
 
 def screens():
     global CURRENT_SCREEN
@@ -1333,8 +1334,13 @@ def screen_factfile(cursor_index=0):
                 break
 
             if cursor_index == 3: # sell
-                confirm_sell = True
-                break
+                if len(POPULATION) <= 2:
+                    notify("Can't sell last two", icon='not_allowed')
+                    print('[ DISPLAY ]: Layers.show() in screen_factfile()')
+                    Layers.show()
+                else:
+                    confirm_sell = True
+                    break
 
         if update_screen:
             Layers.background = {
@@ -1630,7 +1636,7 @@ def screen_gold_insufficient_animation():
     Layers.show(['notify'])
     sleep(1)
     led.set_rgb(0, 0, 0)
-    Layers.notify = []
+    Layers.notify = None
 
 def screen_settings():
     global DATA, CURRENT_SCREEN
