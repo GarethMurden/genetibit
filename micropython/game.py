@@ -1335,6 +1335,7 @@ def screen_factfile(cursor_index=0):
 
             if cursor_index == 3: # sell
                 if len(POPULATION) <= 2:
+                    # TODO: Stop this sticking after Layers.show()
                     notify("Can't sell last two", icon='not_allowed')
                     print('[ DISPLAY ]: Layers.show() in screen_factfile()')
                     Layers.show()
