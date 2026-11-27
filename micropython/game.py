@@ -300,7 +300,7 @@ def notify(message, icon='exclamation'):
         },
         {
             'text':message,
-            'position':(40, 22),
+            'position':(42, 23),
             'scale': 2
         }
     ]
@@ -1913,7 +1913,7 @@ def screen_travel():
                         cooldowns_active += 1
                 if cooldowns_active == len(POPULATION):
                     notify('All critters tired', icon='not_allowed')
-                    
+
                 else:
                     screen_transition(
                         'transition_bus',
