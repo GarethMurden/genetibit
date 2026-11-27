@@ -60,7 +60,6 @@ Connect two devices to breed your critters with your friends'
 	- Visit
 		- Do not allow if all critters are on cooldown
 		- Warn before visit if field full
-		- Display current gold total
 	- Competitions
 		- Contest unlocked animation
 	- Show current & incremented gold on breeding sell screen
@@ -68,7 +67,6 @@ Connect two devices to breed your critters with your friends'
 	- Indicate breeding cooldown with sleep idle animation
 	- Device-to-device communication
 	- Intro sequence
-	- Tutorial
 	- Achievement notifications
 		- First critter of each colour
 		- First new feature encountered
@@ -80,8 +78,6 @@ Connect two devices to breed your critters with your friends'
 - Fixes
 	- Improve performance of contest critter selection
 	- field/level_x/space_y.png might not be right for spaces 5/6/7 as sometimes critters vanish
-	- Cursor graphical glitch on sell confirmation during gold update
-	- Price sticks after menu close - always show the gold banner?
 
 ## Resources 
 
