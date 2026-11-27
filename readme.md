@@ -57,13 +57,8 @@ Connect two devices to breed your critters with your friends'
 		- bypass on-display mini buttons
 
 - Features
-	- Visit
-		- Do not allow if all critters are on cooldown
-		- Warn before visit if field full
 	- Competitions
 		- Contest unlocked animation
-	- Show current & incremented gold on breeding sell screen
-	- Prevent sale of last 2 critters
 	- Indicate breeding cooldown with sleep idle animation
 	- Device-to-device communication
 	- Intro sequence
