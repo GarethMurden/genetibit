@@ -584,7 +584,10 @@ def screen_breeding_sale(children):
         'position':(285, 10)
     }]
 
-    Layers.middle = []
+    Layers.middle = [{
+        'file':'gold',
+        'position':(0,0)
+    }]
     if DATA['field']['level'] == 0:
         Layers.middle.append({
             'file':'breeding_sell_locked_01',
@@ -683,8 +686,10 @@ def screen_breeding_sale(children):
                 
                 else: # ok button highlighted
                     if len([selected for selected in DATA['breeding']['sell_selections'] if not selected]) <= available_space:
+                        sell_total = 0
                         for index, sold in enumerate(DATA['breeding']['sell_selections']):
                             if sold:
+                                sell_total += children[index].get_value()['phenotype']['value']
                                 DATA['gold'] += children[index].get_value()['phenotype']['value']
                             else:
                                 POPULATION.append(children[index])
@@ -693,6 +698,8 @@ def screen_breeding_sale(children):
                                     'genes':children[index].get_genotype(),
                                     'uid':children[index].uid
                                 })
+                        screen_gold_animation(sell_total)
+                        sleep(1)
                         del DATA['breeding']['sell_selections']
                         DATA['breeding']['cursor_index'] = 0
                         DATA['breeding']['children'] = []
@@ -1576,10 +1583,15 @@ def screen_gold_animation(change, show_box=False):
             'text':DATA['gold'],
             'position':(285, 10)
         }]
-    print('[ DISPLAY ]: Layers.show() in screen_gold_animation()')
-    Layers.show(['middle', 'text'])
+        print('[ DISPLAY ]: Layers.show() in screen_gold_animation()')
+        Layers.show(['middle', 'text'])
 
     if change != 0:
+        Layers.middle.append({
+            'file':'change_gold',
+            'position':(0,0)
+        })
+
         if change < 0:
             colour = 'red'
             text = str(change)
@@ -1588,7 +1600,7 @@ def screen_gold_animation(change, show_box=False):
             text = f'+{change}'
         Layers.text.append({
             'text':text,
-            'position':(285, 25),
+            'position':(286, 40),
             'colour':colour
         })
         print('[ DISPLAY ]: Layers.show() in screen_gold_animation()')
@@ -1609,6 +1621,7 @@ def screen_settings():
         'position':(0, 0)
     }
     Layers.show(layers=['background'])
+
     displayed_time = Clock.get_time()[:-3]
     new_time = None
     cursor_index = 0
@@ -1616,10 +1629,9 @@ def screen_settings():
     while CURRENT_SCREEN == 'settings':
         if button_a.value() == 0:
             if button_b.value() == 0:
-                print('[ DEBUG   ]: Set gold to 500')
-                screen_gold_animation(500, True)
+                screen_gold_animation(500 - DATA['gold'], True)
                 DATA['gold'] = 500
-                menu()
+                notify('Free gold!', icon='exclamation')
             update_screen = True
             cursor_index -= 1
             if cursor_index < 0:
