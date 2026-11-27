@@ -836,9 +836,6 @@ def screen_contest(city):
     critters_changed = True
     update_screen = True
     while CURRENT_SCREEN == 'contest':
-        if button_x.value() == 0: # TODO: prevent menu access once contest paid for
-            menu()
-
         if button_a.value() == 0:
             cursor_index -= 1
             if cursor_index < 0:
